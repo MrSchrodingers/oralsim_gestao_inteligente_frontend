@@ -42,7 +42,7 @@ export function CombinedLogo({ className, showText = true, darkMode = false }: C
 
       <motion.div variants={itemVariants}>
         <Image
-          src="/images/DEBT_Logo_Escrito.png"
+          src="/images/DEBTLogoEscrito.png"
           alt="DEBT Logo"
           width={160}
           height={32} 

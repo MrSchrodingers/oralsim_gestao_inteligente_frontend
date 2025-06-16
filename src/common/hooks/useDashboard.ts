@@ -7,5 +7,6 @@ export const useFetchDashboardSummary = (clinicId?: string) => {
   return useQuery({
     queryKey: [DASHBOARD_QUERY_KEY, 'summary', clinicId],
     queryFn: () => dashboardService.getSummary().then(res => res.data),
+    enabled: !!clinicId,
   });
 };

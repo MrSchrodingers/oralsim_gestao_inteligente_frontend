@@ -52,6 +52,7 @@
     "postgres": "^3.4.5",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "recharts": "^2.15.3",
     "server-only": "^0.0.1",
     "stripe": "^17.7.0",
     "swr": "^2.3.3",
