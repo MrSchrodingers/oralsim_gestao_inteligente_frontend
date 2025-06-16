@@ -344,7 +344,7 @@ export default function LoginForm({ mode = "signin" }: Props) {
       {/* Lado direito - Informações e benefícios */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-emerald-600 to-teal-700 relative overflow-hidden">
         {/* Padrão de fundo */}
-        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=800&width=800')] opacity-10" />
+        <div className="absolute inset-0 opacity-10" />
 
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16 text-white">
           <div className="max-w-md">
@@ -390,11 +390,7 @@ export default function LoginForm({ mode = "signin" }: Props) {
             </div>
 
             {/* Estatísticas */}
-            <div className="mt-12 grid grid-cols-2 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold">70%</div>
-                <div className="text-emerald-200 text-sm">Redução na inadimplência</div>
-              </div>
+            <div className="mt-12">
               <div className="text-center">
                 <div className="text-3xl font-bold">24h</div>
                 <div className="text-emerald-200 text-sm">Implementação completa</div>

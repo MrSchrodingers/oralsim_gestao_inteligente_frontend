@@ -37,219 +37,20 @@ import { MetricCard } from "@/src/common/components/metricCard"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts"
 import { motion } from "framer-motion"
 
-// Mock data and hooks
-const mockDashboard = {
-  stats: {
-    totalReceivables: 125000,
-    paidThisMonth: 45000,
-    collectionRate: 72.5,
-    overduePayments: 28000,
-    averageDaysOverdue: 15,
-    totalContracts: 156,
-    totalPatients: 89,
-    overdueContracts: 23,
-  },
-  recentPayments: [
-    { id: 1, patient: "Maria Silva", amount: 1200, date: "2024-01-15T10:30:00Z" },
-    { id: 2, patient: "João Santos", amount: 800, date: "2024-01-14T14:20:00Z" },
-    { id: 3, patient: "Ana Costa", amount: 1500, date: "2024-01-13T09:15:00Z" },
-  ],
-  pendingPayments: [
-    { id: 1, patient: "Carlos Lima", amount: 950, date: "2 dias" },
-    { id: 2, patient: "Lucia Ferreira", amount: 1100, date: "5 dias" },
-  ],
-  notification: {
-    byStep: { "0": 12, "1": 8, "2": 5, "3": 3, "4": 1 },
-    pendingSchedules: 7,
-    pendingCalls: 4,
-  },
-  collection: {
-    preOverduePatients: 25,
-    overduePatients: 34,
-    withPipeboard: 28,
-    withoutPipeboard: 6,
-  },
-  monthlyReceivables: [
-    { month: "Jan", receivable: 120000, paid: 85000 },
-    { month: "Fev", receivable: 135000, paid: 92000 },
-    { month: "Mar", receivable: 125000, paid: 88000 },
-    { month: "Abr", receivable: 140000, paid: 95000 },
-  ],
-  lastNotifications: [
-    { id: 1, patient: "Pedro Oliveira", channel: "whatsapp", sent_at: "2024-01-15T08:00:00Z", success: true },
-    { id: 2, patient: "Sofia Mendes", channel: "email", sent_at: "2024-01-14T16:30:00Z", success: false },
-  ],
-}
-
-const useCurrentUser = () => ({
-  data: {
-    name: "Dr. João Silva",
-    email: "joao@clinica.com",
-    clinics: [{ id: "1", name: "Clínica Central" }],
-  },
-})
-
-const useFetchDashboardSummary = () => ({
-  data: mockDashboard,
-  isLoading: false,
-  isError: false,
-  error: null,
-  refetch: () => {},
-})
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value)
-
-const formatDateTime = (date: string) =>
-  new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(date))
-
-function DashboardLoadingSkeleton() {
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div className="space-y-3">
-          <Skeleton className="h-10 w-64" />
-          <Skeleton className="h-5 w-80" />
-        </div>
-        <div className="flex gap-3">
-          <Skeleton className="h-10 w-32" />
-          <Skeleton className="h-10 w-40" />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <Skeleton key={i} className="h-40" />
-        ))}
-      </div>
-      <Skeleton className="h-96 w-full" />
-    </div>
-  )
-}
-
-type QuickActionCardProps = {
-  title: string
-  description: string
-  icon: React.ElementType
-  onClick: () => void
-  variant?: "default" | "urgent" | "success"
-  badge?: string
-}
-
-const QuickActionCard: FC<QuickActionCardProps> = ({
-  title,
-  description,
-  icon: Icon,
-  onClick,
-  variant = "default",
-  badge,
-}) => {
-  const variants = {
-    default: "hover:border-primary/50 hover:bg-primary/5",
-    urgent: "border-amber-200 bg-amber-50/50 hover:bg-amber-100/50 dark:border-amber-800 dark:bg-amber-950/20",
-    success:
-      "border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/50 dark:border-emerald-800 dark:bg-emerald-950/20",
-  }
-
-  return (
-    <Card
-      className={`cursor-pointer transition-all duration-200 hover:shadow-md ${variants[variant]}`}
-      onClick={onClick}
-    >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2 flex-1">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-base">{title}</CardTitle>
-              {badge && (
-                <Badge variant="secondary" className="text-xs">
-                  {badge}
-                </Badge>
-              )}
-            </div>
-            <CardDescription className="text-sm leading-relaxed">{description}</CardDescription>
-          </div>
-          <div className="p-2 rounded-lg bg-primary/10 ml-4">
-            <Icon className="h-5 w-5 text-primary" />
-          </div>
-        </div>
-      </CardHeader>
-    </Card>
-  )
-}
-
-type ActivityItemProps = {
-  type: "payment" | "alert" | "system"
-  message: ReactNode
-  time: string
-  priority?: "low" | "normal" | "high"
-}
-
-const ActivityItem: FC<ActivityItemProps> = ({ type, message, time, priority = "normal" }) => {
-  const iconMap = {
-    payment: <CheckCircle className="h-4 w-4 text-emerald-500" />,
-    alert: <AlertTriangle className="h-4 w-4 text-amber-500" />,
-    system: <Zap className="h-4 w-4 text-blue-500" />,
-  }
-
-  const priorityStyles = {
-    low: "text-muted-foreground",
-    normal: "text-foreground",
-    high: "text-destructive font-medium",
-  }
-
-  return (
-    <div className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/30 transition-colors">
-      <div className="mt-0.5 p-1 rounded-full bg-muted/50">{iconMap[type]}</div>
-      <div className="flex-1 space-y-1">
-        <p className={`text-sm leading-relaxed ${priorityStyles[priority]}`}>{message}</p>
-        <p className="text-xs text-muted-foreground">{formatDateTime(time)}</p>
-      </div>
-    </div>
-  )
-}
-
-function FunnelRow({
-  label,
-  value,
-  pct,
-  danger,
-}: {
-  label: string
-  value: number
-  pct: number
-  danger?: boolean
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center text-sm">
-        <span className="font-medium">{label}</span>
-        <div className="flex items-center gap-2">
-          <span className={`font-semibold ${danger ? "text-destructive" : ""}`}>{value}</span>
-          <span className="text-muted-foreground">({pct.toFixed(1)}%)</span>
-        </div>
-      </div>
-      <Progress
-        value={pct}
-        className={`h-2 ${danger ? "bg-destructive/20" : ""}`}
-        style={
-          {
-            "--progress-background": danger ? "hsl(var(--destructive))" : undefined,
-          } as React.CSSProperties
-        }
-      />
-    </div>
-  )
-}
+import { useCurrentUser } from "@/src/common/hooks/useUser"
+import { useFetchDashboardSummary } from "@/src/common/hooks/useDashboard"
+import  DashboardLoadingSkeleton  from "./loading"
+import { formatCurrency } from "@/src/common/utils/formatters"
+import { FunnelRow } from "@/src/common/components/dashboard/FunnelRow"
+import { QuickActionCard } from "@/src/common/components/dashboard/QuickActionCard"
+import { ActivityItem } from "@/src/common/components/dashboard/ActivityItem"
 
 export default function DashboardPage() {
   const router = useRouter()
   const { data: currentUser } = useCurrentUser()
-  const { data: dashboard, isLoading, isError, error, refetch } = useFetchDashboardSummary()
+  const { data: dashboard, isLoading, isError, error, refetch } = useFetchDashboardSummary(
+    currentUser?.clinics?.[0]?.id
+  )
 
   if (isLoading || !currentUser) return <DashboardLoadingSkeleton />
 
@@ -281,7 +82,7 @@ export default function DashboardPage() {
   const kpis = [
     {
       title: "Total de Recebíveis",
-      value: formatCurrency(stats.totalReceivables),
+      value: stats.totalReceivables,
       change: "+12% vs mês anterior",
       changeType: "positive" as const,
       icon: DollarSign,
@@ -289,7 +90,7 @@ export default function DashboardPage() {
     },
     {
       title: "Recebido este Mês",
-      value: formatCurrency(stats.paidThisMonth),
+      value: stats.paidThisMonth,
       change: "+18% vs mês anterior",
       changeType: "positive" as const,
       icon: CreditCard,
@@ -305,7 +106,7 @@ export default function DashboardPage() {
     },
     {
       title: "Pagamentos em Atraso",
-      value: formatCurrency(stats.overduePayments),
+      value: stats.overduePayments,
       change: `${Math.round((stats.overdueContracts / (stats.totalContracts || 1)) * 100)}% dos contratos`,
       changeType: "negative" as const,
       icon: AlertTriangle,
@@ -401,18 +202,47 @@ export default function DashboardPage() {
                 <BarChart data={monthlyReceivables} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis dataKey="month" />
-                  <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                  <YAxis
+                    tickFormatter={(value) => formatCurrency(value)}
+                    domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.1)]}
+                    padding={{ top: 0 }}
+                    tickCount={8}
+                    width={120}
+                  />
                   <Tooltip
-                    formatter={(value: number) => formatCurrency(value)}
+                    formatter={(value: number) => formatCurrency(String(value))}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
+                      backgroundColor: "hsl(240 10% 3.9%)",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "8px",
                     }}
                   />
-                  <Legend />
-                  <Bar dataKey="paid" name="Pagamentos Recebidos" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="receivable" name="Total a Receber" fill="hsl(var(--muted))" radius={[4, 4, 0, 0]} />
+                  <Legend
+                    layout="horizontal"
+                    verticalAlign="bottom"
+                    iconSize={14}
+                    wrapperStyle={{
+                      top: '105%',
+                      right: 0,
+                      transform: 'translate(0, -105%)',
+                      fontWeight: 400,
+                      color: '#fff'
+                    }}
+                  />
+                  <Bar
+                    dataKey="paid"
+                    className="paid"         
+                    name="Pagamentos Recebidos"
+                    radius={[4,4,0,0]}
+                    fill="hsl(142.1 70.2% 45.3%)"
+                  />
+                  <Bar
+                    dataKey="receivable"
+                    className="receiv"
+                    name="Total a Receber"
+                    fill="hsl(0 62.8% 30.6%)"
+                    radius={[4,4,0,0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -435,29 +265,49 @@ export default function DashboardPage() {
             <CardDescription>Distribuição dos pacientes por estágio do processo</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {collection && (
+            {collection && stats && (
               <>
-                <FunnelRow label="Total de pacientes" value={stats.totalPatients} pct={100} />
+                {/* Total de Pacientes */}
+                <FunnelRow 
+                  label="Total de pacientes" 
+                  value={stats.totalPatients} 
+                  pct={100} 
+                />
+
+                {/* Pacientes com parcelas a vencer (e sem vencidas) */}
                 <FunnelRow
                   label="Pré-vencidos"
                   value={collection.preOverduePatients}
                   pct={(collection.preOverduePatients / (stats.totalPatients || 1)) * 100}
                 />
+
+                {/* Total de Pacientes com parcelas vencidas */}
                 <FunnelRow
                   label="Vencidos"
                   value={collection.overduePatients}
                   pct={(collection.overduePatients / (stats.totalPatients || 1)) * 100}
                 />
+
+                {/* Detalhe: Subcategoria dos Vencidos que estão em cobrança */}
                 <FunnelRow
-                  label="Em cobrança ativa"
-                  value={collection.withPipeboard}
-                  pct={(collection.withPipeboard / (collection.overduePatients || 1)) * 100}
+                  label="└ Em cobrança ativa"
+                  value={collection.overdueMinDaysPlus}
+                  pct={(collection.overdueMinDaysPlus / (collection.overduePatients || 1)) * 100}
                 />
+
+                {/* Detalhe: Subcategoria dos Vencidos que NÃO estão em cobrança */}
                 <FunnelRow
-                  label="Sem cobrança"
-                  value={collection.withoutPipeboard}
-                  pct={(collection.withoutPipeboard / (collection.overduePatients || 1)) * 100}
+                  label="└ Apenas vencidos"
+                  value={collection.overduePatients - collection.overdueMinDaysPlus}
+                  pct={((collection.overduePatients - collection.overdueMinDaysPlus) / (collection.overduePatients || 1)) * 100}
                   danger
+                />
+
+                {/* Pacientes que não têm nenhuma pendência */}
+                <FunnelRow
+                  label="Em dia"
+                  value={collection.noBilling}
+                  pct={(collection.noBilling / (stats.totalPatients || 1)) * 100}
                 />
               </>
             )}
@@ -552,7 +402,7 @@ export default function DashboardPage() {
                         type="payment"
                         message={
                           <>
-                            Pagamento de <strong>{formatCurrency(p.amount)}</strong> recebido de{" "}
+                            Pagamento de <strong>{p.amount}</strong> recebido de{" "}
                             <span className="font-semibold text-primary">{p.patient}</span>
                           </>
                         }
@@ -578,7 +428,7 @@ export default function DashboardPage() {
                         priority="normal"
                         message={
                           <>
-                            Vencimento de <strong>{formatCurrency(p.amount)}</strong> para{" "}
+                            Vencimento de <strong>{p.amount}</strong> para{" "}
                             <span className="font-semibold text-primary">{p.patient}</span>
                           </>
                         }

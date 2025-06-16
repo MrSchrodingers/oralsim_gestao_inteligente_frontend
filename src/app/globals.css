@@ -279,3 +279,9 @@
   transition: none !important;
 }
 
+.paid-bar {
+  fill: hsl(var(--chart-1));
+}
+.receiv-bar {
+  fill: hsl(var(--chart-2));
+}

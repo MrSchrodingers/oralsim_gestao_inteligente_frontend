@@ -56,7 +56,7 @@ export const MetricCard: FC<MetricCardProps> = ({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="text-3xl font-bold tracking-tight text-foreground">
+        <div className="text-xl font-bold tracking-tight text-foreground">
           {value}
         </div>
         {change && (

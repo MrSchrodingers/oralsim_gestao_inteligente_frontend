@@ -99,10 +99,6 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center text-white">
             <div>
-              <div className="text-3xl lg:text-4xl font-bold">70%</div>
-              <div className="text-emerald-100 mt-2">Redução na inadimplência</div>
-            </div>
-            <div>
               <div className="text-3xl lg:text-4xl font-bold">24h</div>
               <div className="text-emerald-100 mt-2">Implementação completa</div>
             </div>

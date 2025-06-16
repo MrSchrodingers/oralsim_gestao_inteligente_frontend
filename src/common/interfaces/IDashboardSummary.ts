@@ -20,6 +20,7 @@ export interface ICollectionSummary {
   overdueMinDaysPlus: number;
   overduePatients: number;
   preOverduePatients: number;
+  noBilling: number;
 }
 
 export interface IStats {
