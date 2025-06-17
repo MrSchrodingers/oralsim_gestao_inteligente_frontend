@@ -46,7 +46,7 @@ import { QuickActionCard } from "@/src/common/components/dashboard/QuickActionCa
 import { ActivityItem } from "@/src/common/components/dashboard/ActivityItem"
 
 export default function DashboardPage() {
-  const [slicePeriod, setSlicePeriod] = useState<number | undefined>(30)
+  const [slicePeriod, setSlicePeriod] = useState<number | undefined>(undefined) // Padrão em: Todo Período
   const router = useRouter()
   const { data: currentUser } = useCurrentUser()
   const { data: dashboard, isLoading, isError, error, refetch, isFetching } =
