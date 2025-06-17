@@ -17,7 +17,6 @@ import {
   FileText,
   Target,
   PhoneCall,
-  Edit,
   MoreHorizontal,
   Download,
   Send,
@@ -48,234 +47,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/src/common/components/ui/dropdownMenu"
-
-// Mock data baseado no contexto fornecido
-const mockPatient = {
-  id: "8c8dfbaa-9b41-4236-bef2-623e32a539fc",
-  oralsin_patient_id: 1818973,
-  clinic_id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-  name: "ADAO LOPES",
-  contact_name: "ADAO LOPES",
-  cpf: "049.533.008-66",
-  address: {
-    id: "45ff09ca-5b0c-434f-adf8-90985ce9398c",
-    street: "NICOLAU DELGALO",
-    number: "15-26",
-    complement: "QD 15 26",
-    neighborhood: "VL S JOAO DO IPIRANG",
-    city: "Bauru",
-    state: "São Paulo",
-    zip_code: "17056150",
-    created_at: "2025-06-17T08:41:07.301062-03:00",
-    updated_at: "2025-06-17T08:41:07.528928-03:00",
-  },
-  email: "mrschrodingers@gmail.com",
-  is_notification_enabled: true,
-  flow_type: "notification_billing",
-  phones: [
-    {
-      id: "67370260-bd04-481a-83ba-6c3bd3f0dfda",
-      patient_id: "8c8dfbaa-9b41-4236-bef2-623e32a539fc",
-      phone_number: "5543991938235",
-      phone_type: "mobile",
-      created_at: "2025-06-17T08:44:07.383241-03:00",
-      updated_at: "2025-06-17T08:44:07.383260-03:00",
-    },
-  ],
-  created_at: "2025-06-17T08:41:07.307365-03:00",
-  updated_at: "2025-06-17T08:41:07.533570-03:00",
-}
-
-const mockContract = {
-  id: "79c79ef6-7808-4ad1-bdd0-09bfc4768590",
-  oralsin_contract_id: 961031,
-  patient_id: "84824a2f-867c-4b5b-89cb-53638d3ac075",
-  clinic_id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-  status: "ativo",
-  contract_version: "1",
-  remaining_installments: 6,
-  overdue_amount: "0.00",
-  final_contract_value: "15000.00",
-  do_notifications: true,
-  do_billings: false,
-  first_billing_date: "2025-05-22",
-  negotiation_notes: "",
-  payment_method: {
-    id: "bdae79de-392f-4e84-ad80-a8066348f2e7",
-    oralsin_payment_method_id: 1,
-    name: "Boleto Bancário",
-    created_at: "2025-06-17T08:40:47.045211-03:00",
-  },
-  created_at: "2025-06-17T08:41:38.706053-03:00",
-  updated_at: "2025-06-17T08:41:39.005251-03:00",
-}
-
-const mockInstallments = [
-  {
-    id: "00081d7b-5d1c-4f03-b586-e3d8ab8b0d9e",
-    contract_id: "7f5bf7fd-1558-4518-a60e-aec5c65d5c26",
-    contract_version: 1,
-    installment_number: 4,
-    oralsin_installment_id: 14466394,
-    due_date: "2025-01-04",
-    installment_amount: "500.00",
-    received: true,
-    installment_status: "Compensado",
-    payment_method: {
-      id: "bdae79de-392f-4e84-ad80-a8066348f2e7",
-      name: "Boleto Bancário",
-    },
-    is_current: false,
-  },
-  {
-    id: "002a92fa-4184-47f6-a1bb-48db9dd1d285",
-    contract_id: "0879fe22-88fa-4c8e-a51c-208085a248c0",
-    contract_version: 2,
-    installment_number: 25,
-    oralsin_installment_id: 14840431,
-    due_date: "2026-11-10",
-    installment_amount: "1195.00",
-    received: false,
-    installment_status: "Não Compensado",
-    payment_method: {
-      id: "bdae79de-392f-4e84-ad80-a8066348f2e7",
-      name: "Boleto Bancário",
-    },
-    is_current: true,
-  },
-  {
-    id: "00676fb1-ba92-4b9d-9250-9a9e5c43ee1f",
-    contract_id: "61b86c72-15e4-4ec6-a23e-dd2202e10cf0",
-    contract_version: 2,
-    installment_number: 8,
-    oralsin_installment_id: 15603798,
-    due_date: "2023-04-25",
-    installment_amount: "928.00",
-    received: true,
-    installment_status: "Compensado",
-    payment_method: {
-      id: "bdae79de-392f-4e84-ad80-a8066348f2e7",
-      name: "Boleto Bancário",
-    },
-    is_current: false,
-  },
-]
-
-const mockCollectionCase = {
-  id: "32074515-e51c-4a4c-958c-f3cd2ac8c68c",
-  patient_id: "f9beeb24-36fc-465f-9da6-a1b0a9ebca2c",
-  contract_id: "ebfaa646-01a3-452f-97ed-cb4add4b8143",
-  installment_id: "14cf6435-89f7-406e-ac3a-ce99052c6980",
-  clinic_id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-  opened_at: "2025-06-17T08:47:28.913751-03:00",
-  amount: "887.99",
-  deal_id: 2407,
-  deal_sync_status: "created",
-  status: "open",
-}
-
-const mockFlowSteps = [
-  {
-    id: "6f7d0f09-0d94-4a98-9c0d-5463a4b71138",
-    step_number: 0,
-    channels: ["whatsapp"],
-    active: true,
-    description: "Semana 0: WhatsApp",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.333842-03:00",
-    updated_at: "2025-06-17T08:40:31.333861-03:00",
-  },
-  {
-    id: "eea98323-0045-4c89-a578-d8e868275bbb",
-    step_number: 1,
-    channels: ["whatsapp", "sms"],
-    active: true,
-    description: "Semana 1: WhatsApp + SMS",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.337084-03:00",
-    updated_at: "2025-06-17T08:40:31.337098-03:00",
-  },
-  {
-    id: "0766f4ea-5404-41b6-b050-afd783576510",
-    step_number: 2,
-    channels: ["whatsapp"],
-    active: true,
-    description: "Semana 2: WhatsApp",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.341205-03:00",
-    updated_at: "2025-06-17T08:40:31.341220-03:00",
-  },
-  {
-    id: "c839da85-7d35-4232-8f37-6cc1379f5a4e",
-    step_number: 3,
-    channels: ["email"],
-    active: true,
-    description: "Semana 3: E-mail",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.347243-03:00",
-    updated_at: "2025-06-17T08:40:31.347258-03:00",
-  },
-  {
-    id: "4d55ff74-e805-48cb-a0e4-7870173bc506",
-    step_number: 4,
-    channels: ["whatsapp"],
-    active: true,
-    description: "Semana 4: WhatsApp",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.349803-03:00",
-    updated_at: "2025-06-17T08:40:31.349817-03:00",
-  },
-  {
-    id: "6e6b5734-bb9e-42bd-abac-c6cb7e63a661",
-    step_number: 5,
-    channels: ["phonecall"],
-    active: true,
-    description: "Semana 5: Ligação",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.352358-03:00",
-    updated_at: "2025-06-17T08:40:31.352373-03:00",
-  },
-  {
-    id: "47ce5b15-288f-489a-bf8a-5da38b09524e",
-    step_number: 6,
-    channels: ["whatsapp", "sms"],
-    active: true,
-    description: "Semana 6: WhatsApp + SMS",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.359961-03:00",
-    updated_at: "2025-06-17T08:40:31.359976-03:00",
-  },
-  {
-    id: "884e37f5-0109-4cd7-8d06-a30774ff831e",
-    step_number: 7,
-    channels: ["whatsapp"],
-    active: true,
-    description: "Semana 7: WhatsApp",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.362274-03:00",
-    updated_at: "2025-06-17T08:40:31.362285-03:00",
-  },
-  {
-    id: "7f3f665d-6c60-481b-9999-fca1f9f2e3c5",
-    step_number: 8,
-    channels: ["whatsapp"],
-    active: true,
-    description: "Semana 8: WhatsApp",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.364283-03:00",
-    updated_at: "2025-06-17T08:40:31.364295-03:00",
-  },
-  {
-    id: "ef82d602-ca2c-4f8b-acc4-7560bbb215a6",
-    step_number: 9,
-    channels: ["phonecall"],
-    active: true,
-    description: "Semana 9: Ligação",
-    cooldown_days: 7,
-    created_at: "2025-06-17T08:40:31.366200-03:00",
-    updated_at: "2025-06-17T08:40:31.366210-03:00",
-  },
-]
+import { useParams } from "next/navigation"
+import { useFetchPatientById } from "@/src/common/hooks/usePatient"
+import { useFetchContracts } from "@/src/common/hooks/useContract"
+import { useFetchInstallments } from "@/src/common/hooks/useInstallment"
+import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useCollectionCase"
+import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
+import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig"
+import { formatCurrency, formatDate, formatDateTime, formatPhone } from "@/src/common/utils/formatters"
+import { getFlowBadge } from "@/src/common/components/helpers/GetBadge"
+import {
+  PatientInfoSkeleton,
+  ContractInfoSkeleton,
+  InstallmentsSkeleton,
+  PatientHeaderSkeleton,
+  StatusCardsSkeleton,
+} from "@/src/common/components/patients/skeletons"
 
 // Mock data para acordos de cobrança amigável
 const mockDealActivities = [
@@ -314,51 +101,7 @@ const mockDealActivities = [
   },
 ]
 
-// Simular o passo atual do paciente (para notification_billing)
-const currentStep = 3
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "N/A"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(dateStr))
-}
-
-const formatDateTime = (dateStr: string) => {
-  if (!dateStr) return "N/A"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr))
-}
-
-const formatCurrency = (value: string | number) => {
-  const numValue = typeof value === "string" ? Number.parseFloat(value) : value
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(numValue)
-}
-
-const formatPhone = (phone: string) => {
-  if (!phone) return "N/A"
-  // Remove country code if present
-  const cleanPhone = phone.replace(/^55/, "")
-  // Format as (XX) XXXXX-XXXX or (XX) XXXX-XXXX
-  if (cleanPhone.length === 11) {
-    return `(${cleanPhone.slice(0, 2)}) ${cleanPhone.slice(2, 7)}-${cleanPhone.slice(7)}`
-  } else if (cleanPhone.length === 10) {
-    return `(${cleanPhone.slice(0, 2)}) ${cleanPhone.slice(2, 6)}-${cleanPhone.slice(6)}`
-  }
-  return phone
-}
-
-const getStatusBadge = (status: string, received?: boolean) => {
+const getStatusBadge = (status?: string | null, received?: boolean) => {
   if (received) {
     return (
       <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
@@ -395,27 +138,6 @@ const getStatusBadge = (status: string, received?: boolean) => {
   }
 }
 
-const getFlowBadge = (flowType: string | null) => {
-  switch (flowType) {
-    case "cordial_billing":
-      return (
-        <Badge variant="default" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-          <PhoneCall className="h-3 w-3 mr-1" />
-          Cobrança Amigável
-        </Badge>
-      )
-    case "notification_billing":
-      return (
-        <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-          <Target className="h-3 w-3 mr-1" />
-          Gestão de Recebíveis
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">Sem fluxo</Badge>
-  }
-}
-
 const getChannelIcon = (channel: string) => {
   switch (channel) {
     case "whatsapp":
@@ -433,50 +155,66 @@ const getChannelIcon = (channel: string) => {
 
 export default function PatientDetailsPage() {
   const [activeTab, setActiveTab] = useState("overview")
+  const { id } = useParams<{ id: string }>()
 
-  const patientInitials = mockPatient.name
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .slice(0, 2)
+  const { data: patient } = useFetchPatientById(id)
+  const { data: contractsData } = useFetchContracts({ patient_id: id, page_size: 1 })
+  const contract = contractsData?.results?.[0]
+  const { data: installmentsData } = useFetchInstallments(contract ? { contract_id: contract?.id } : undefined)
+  const installments = installmentsData?.results ?? []
+  const { data: collectionCaseData } = useFetchCollectionCases({ patient_id: id, page_size: 1 })
+  const collectionCase = collectionCaseData?.results?.[0]
+  const { data: scheduleData } = useFetchContactSchedules({ patient_id: id, page_size: 1 })
+  const currentStep = scheduleData?.results?.[0]?.current_step ?? 0
+  const { data: flowStepsData } = useFetchFlowStepConfigs()
+  const flowSteps = flowStepsData?.results ?? []
 
-  const totalInstallments = mockInstallments.length
-  const paidInstallments = mockInstallments.filter((i) => i.received).length
-  const overdueInstallments = mockInstallments.filter((i) => !i.received && new Date(i.due_date) < new Date()).length
-  const totalAmount = mockInstallments.reduce((sum, i) => sum + Number.parseFloat(i.installment_amount), 0)
-  const paidAmount = mockInstallments
-    .filter((i) => i.received)
-    .reduce((sum, i) => sum + Number.parseFloat(i.installment_amount), 0)
+  const patientInitials = patient?.name
+    ? patient?.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .slice(0, 2)
+    : ""
+
+  const totalInstallments = installments.length
+  const paidInstallments = installments.filter((i) => i.received).length
+  const overdueInstallments = installments.filter((i) => !i.received && new Date(i.due_date) < new Date()).length
+  const totalAmount = installments.reduce((sum, i) => sum + Number(i.installment_amount), 0)
+  // const paidAmount = installments
+  //   .filter((i) => i.received)
+  //   .reduce((sum, i) => sum + Number.parseFloat(String(i.installment_amount)), 0)
+  //   .reduce((sum, i) => sum + Number(i.installment_amount), 0)
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-                {patientInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl font-bold">{mockPatient.name}</h1>
-              <p className="text-muted-foreground">
-                ID: {mockPatient.oralsin_patient_id} • CPF: {mockPatient.cpf}
-              </p>
+          {patient ? (
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src="/placeholder.svg" />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+                  {patientInitials}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl font-bold">{patient?.name}</h1>
+                <p className="text-muted-foreground">
+                  ID: {patient?.oralsin_patient_id} • CPF: {patient?.cpf}
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <PatientHeaderSkeleton />
+          )}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -508,52 +246,56 @@ export default function PatientDetailsPage() {
       </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total de Parcelas</p>
-                <p className="text-2xl font-bold">{totalInstallments}</p>
+      {patient && contract && installments.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total de Parcelas</p>
+                  <p className="text-2xl font-bold">{totalInstallments}</p>
+                </div>
+                <FileText className="h-8 w-8 mt-5 text-muted-foreground" />
               </div>
-              <FileText className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Parcelas Pagas</p>
-                <p className="text-2xl font-bold text-green-600">{paidInstallments}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Parcelas Pagas</p>
+                  <p className="text-2xl font-bold text-green-600">{paidInstallments}</p>
+                </div>
+                <CheckCircle className="h-8 w-8 mt-5 text-green-600" />
               </div>
-              <CheckCircle className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Em Atraso</p>
-                <p className="text-2xl font-bold text-red-600">{overdueInstallments}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Em Atraso</p>
+                  <p className="text-2xl font-bold text-red-600">{overdueInstallments}</p>
+                </div>
+                <AlertCircle className="h-8 w-8 mt-5 text-red-600" />
               </div>
-              <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
-                <p className="text-2xl font-bold">{formatCurrency(totalAmount)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
+                  <p className="text-2xl font-bold">{formatCurrency(String(totalAmount))}</p>
+                </div>
+                <DollarSign className="h-8 w-8 mt-5 text-muted-foreground" />
               </div>
-              <DollarSign className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <StatusCardsSkeleton />
+      )}
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -568,76 +310,80 @@ export default function PatientDetailsPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Patient Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Informações do Paciente
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Email</p>
-                      <p className="text-sm text-muted-foreground">{mockPatient.email}</p>
-                    </div>
-                  </div>
-
-                  {mockPatient.phones.map((phone) => (
-                    <div key={phone.id} className="flex items-center gap-3">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
+            {patient ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Informações do Paciente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium">Telefone ({phone.phone_type})</p>
-                        <p className="text-sm text-muted-foreground">{formatPhone(phone.phone_number)}</p>
+                        <p className="text-sm font-medium">Email</p>
+                        <p className="text-sm text-muted-foreground">{patient?.email}</p>
                       </div>
                     </div>
-                  ))}
 
-                  {mockPatient.address && (
-                    <div className="flex items-start gap-3">
-                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">Endereço</p>
-                        <p className="text-sm text-muted-foreground">
-                          {mockPatient.address.street}, {mockPatient.address.number}
-                          {mockPatient.address.complement && ` - ${mockPatient.address.complement}`}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {mockPatient.address.neighborhood}, {mockPatient.address.city} - {mockPatient.address.state}
-                        </p>
-                        <p className="text-sm text-muted-foreground">CEP: {mockPatient.address.zip_code}</p>
+                    {patient?.phones.map((phone) => (
+                      <div key={phone.id} className="flex items-center gap-3">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Telefone ({phone.phone_type})</p>
+                          <p className="text-sm text-muted-foreground">{formatPhone(phone.phone_number)}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ))}
 
-                  <div className="flex items-center gap-3">
-                    {mockPatient.is_notification_enabled ? (
-                      <Bell className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <BellOff className="h-4 w-4 text-red-600" />
+                    {patient?.address && (
+                      <div className="flex items-start gap-3">
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium">Endereço</p>
+                          <p className="text-sm text-muted-foreground">
+                            {patient?.address.street}, {patient?.address.number}
+                            {patient?.address.complement && ` - ${patient?.address.complement}`}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {patient?.address.neighborhood}, {patient?.address.city} - {patient?.address.state}
+                          </p>
+                          <p className="text-sm text-muted-foreground">CEP: {patient?.address.zip_code}</p>
+                        </div>
+                      </div>
                     )}
-                    <div>
-                      <p className="text-sm font-medium">Notificações</p>
-                      <p className="text-sm text-muted-foreground">
-                        {mockPatient.is_notification_enabled ? "Habilitadas" : "Desabilitadas"}
-                      </p>
+
+                    <div className="flex items-center gap-3">
+                      {patient?.is_notification_enabled ? (
+                        <Bell className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <BellOff className="h-4 w-4 text-red-600" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">Notificações</p>
+                        <p className="text-sm text-muted-foreground">
+                          {patient?.is_notification_enabled ? "Habilitadas" : "Desabilitadas"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <Separator />
+                  <Separator />
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Fluxo Atual</p>
-                  {getFlowBadge(mockPatient.flow_type)}
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Fluxo Atual</p>
+                    {getFlowBadge(patient?.flow_type)}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <PatientInfoSkeleton />
+            )}
 
             {/* Collection Case */}
-            {mockCollectionCase && (
+            {collectionCase && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -649,30 +395,30 @@ export default function PatientDetailsPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Deal ID</p>
-                      <p className="text-lg font-semibold">{mockCollectionCase.deal_id}</p>
+                      <p className="text-lg font-semibold">{collectionCase?.deal_id ? collectionCase?.deal_id : "Pendente"}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Valor</p>
-                      <p className="text-lg font-semibold">{formatCurrency(mockCollectionCase.amount)}</p>
+                      <p className="text-lg font-semibold">{formatCurrency(String(collectionCase?.amount))}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Status</p>
-                    <Badge variant={mockCollectionCase.status === "open" ? "destructive" : "default"} className="mt-1">
-                      {mockCollectionCase.status === "open" ? "Aberto" : "Fechado"}
+                    <Badge variant={collectionCase?.status === "open" ? "destructive" : "default"} className="mt-1">
+                      {collectionCase?.status === "open" ? "Aberto" : "Fechado"}
                     </Badge>
                   </div>
 
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Aberto em</p>
-                    <p className="text-sm">{formatDateTime(mockCollectionCase.opened_at)}</p>
+                    <p className="text-sm">{formatDateTime(collectionCase?.opened_at)}</p>
                   </div>
 
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Sincronização</p>
                     <Badge variant="outline" className="mt-1">
-                      {mockCollectionCase.deal_sync_status}
+                      {collectionCase?.deal_sync_status}
                     </Badge>
                   </div>
                 </CardContent>
@@ -682,141 +428,153 @@ export default function PatientDetailsPage() {
         </TabsContent>
 
         <TabsContent value="installments" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Parcelas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Parcela</TableHead>
-                      <TableHead>Vencimento</TableHead>
-                      <TableHead>Valor</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Método de Pagamento</TableHead>
-                      <TableHead>Atual</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockInstallments.map((installment) => (
-                      <TableRow key={installment.id}>
-                        <TableCell className="font-medium">#{installment.installment_number}</TableCell>
-                        <TableCell>{formatDate(installment.due_date)}</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(installment.installment_amount)}</TableCell>
-                        <TableCell>{getStatusBadge(installment.installment_status, installment.received)}</TableCell>
-                        <TableCell>{installment.payment_method.name}</TableCell>
-                        <TableCell>{installment.is_current && <Badge variant="outline">Atual</Badge>}</TableCell>
+          {installments.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Parcelas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Parcela</TableHead>
+                        <TableHead>Vencimento</TableHead>
+                        <TableHead>Valor</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Método de Pagamento</TableHead>
+                        <TableHead>Atual</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {installments.map((installment) => (
+                        <TableRow key={installment?.id}>
+                          <TableCell className="font-medium">#{installment?.installment_number}</TableCell>
+                          <TableCell>{formatDate(installment?.due_date)}</TableCell>
+                          <TableCell className="font-medium">
+                            {formatCurrency(installment?.installment_amount)}
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(installment?.installment_status, installment?.received)}
+                          </TableCell>
+                          <TableCell>{installment?.payment_method?.name}</TableCell>
+                          <TableCell>{installment?.is_current && <Badge variant="outline">Atual</Badge>}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <InstallmentsSkeleton />
+          )}
         </TabsContent>
 
         <TabsContent value="contracts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Contratos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">ID do Contrato</p>
-                    <p className="text-lg font-semibold">{mockContract.oralsin_contract_id}</p>
+          {contract ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Contratos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">ID do Contrato</p>
+                      <p className="text-lg font-semibold">{contract?.oralsin_contract_id}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                      <Badge
+                        variant="default"
+                        className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 mt-1"
+                      >
+                        {contract?.status}
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Versão</p>
+                      <p className="text-sm">{contract?.contract_version}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Parcelas Restantes</p>
+                      <p className="text-lg font-semibold">{contract?.remaining_installments}</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Status</p>
-                    <Badge
-                      variant="default"
-                      className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 mt-1"
-                    >
-                      {mockContract.status}
-                    </Badge>
-                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
+                      <p className="text-lg font-semibold">{formatCurrency(contract?.final_contract_value)}</p>
+                    </div>
 
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Versão</p>
-                    <p className="text-sm">{mockContract.contract_version}</p>
-                  </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Valor em Atraso</p>
+                      <p className="text-lg font-semibold text-red-600">{formatCurrency(contract?.overdue_amount)}</p>
+                    </div>
 
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Parcelas Restantes</p>
-                    <p className="text-lg font-semibold">{mockContract.remaining_installments}</p>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Método de Pagamento</p>
+                      <p className="text-sm">{contract?.payment_method?.name}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Primeira Cobrança</p>
+                      <p className="text-sm">{formatDate(contract?.first_billing_date)}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
-                    <p className="text-lg font-semibold">{formatCurrency(mockContract.final_contract_value)}</p>
-                  </div>
+                <Separator />
 
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Valor em Atraso</p>
-                    <p className="text-lg font-semibold text-red-600">{formatCurrency(mockContract.overdue_amount)}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Método de Pagamento</p>
-                    <p className="text-sm">{mockContract.payment_method.name}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Primeira Cobrança</p>
-                    <p className="text-sm">{formatDate(mockContract.first_billing_date)}</p>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Configurações</p>
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-2">
+                      {contract?.do_notifications ? (
+                        <Bell className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <BellOff className="h-4 w-4 text-red-600" />
+                      )}
+                      <span className="text-sm">
+                        Notificações {contract?.do_notifications ? "Habilitadas" : "Desabilitadas"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {contract?.do_billings ? (
+                        <CreditCard className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <CreditCard className="h-4 w-4 text-red-600" />
+                      )}
+                      <span className="text-sm">Cobrança {contract?.do_billings ? "Habilitada" : "Desabilitada"}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Separator />
-
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Configurações</p>
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-2">
-                    {mockContract.do_notifications ? (
-                      <Bell className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <BellOff className="h-4 w-4 text-red-600" />
-                    )}
-                    <span className="text-sm">
-                      Notificações {mockContract.do_notifications ? "Habilitadas" : "Desabilitadas"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {mockContract.do_billings ? (
-                      <CreditCard className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <CreditCard className="h-4 w-4 text-red-600" />
-                    )}
-                    <span className="text-sm">Cobrança {mockContract.do_billings ? "Habilitada" : "Desabilitada"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {mockContract.negotiation_notes && (
-                <>
-                  <Separator />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Observações de Negociação</p>
-                    <p className="text-sm mt-1">{mockContract.negotiation_notes}</p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                {contract?.negotiation_notes && (
+                  <>
+                    <Separator />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Observações de Negociação</p>
+                      <p className="text-sm mt-1">{contract?.negotiation_notes}</p>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <ContractInfoSkeleton />
+          )}
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
@@ -848,7 +606,7 @@ export default function PatientDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {mockPatient.flow_type === "notification_billing" ? (
+              {patient?.flow_type === "notification_billing" ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-2">
                     <Milestone className="h-5 w-5 text-blue-600" />
@@ -863,7 +621,7 @@ export default function PatientDetailsPage() {
 
                     {/* Timeline items */}
                     <div className="space-y-8">
-                      {mockFlowSteps.map((step, index) => {
+                      {flowSteps.map((step, index) => {
                         const isCurrentStep = step.step_number === currentStep
                         const isPastStep = step.step_number < currentStep
                         const isFutureStep = step.step_number > currentStep
@@ -946,7 +704,7 @@ export default function PatientDetailsPage() {
                     </div>
                   </div>
                 </div>
-              ) : mockPatient.flow_type === "cordial_billing" ? (
+              ) : patient?.flow_type === "cordial_billing" ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-2">
                     <PhoneCall className="h-5 w-5 text-orange-600" />
@@ -959,30 +717,30 @@ export default function PatientDetailsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Deal ID</p>
-                        <p className="text-lg font-semibold">{mockCollectionCase.deal_id || "Pendente"}</p>
+                        <p className="text-lg font-semibold">{collectionCase?.deal_id || "Pendente"}</p>
                       </div>
 
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Status de Sincronização</p>
                         <div className="flex items-center gap-2">
-                          {mockCollectionCase.deal_sync_status === "created" ? (
+                          {collectionCase?.deal_sync_status === "created" ? (
                             <CheckCheck className="h-5 w-5 text-green-600" />
-                          ) : mockCollectionCase.deal_sync_status === "pending" ? (
+                          ) : collectionCase?.deal_sync_status === "pending" ? (
                             <Clock className="h-5 w-5 text-amber-600" />
                           ) : (
                             <XCircle className="h-5 w-5 text-red-600" />
                           )}
                           <Badge
                             variant={
-                              mockCollectionCase.deal_sync_status === "created"
+                              collectionCase?.deal_sync_status === "created"
                                 ? "default"
-                                : mockCollectionCase.deal_sync_status === "pending"
+                                : collectionCase?.deal_sync_status === "pending"
                                   ? "secondary"
                                   : "destructive"
                             }
                             className="capitalize"
                           >
-                            {mockCollectionCase.deal_sync_status}
+                            {collectionCase?.deal_sync_status}
                           </Badge>
                         </div>
                       </div>

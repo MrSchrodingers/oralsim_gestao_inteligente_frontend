@@ -9,12 +9,14 @@ export type PatientWithFlow = IPatient & {
   flowData?: IContactSchedule | ICollectionCase
 }
 
-export const getFlowBadge = (patient: PatientWithFlow) => {
-  if (!patient.flowType) {
+export const getFlowBadge = (
+  flowType?: "notification_billing" | "cordial_billing" | null
+) => {
+  if (!flowType) {
     return <Badge variant="secondary">Sem Fluxo</Badge>
   }
 
-  if (patient.flowType === "notification_billing") {
+  if (flowType === "notification_billing") {
     return (
       <div className="flex flex-col gap-1 items-start">
         <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -24,7 +26,7 @@ export const getFlowBadge = (patient: PatientWithFlow) => {
     )
   }
 
-  if (patient.flowType === "cordial_billing") {
+  if (flowType === "cordial_billing") {
     return (
       <div className="flex flex-col gap-1 items-start">
         <Badge variant="default" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
@@ -73,5 +75,42 @@ export const getStatusBadge = (patient: PatientWithFlow) => {
         {statusInfo.label}
       </Badge>
     )
+  }
+}
+
+export const getInstallmentStatusBadge = (status?: string | null, received?: boolean) => {
+  if (received) {
+    return (
+      <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        Pago
+      </Badge>
+    )
+  }
+
+  switch (status?.toLowerCase()) {
+    case "compensado":
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <CheckCircle className="h-3 w-3 mr-1" />
+          Compensado
+        </Badge>
+      )
+    case "não compensado":
+      return (
+        <Badge variant="destructive">
+          <AlertCircle className="h-3 w-3 mr-1" />
+          Não Compensado
+        </Badge>
+      )
+    case "pendente":
+      return (
+        <Badge variant="secondary">
+          <Clock className="h-3 w-3 mr-1" />
+          Pendente
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status || "N/A"}</Badge>
   }
 }

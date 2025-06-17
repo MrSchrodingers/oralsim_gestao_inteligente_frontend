@@ -27,12 +27,17 @@ export function formatPhoneNumber(phone: string): string {
   return phone;
 }
 
-export function formatDate(dateString: string): string {
-  try {
-    return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  } catch (error) {
-    return dateString;
+export function formatDate(dateString?: string | null): string {
+  if (!dateString) {
+    return ""
   }
+
+  const date = parseISO(dateString)
+  if (Number.isNaN(date.getTime())) {
+    return ""
+  }
+
+  return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
 }
 
 export function formatDateTime(dateString: string): string {
@@ -43,9 +48,33 @@ export function formatDateTime(dateString: string): string {
   }
 }
 
-export function formatCurrency(value: string): string {
+export function formatCurrency(value?: string | number | null): string {
+  let amount = 0;
+
+  if (value == null) {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(0);
+  }
+
+  if (typeof value === "number") {
+    amount = value;
+  } else {
+    const str = value.trim();
+
+    if (str.includes(",")) {
+      // Se vier “1.234,56” (BR), remove pontos de milhar e troca vírgula por ponto
+      const normalized = str.replace(/\./g, "").replace(/,/g, ".");
+      amount = parseFloat(normalized) || 0;
+    } else {
+      // Se vier “1234.56” (EN), deixa o ponto como decimal
+      amount = parseFloat(str) || 0;
+    }
+  }
+
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(Number.parseFloat(value));
+  }).format(amount);
 }

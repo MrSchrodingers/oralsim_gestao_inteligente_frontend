@@ -1,27 +1,40 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Button } from "@/src/common/components/ui/button";
-import { Users, Settings, Menu, BarChart3, LogOut, MessageSquare, Bell, Package, X, ChevronLeft, ChevronRight, Phone } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar";
-import { motion, AnimatePresence } from "framer-motion";
-import { useQueryClient } from "@tanstack/react-query";
-import { Toaster } from "@/src/common/components/ui/toaster";
-import { 
+import type React from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { Button } from "@/src/common/components/ui/button"
+import {
+  Users,
+  Settings,
+  Menu,
+  BarChart3,
+  LogOut,
+  MessageSquare,
+  Bell,
+  Package,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Phone,
+} from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { motion, AnimatePresence } from "framer-motion"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/src/common/components/ui/dropdownMenu";
-import { ThemeToggle } from "@/src/common/components/themeToggle";
-import { CombinedLogo } from "@/src/common/components/combinedLogo";
-
-import { useCurrentUser } from "@/src/common/hooks/useUser";
-import { useAuthActions } from "@/src/common/stores/useAuthStore";
+} from "@/src/common/components/ui/dropdownMenu"
+import { CombinedLogo } from "@/src/common/components/combinedLogo"
+import { useAuthActions } from "@/src/common/stores/useAuthStore"
+import { useQueryClient } from "@tanstack/react-query"
+import { useCurrentUser } from "@/src/common/hooks/useUser"
+import { ThemeToggle } from "@/src/common/components/themeToggle"
+import { Toaster } from "@/src/common/components/ui/toaster"
 
 const navItems = [
   { href: "/clinica/dashboard", icon: BarChart3, label: "Painel Geral" },
@@ -30,11 +43,12 @@ const navItems = [
   { href: "/clinica/notificacoes", icon: Bell, label: "Notificações" },
   { href: "/clinica/ligacoes", icon: Phone, label: "Ligações Pendentes" },
   { href: "/clinica/configuracoes", icon: Settings, label: "Configurações" },
-];
+]
 
 function SidebarContent({ isCollapsed = false }: { isCollapsed?: boolean }) {
-  const pathname = usePathname();
-  const router = useRouter();
+  const pathname = usePathname()
+  const router = useRouter()
+
   const queryClient = useQueryClient();
   const { logout } = useAuthActions();
 
@@ -63,7 +77,7 @@ function SidebarContent({ isCollapsed = false }: { isCollapsed?: boolean }) {
           </Link>
         ))}
       </div>
-      
+
       <div className="p-4 border-t">
         <Button
           variant="ghost"
@@ -77,14 +91,14 @@ function SidebarContent({ isCollapsed = false }: { isCollapsed?: boolean }) {
         </Button>
       </div>
     </nav>
-  );
+  )
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
+  const pathname = usePathname();
   const router = useRouter();
-  const pathname = usePathname(); // Added usePathname at the top level
   const { data: user, isLoading, isError } = useCurrentUser();
 
   useEffect(() => {
@@ -114,12 +128,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return null;
   }
 
-  const sidebarWidth = isSidebarCollapsed ? "w-16" : "w-72";
-
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className={`inset-y-0 left-0 z-10 hidden ${sidebarWidth} flex-col border-r bg-card/50 backdrop-blur-sm sm:flex transition-all duration-300`}>
+      <aside
+        className={`${
+          isSidebarCollapsed ? "w-16" : "w-72"
+        } hidden sm:flex flex-col border-r bg-card/50 backdrop-blur-sm transition-all duration-300 flex-shrink-0`}
+      >
         <div className="flex h-16 items-center justify-between border-b px-4">
           {!isSidebarCollapsed && (
             <div className="flex items-center gap-2">
@@ -129,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8" 
+            className="h-8 w-8"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           >
             {isSidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -158,14 +174,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               <div className="flex h-16 items-center justify-between border-b px-4">
                 <div className="flex items-center gap-2">
-                  <CombinedLogo variant="default" />
+                  <Package className="h-8 w-8 text-primary" />
+                  <span className="font-bold">Sistema</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="h-8 w-8"
-                >
+                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="h-8 w-8">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -176,20 +188,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className={`flex flex-col sm:${sidebarWidth.replace('w-', 'pl-')} w-full transition-all duration-300`}>
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            className="sm:hidden"
-            onClick={() => setIsSidebarOpen(true)}
-          >
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        <header className="flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 flex-shrink-0">
+          <Button size="icon" variant="ghost" className="sm:hidden" onClick={() => setIsSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
             <span className="sr-only">Abrir menu</span>
           </Button>
-          
+
           <div className="flex-1" />
-          
+
           <ThemeToggle />
 
           <DropdownMenu>
@@ -228,8 +235,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </DropdownMenu>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto min-h-0">
+          <div className="w-full p-4 sm:p-6 lg:p-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={pathname}
@@ -237,6 +244,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full"
               >
                 {children}
               </motion.div>
@@ -246,5 +254,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
       <Toaster />
     </div>
-  );
+  )
 }

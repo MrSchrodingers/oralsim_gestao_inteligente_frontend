@@ -10,7 +10,7 @@ const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedRespo
   apiService.get(endpoint, { params });
 
 const getById = (id: string): Promise<AxiosResponse<IPatient>> =>
-  apiService.get(`${endpoint}/${id}/`);
+  apiService.get(`${endpoint}/${id}`);
 
 const update = (id: string, data: IPatientUpdateDTO): Promise<AxiosResponse<IPatient>> =>
   apiService.patch(`${endpoint}/${id}/`, data);

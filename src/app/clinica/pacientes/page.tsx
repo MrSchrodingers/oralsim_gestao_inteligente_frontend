@@ -150,6 +150,7 @@ export default function PatientsPage() {
     setIsTableLoading(isFetchingPatients);
   }, [isFetchingPatients]);
 
+
   if (isError) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -359,7 +360,7 @@ export default function PatientsPage() {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>{getFlowBadge(patient)}</TableCell>
+                          <TableCell>{getFlowBadge(patient?.flow_type)}</TableCell>
                           <TableCell>{getStatusBadge(patient)}</TableCell>
                           <TableCell>
                             <span className="text-sm text-muted-foreground">
@@ -494,7 +495,7 @@ export default function PatientsPage() {
             </div>
           )}
 
-          {patientsWithFlow.length === 0 && !isRefetching && (
+          {patientsWithFlow.length === 0 && !isRefetching && !isTableLoading && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Nenhum paciente encontrado</h3>

@@ -1,0 +1,5 @@
+export { default as PatientInfoSkeleton } from "./PatientInfoSkeleton"
+export { default as ContractInfoSkeleton } from "./ContractInfoSkeleton"
+export { default as InstallmentsSkeleton } from "./InstallmentsSkeleton"
+export { default as PatientHeaderSkeleton } from "./PatientHeaderSkeleton"
+export { default as StatusCardsSkeleton } from "./StatusCardsSkeleton"
