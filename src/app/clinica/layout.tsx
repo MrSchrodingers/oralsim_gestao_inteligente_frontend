@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/src/common/components/ui/button";
-import { Users, Settings, Menu, BarChart3, LogOut, MessageSquare, Bell, Package, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Settings, Menu, BarChart3, LogOut, MessageSquare, Bell, Package, X, ChevronLeft, ChevronRight, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,6 +28,7 @@ const navItems = [
   { href: "/clinica/pacientes", icon: Users, label: "Pacientes" },
   { href: "/clinica/mensagens", icon: MessageSquare, label: "Mensagens" },
   { href: "/clinica/notificacoes", icon: Bell, label: "Notificações" },
+  { href: "/clinica/ligacoes", icon: Phone, label: "Ligações Pendentes" },
   { href: "/clinica/configuracoes", icon: Settings, label: "Configurações" },
 ];
 

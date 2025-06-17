@@ -5,7 +5,7 @@ import { AlertCircle, CheckCircle, Clock, Target } from "lucide-react"
 import type { IPatient } from "../../interfaces/IPatient"
 
 export type PatientWithFlow = IPatient & {
-  flowType?: "receivable" | "collection" | null
+  flowType?: "cordial_billing" | "notification_billing" | null | undefined
   flowData?: IContactSchedule | ICollectionCase
 }
 
@@ -14,26 +14,22 @@ export const getFlowBadge = (patient: PatientWithFlow) => {
     return <Badge variant="secondary">Sem Fluxo</Badge>
   }
 
-  if (patient.flowType === "receivable") {
-    const data = patient.flowData as IContactSchedule
+  if (patient.flowType === "notification_billing") {
     return (
       <div className="flex flex-col gap-1 items-start">
         <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
           Gestão de Recebíveis
         </Badge>
-        <span className="text-xs text-muted-foreground">Etapa {data.current_step}</span>
       </div>
     )
   }
 
-  if (patient.flowType === "collection") {
-    const data = patient.flowData as ICollectionCase
+  if (patient.flowType === "cordial_billing") {
     return (
       <div className="flex flex-col gap-1 items-start">
         <Badge variant="default" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
           Cobrança Amigável
         </Badge>
-        <span className="text-xs text-muted-foreground capitalize">{data.status}</span>
       </div>
     )
   }
@@ -44,14 +40,14 @@ export const getStatusBadge = (patient: PatientWithFlow) => {
     return <Badge variant="outline">Inativo</Badge>
   }
 
-  if (patient.flowType === "receivable") {
+  if (patient.flowType === "notification_billing") {
     const data = patient.flowData as IContactSchedule
     const statusMap = {
       pending: { label: "Pendente", variant: "secondary" as const, icon: Clock },
       completed: { label: "Concluído", variant: "default" as const, icon: CheckCircle },
       failed: { label: "Falhou", variant: "destructive" as const, icon: AlertCircle },
     }
-    const statusInfo = statusMap[data.status as keyof typeof statusMap] || statusMap.pending
+    const statusInfo = statusMap[data?.status as keyof typeof statusMap] || statusMap.pending
     const Icon = statusInfo.icon
 
     return (
@@ -61,14 +57,14 @@ export const getStatusBadge = (patient: PatientWithFlow) => {
       </Badge>
     )
   }
-  if (patient.flowType === "collection") {
+  if (patient.flowType === "cordial_billing") {
     const data = patient.flowData as ICollectionCase
     const statusMap = {
       open: { label: "Aberto", variant: "default" as const, icon: Target },
       closed: { label: "Fechado", variant: "secondary" as const, icon: CheckCircle },
       pending: { label: "Pendente", variant: "secondary" as const, icon: Clock },
     }
-    const statusInfo = statusMap[data.status as keyof typeof statusMap] || statusMap.pending
+    const statusInfo = statusMap[data?.status as keyof typeof statusMap] || statusMap.pending
     const Icon = statusInfo.icon
 
     return (

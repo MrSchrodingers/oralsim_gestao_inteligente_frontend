@@ -5,4 +5,9 @@ export interface IPagedResponse<T> {
   page_size: number;
   total_pages: number;
   items_on_page: number;
+  summary?: {
+    with_receivable: number,
+    with_collection: number,
+    with_notifications: number
+  }
 }

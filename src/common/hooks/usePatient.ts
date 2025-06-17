@@ -5,10 +5,37 @@ import type { IPatientRegisterRequest } from '../interfaces/IPatientRegisterRequ
 
 const PATIENT_QUERY_KEY = 'patients';
 
+export interface IPatientsSummary {
+  total: number;
+  with_receivable: number;
+  with_collection: number;
+  with_notifications: number;
+}
+
 export const useFetchPatients = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [PATIENT_QUERY_KEY, params],
     queryFn: () => patientService.getAll(params).then(res => res.data),
+    staleTime: 5_000,
+  });
+};
+
+export const usePatientsSummary = (params?: Record<string, any>) => {
+  return useQuery<IPatientsSummary>({
+    queryKey: ["patients-summary", params],
+    queryFn: () =>
+      patientService
+        .getAll(params)
+        .then(res => {
+          const { total_items, summary } = res.data;
+          return {
+            total: total_items,
+            with_receivable: summary?.with_receivable ?? 0,
+            with_collection: summary?.with_collection ?? 0,
+            with_notifications: summary?.with_notifications ?? 0,
+          };
+        }),
+    staleTime: 10_000,
   });
 };
 

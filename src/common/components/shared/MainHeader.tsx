@@ -100,13 +100,10 @@ function UserMenu() {
   const { data: user, isLoading, isError } = useCurrentUser()
 
   const handleSignOut = () => {
-    // 1. Limpa o estado do Zustand
-    logout()
-    // 2. Remove todos os dados em cache do React Query
-    queryClient.clear()
-    // 3. Redireciona para a home
-    router.push("/")
-  }
+    logout();
+    queryClient.clear();
+    router.push("/login");
+  };
 
   if (isLoading) {
     return (

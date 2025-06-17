@@ -13,6 +13,7 @@ export interface IPatient {
   is_notification_enabled: boolean;
   phones: IPatientPhone[];
   created_at?: string;
+  flow_type?: "notification_billing" | "cordial_billing" | null | undefined;
   updated_at?: string;
 }
 
