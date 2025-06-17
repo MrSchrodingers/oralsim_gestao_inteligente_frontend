@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useRouter } from "next/navigation"
-import type { FC, ReactNode } from "react"
+import { useState, type FC, type ReactNode } from "react"
 import {
   Users,
   FileText,
@@ -39,18 +39,18 @@ import { motion } from "framer-motion"
 
 import { useCurrentUser } from "@/src/common/hooks/useUser"
 import { useFetchDashboardSummary } from "@/src/common/hooks/useDashboard"
-import  DashboardLoadingSkeleton  from "./loading"
+import DashboardLoadingSkeleton from "./loading"
 import { formatCurrency } from "@/src/common/utils/formatters"
 import { FunnelRow } from "@/src/common/components/dashboard/FunnelRow"
 import { QuickActionCard } from "@/src/common/components/dashboard/QuickActionCard"
 import { ActivityItem } from "@/src/common/components/dashboard/ActivityItem"
 
 export default function DashboardPage() {
+  const [slicePeriod, setSlicePeriod] = useState<number | undefined>(30)
   const router = useRouter()
   const { data: currentUser } = useCurrentUser()
-  const { data: dashboard, isLoading, isError, error, refetch } = useFetchDashboardSummary(
-    currentUser?.clinics?.[0]?.id
-  )
+  const { data: dashboard, isLoading, isError, error, refetch, isFetching } =
+    useFetchDashboardSummary(currentUser?.clinics?.[0]?.id, slicePeriod)
 
   if (isLoading || !currentUser) return <DashboardLoadingSkeleton />
 
@@ -141,19 +141,25 @@ export default function DashboardPage() {
           <p className="text-lg text-muted-foreground">Olá, {currentUser?.name}! Aqui está o resumo da sua operação.</p>
         </div>
         <div className="flex flex-col sm:flex-row w-full lg:w-auto items-stretch sm:items-center gap-3">
-          <Select defaultValue="30">
+          <Select
+            value={slicePeriod === undefined ? 'all' : String(slicePeriod)}
+            onValueChange={(v) =>
+              setSlicePeriod(v === 'all' ? undefined : Number(v))
+            }
+          >
             <SelectTrigger className="w-full sm:w-[180px]">
               <Calendar className="h-4 w-4 mr-2" />
-              <SelectValue />
+              <SelectValue placeholder="Período" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">Todo o período</SelectItem>
               <SelectItem value="7">Últimos 7 dias</SelectItem>
               <SelectItem value="30">Últimos 30 dias</SelectItem>
               <SelectItem value="90">Últimos 90 dias</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+          <Button variant="outline" onClick={() => refetch()} disabled={isFetching}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
           <Button>
@@ -222,9 +228,9 @@ export default function DashboardPage() {
                   />
                   <Bar
                     dataKey="paid"
-                    className="paid"         
+                    className="paid"
                     name="Pagamentos Recebidos"
-                    radius={[4,4,0,0]}
+                    radius={[4, 4, 0, 0]}
                     fill="hsl(142.1 70.2% 45.3%)"
                   />
                   <Bar
@@ -232,7 +238,7 @@ export default function DashboardPage() {
                     className="receiv"
                     name="Total a Receber"
                     fill="hsl(0 62.8% 30.6%)"
-                    radius={[4,4,0,0]}
+                    radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -259,10 +265,10 @@ export default function DashboardPage() {
             {collection && stats && (
               <>
                 {/* Total de Pacientes */}
-                <FunnelRow 
-                  label="Total de pacientes" 
-                  value={stats.totalPatients} 
-                  pct={100} 
+                <FunnelRow
+                  label="Total de pacientes"
+                  value={stats.totalPatients}
+                  pct={100}
                 />
 
                 {/* Pacientes com parcelas a vencer (e sem vencidas) */}

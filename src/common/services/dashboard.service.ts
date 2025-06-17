@@ -4,8 +4,8 @@ import type { IDashboardSummary } from "@/src/common/interfaces/IDashboardSummar
 
 const endpoint = "/dashboard-summary/";
 
-const getSummary = (): Promise<AxiosResponse<IDashboardSummary>> =>
-  apiService.get(endpoint);
+const getSummary = (params?: Record<string, any>): Promise<AxiosResponse<IDashboardSummary>> =>
+  apiService.get(endpoint, { params })
 
 export const dashboardService = {
   getSummary,
