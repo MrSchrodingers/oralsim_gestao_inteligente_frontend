@@ -1,6 +1,6 @@
 export interface IMessage {
   id: string;
-  type: 'sms' | 'email' | 'whatsapp';
+  type: 'sms' | 'email' | 'whatsapp' | 'phonecall';
   content: string;
   step: number;
   clinic_id?: string | null;
@@ -10,7 +10,7 @@ export interface IMessage {
 }
 
 export interface IMessageCreateDTO {
-  type: 'sms' | 'email' | 'whatsapp';
+  type: 'sms' | 'email' | 'whatsapp' | 'phonecall';
   content: string;
   step: number;
   clinic_id?: string | null;

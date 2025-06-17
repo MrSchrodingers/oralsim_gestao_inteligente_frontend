@@ -1,7 +1,7 @@
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import { Badge } from "../ui/badge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
-import { AlertCircle, CheckCircle, Clock, Target } from "lucide-react"
+import { AlertCircle, CheckCircle, Clock, Mail, MessageSquare, PhoneCall, Smartphone, Target } from "lucide-react"
 import type { IPatient } from "../../interfaces/IPatient"
 
 export type PatientWithFlow = IPatient & {
@@ -35,6 +35,39 @@ export const getFlowBadge = (
       </div>
     )
   }
+}
+
+export const getChannelIcon = (channel: string) => {
+  switch (channel) {
+    case "whatsapp":
+      return <Smartphone className="h-4 w-4 text-green-600" />
+    case "sms":
+      return <MessageSquare className="h-4 w-4 text-blue-600" />
+    case "email":
+      return <Mail className="h-4 w-4 text-purple-600" />
+    case "phonecall":
+      return <PhoneCall className="h-4 w-4 text-orange-600" />
+    default:
+      return <MessageSquare className="h-4 w-4" />
+  }
+}
+
+export const getChannelBadge = (channel: string) => {
+  const configs = {
+    whatsapp: { label: "WhatsApp", className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
+    sms: { label: "SMS", className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+    email: { label: "E-mail", className: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
+    phonecall: { label: "Ligação", className: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  }
+
+  const config = configs[channel as keyof typeof configs] || { label: channel, className: "bg-gray-100 text-gray-800" }
+
+  return (
+    <Badge variant="secondary" className={config.className}>
+      {getChannelIcon(channel)}
+      <span className="ml-1">{config.label}</span>
+    </Badge>
+  )
 }
 
 export const getStatusBadge = (patient: PatientWithFlow) => {

@@ -8,6 +8,9 @@ export interface IPagedResponse<T> {
   summary?: {
     with_receivable: number,
     with_collection: number,
-    with_notifications: number
+    with_notifications: number,
+    whatsapp: number,
+    sms: number,
+    email: number
   }
 }
