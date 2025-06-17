@@ -349,22 +349,21 @@ export default function DashboardPage() {
             title="Chamadas Pendentes"
             description={`${notification?.pendingCalls ?? 0} chamadas aguardando retorno`}
             icon={PhoneCall}
-            onClick={() => router.push("/chamadas")}
+            onClick={() => router.push("/clinica/ligacoes")}
             variant={notification?.pendingCalls ? "urgent" : "default"}
             badge={notification?.pendingCalls ? `${notification.pendingCalls}` : undefined}
           />
           <QuickActionCard
-            title="Disparar Fluxo Agora"
-            description="Iniciar processo de cobrança para novos vencimentos"
-            icon={Zap}
-            onClick={() => router.push("/fluxo/forcar")}
-            variant="success"
+            title="Meus Pacientes"
+            description="Ver lista de pacientes"
+            icon={Users}
+            onClick={() => router.push("/clinica/pacientes")}
           />
           <QuickActionCard
             title="Configurações da Clínica"
             description="Ajustar parâmetros de cobrança e notificações"
             icon={Settings}
-            onClick={() => router.push("/configuracoes")}
+            onClick={() => router.push("/clinica/configuracoes")}
           />
         </div>
 

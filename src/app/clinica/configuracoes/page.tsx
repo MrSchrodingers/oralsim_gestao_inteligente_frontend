@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Building2,
   MapPin,
@@ -27,103 +27,114 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/common/components/ui/tabs"
 import { Separator } from "@/src/common/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
-
-// Mock data baseado nos dados fornecidos
-const clinicData = {
-  id: "56d08c50-bc7f-4b5d-98ca-2214b825d7af",
-  clinic_id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-  corporate_name: "P. A. T. YANASE ODONTOLOGIA",
-  acronym: "BAU",
-  address: {
-    id: "c1547481-4f5e-44fd-aaa7-605889315734",
-    street: "Rua Engenheiro Saint Martin",
-    number: "17-45",
-    complement: null,
-    neighborhood: "Centro",
-    city: "Bauru",
-    state: "SP",
-    zip_code: "17015-351",
-  },
-  active: true,
-  franchise: true,
-  timezone: "America/Sao_Paulo",
-  first_billing_date: "2017-03-20",
-}
-
-const userData = {
-  id: "8bf53e82-4518-4077-b4a4-00fbab26d9b8",
-  email: "bauru@oralsin.admin.com.br",
-  name: "Bauru",
-  clinic_name: null,
-  is_active: true,
-  role: "clinic",
-  clinics: [
-    {
-      id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-      oralsin_clinic_id: 47,
-      name: "Bauru",
-      cnpj: "26.411.050/0001-55",
-    },
-  ],
-}
-
-const phoneData = [
-  {
-    id: "2c399621-61d8-4183-bc47-4849e934624d",
-    clinic_id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-    phone_number: "(14) 3012-9449",
-    phone_type: "primary",
-  },
-]
-
-const billingSettings = {
-  clinic_id: "5c91f4bf-fdc5-45a0-b0c9-814e7acb0b2d",
-  min_days_overdue: 90,
-}
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "N/A"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(dateStr))
-}
-
-const formatCNPJ = (cnpj: string) => {
-  return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
-}
-
-const formatZipCode = (zipCode: string) => {
-  return zipCode.replace(/^(\d{5})(\d{3})/, "$1-$2")
-}
+import { useCurrentUser, useUpdateUser } from "@/src/common/hooks/useUser"
+import { useUpdateClinicData } from "@/src/common/hooks/useClinicData"
+import { useUpdateAddress } from "@/src/common/hooks/useAddress"
+import { useFetchBillingSettings, useUpdateBillingSettings } from "@/src/modules/cordialBilling/hooks/useBillingSettings"
+import { useQueryClient } from "@tanstack/react-query"
+import { formatCNPJ } from "@/src/common/utils/formatCNPJ"
+import { useFetchClinicPhones } from "@/src/common/hooks/useClinicPhone"
+import { formatDate } from "@/src/common/utils/formatters"
+import { formatZipCode } from "@/src/common/utils/formatZipCode"
 
 export default function ConfiguracoesPage() {
   const [isEditing, setIsEditing] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+
+  const { data: currentUser } = useCurrentUser()
+  const clinic = currentUser?.clinics?.[0]
+  const { data: billing } = useFetchBillingSettings(clinic?.id ?? '')
+  const { data: clinicPhones } = useFetchClinicPhones({ clinic_id: clinic?.id })
+
+  const clinicPhonesData = clinicPhones?.results
+
   const [formData, setFormData] = useState({
-    clinic: { ...clinicData },
-    user: { ...userData },
-    billing: { ...billingSettings },
+    clinic: clinic?.data ?? ({} as any),
+    user: currentUser ?? ({} as any),
+    billing: billing ?? ({} as any),
   })
+
+  useEffect(() => {
+    if (currentUser && clinic && billing) {
+      setFormData({
+        clinic: { ...(clinic.data as any) },
+        user: { ...currentUser },
+        billing: { ...billing },
+      })
+    }
+  }, [currentUser, clinic, billing])
+
+  const { mutateAsync: updateClinicData } = useUpdateClinicData()
+  const { mutateAsync: updateAddress } = useUpdateAddress()
+  const { mutateAsync: updateUser } = useUpdateUser()
+  const { mutateAsync: updateBilling } = useUpdateBillingSettings()
 
   const handleEdit = (section: string) => {
     setIsEditing(section)
   }
 
-  const handleSave = (section: string) => {
-    // Aqui você implementaria a lógica de salvamento
-    console.log(`Salvando seção: ${section}`, formData)
-    setIsEditing(null)
+  const handleSave = async (section: string) => {
+    if (!formData) return
+
+    if (section === 'clinic-general') {
+      await updateClinicData({
+        id: formData.clinic.id,
+        data: {
+          clinic_id: formData.clinic.clinic_id,
+          corporate_name: formData.clinic.corporate_name,
+          acronym: formData.clinic.acronym,
+          active: formData.clinic.active,
+          franchise: formData.clinic.franchise,
+          timezone: formData.clinic.timezone,
+          first_billing_date: formData.clinic.first_billing_date,
+          address_id: formData.clinic.address?.id,
+        },
+      })
+    } else if (section === 'clinic-address') {
+      await updateAddress({
+        id: formData.clinic.address.id,
+        data: {
+          street: formData.clinic.address.street,
+          number: formData.clinic.address.number,
+          complement: formData.clinic.address.complement,
+          neighborhood: formData.clinic.address.neighborhood,
+          city: formData.clinic.address.city,
+          state: formData.clinic.address.state,
+          zip_code: formData.clinic.address.zip_code,
+        },
+      })
+    } else if (section === 'user-info') {
+      await updateUser({
+        id: formData.user.id,
+        data: {
+          email: formData.user.email,
+          name: formData.user.name,
+          clinic_name: formData.user.clinic_name,
+          role: formData.user.role,
+        },
+      })
+    } else if (section === 'billing-settings') {
+      await updateBilling({
+        clinicId: formData.billing.clinic_id,
+        data: {
+          clinic_id: formData.billing.clinic_id,
+          min_days_overdue: formData.billing.min_days_overdue,
+        },
+      })
+    }
+
+    await queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
   }
 
   const handleCancel = () => {
     setIsEditing(null)
-    // Resetar dados para o estado original
-    setFormData({
-      clinic: { ...clinicData },
-      user: { ...userData },
-      billing: { ...billingSettings },
-    })
+    if (currentUser && clinic && billing) {
+      setFormData({
+        clinic: { ...(clinic.data as any) },
+        user: { ...currentUser },
+        billing: { ...billing },
+      })
+    }
   }
 
   const updateFormData = (section: string, field: string, value: any) => {
@@ -202,7 +213,7 @@ export default function ConfiguracoesPage() {
                       </Button>
                     </>
                   ) : (
-                    <Button size="sm" variant="outline" onClick={() => handleEdit("clinic-general")}>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit("clinic-general")} disabled>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
                     </Button>
@@ -232,7 +243,7 @@ export default function ConfiguracoesPage() {
                       <Input
                         id="acronym"
                         value={formData.clinic.acronym}
-                        onChange={(e) => updateFormData("clinic", "acronym", e.target.value)}
+                        disabled
                       />
                     ) : (
                       <p className="text-sm font-medium mt-1">{formData.clinic.acronym}</p>
@@ -241,7 +252,7 @@ export default function ConfiguracoesPage() {
 
                   <div>
                     <Label htmlFor="cnpj">CNPJ</Label>
-                    <p className="text-sm font-medium mt-1">{formatCNPJ(userData.clinics[0].cnpj)}</p>
+                    <p className="text-sm font-medium mt-1">{formatCNPJ(clinic?.cnpj)}</p>
                   </div>
                 </div>
 
@@ -296,7 +307,7 @@ export default function ConfiguracoesPage() {
                       <Switch
                         id="active"
                         checked={formData.clinic.active}
-                        onCheckedChange={(checked) => updateFormData("clinic", "active", checked)}
+                        disabled
                       />
                     ) : (
                       <Badge variant={formData.clinic.active ? "default" : "secondary"}>
@@ -314,7 +325,7 @@ export default function ConfiguracoesPage() {
                       <Switch
                         id="franchise"
                         checked={formData.clinic.franchise}
-                        onCheckedChange={(checked) => updateFormData("clinic", "franchise", checked)}
+                        disabled
                       />
                     ) : (
                       <Badge variant={formData.clinic.franchise ? "default" : "secondary"}>
@@ -348,7 +359,7 @@ export default function ConfiguracoesPage() {
                       </Button>
                     </>
                   ) : (
-                    <Button size="sm" variant="outline" onClick={() => handleEdit("clinic-address")}>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit("clinic-address")} disabled>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
                     </Button>
@@ -473,7 +484,7 @@ export default function ConfiguracoesPage() {
                   <Phone className="h-5 w-5" />
                   Telefones
                 </CardTitle>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" disabled>
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar
                 </Button>
@@ -481,7 +492,7 @@ export default function ConfiguracoesPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {phoneData.map((phone) => (
+                {clinicPhonesData?.map((phone) => (
                   <div key={phone.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <Phone className="h-4 w-4 text-muted-foreground" />
@@ -493,10 +504,10 @@ export default function ConfiguracoesPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="sm" variant="ghost">
+                      <Button size="sm" variant="ghost" disabled>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700">
+                      <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700" disabled>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -528,7 +539,7 @@ export default function ConfiguracoesPage() {
                       </Button>
                     </>
                   ) : (
-                    <Button size="sm" variant="outline" onClick={() => handleEdit("user-info")}>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit("user-info")} disabled>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
                     </Button>
@@ -563,7 +574,7 @@ export default function ConfiguracoesPage() {
                       <Input
                         id="user_name"
                         value={formData.user.name}
-                        onChange={(e) => updateFormData("user", "name", e.target.value)}
+                        disabled
                       />
                     ) : (
                       <p className="text-sm font-medium mt-1">{formData.user.name}</p>
@@ -600,7 +611,7 @@ export default function ConfiguracoesPage() {
                       <Switch
                         id="user_active"
                         checked={formData.user.is_active}
-                        onCheckedChange={(checked) => updateFormData("user", "is_active", checked)}
+                        disabled
                       />
                     ) : (
                       <Badge variant={formData.user.is_active ? "default" : "secondary"}>
@@ -635,7 +646,7 @@ export default function ConfiguracoesPage() {
                       </Button>
                     </>
                   ) : (
-                    <Button size="sm" variant="outline" onClick={() => handleEdit("billing-settings")}>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit("billing-settings")} disabled>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
                     </Button>
@@ -663,45 +674,6 @@ export default function ConfiguracoesPage() {
                       <p className="text-sm font-medium">{formData.billing.min_days_overdue} dias</p>
                     </div>
                   )}
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="font-medium">Outras Configurações de Cobrança</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">Cobrança Automática</p>
-                        <p className="text-sm text-muted-foreground">Enviar cobranças automaticamente</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">Notificações por E-mail</p>
-                        <p className="text-sm text-muted-foreground">Receber notificações de cobrança</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">Relatórios Mensais</p>
-                        <p className="text-sm text-muted-foreground">Gerar relatórios automaticamente</p>
-                      </div>
-                      <Switch />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">Integração WhatsApp/ SMS</p>
-                        <p className="text-sm text-muted-foreground">Enviar mensagens via WhatsApp/ SMS</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </div>
                 </div>
               </div>
             </CardContent>

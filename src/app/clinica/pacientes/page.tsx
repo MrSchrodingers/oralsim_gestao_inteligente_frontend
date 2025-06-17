@@ -377,19 +377,15 @@ export default function PatientsPage() {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Ações</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem  onClick={handleNavigation("detail", patient.id)}>
+                                <DropdownMenuItem  onClick={handleNavigation("detail", patient.id)} >
                                   <Eye className="h-4 w-4 mr-2" />
                                   Ver Detalhes
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleNavigation("edit", patient.id)}>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Editar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleNavigation("call", patient.id)}>
+                                <DropdownMenuItem onClick={handleNavigation("call", patient.id)} disabled>
                                   <Phone className="h-4 w-4 mr-2" />
                                   Ligar
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleNavigation("email", patient.id)}>
+                                <DropdownMenuItem onClick={handleNavigation("email", patient.id)} disabled>
                                   <Mail className="h-4 w-4 mr-2" />
                                   Enviar Email
                                 </DropdownMenuItem>

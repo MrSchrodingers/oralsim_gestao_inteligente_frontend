@@ -65,7 +65,7 @@ function SidebarContent({ isCollapsed = false }: { isCollapsed?: boolean }) {
           <Link key={item.href} href={item.href} passHref>
             <Button
               variant={pathname === item.href ? "secondary" : "ghost"}
-              className={`w-full transition-all duration-200 ${
+              className={`w-full transition-all duration-200 cursor-pointer ${
                 pathname === item.href
                   ? "bg-primary/10 text-primary hover:bg-primary/15 border-l-2 border-primary"
                   : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
@@ -148,7 +148,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="h-8 w-8"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           >
-            {isSidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {isSidebarCollapsed ? <ChevronRight className="h-4 w-4 cursor-pointer" /> : <ChevronLeft className="h-4 w-4 cursor-pointer" />}
           </Button>
         </div>
         <SidebarContent isCollapsed={isSidebarCollapsed} />
@@ -201,8 +201,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-auto px-3 gap-3">
-                <div className="flex flex-col text-right text-sm">
+              <Button variant="ghost" className="relative h-10 w-auto px-3 gap-3 cursor-pointer">
+                <div className="flex flex-col text-right text-sm ">
                   <span className="font-semibold">{user.name}</span>
                   <span className="text-xs leading-none text-muted-foreground">{user.email}</span>
                 </div>
@@ -222,12 +222,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/clinica/configuracoes')}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configurações</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-red-600 cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Sair</span>
               </DropdownMenuItem>

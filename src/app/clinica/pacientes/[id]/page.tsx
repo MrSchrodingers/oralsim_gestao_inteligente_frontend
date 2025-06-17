@@ -224,15 +224,15 @@ export default function PatientDetailsPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Phone className="h-4 w-4 mr-2" />
                 Ligar
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Mail className="h-4 w-4 mr-2" />
                 Enviar Email
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Send className="h-4 w-4 mr-2" />
                 Enviar WhatsApp
               </DropdownMenuItem>

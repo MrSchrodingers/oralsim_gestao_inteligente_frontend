@@ -70,10 +70,6 @@ export default function MessagesPage() {
     setPage(1)
   }
 
-  if (isLoading) {
-    return <div>Carregando mensagens…</div>
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
