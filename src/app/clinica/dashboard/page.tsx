@@ -162,7 +162,7 @@ export default function DashboardPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          <Button>
+          <Button disabled>
             <Download className="h-4 w-4 mr-2" />
             Exportar Relatório
           </Button>

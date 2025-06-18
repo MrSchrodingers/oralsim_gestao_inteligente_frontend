@@ -178,7 +178,7 @@ export default function PatientsPage() {
           <p className="text-muted-foreground">Gerencie todos os pacientes e acompanhe seus fluxos de cobrança</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" disabled={isRefetching}>
+          <Button variant="outline" disabled>
             <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>

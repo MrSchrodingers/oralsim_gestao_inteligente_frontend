@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { FileQuestion, Home, ArrowLeft, Users } from "lucide-react"
+import { FileQuestion, Home, ArrowLeft, Users, ChartNoAxesCombined } from "lucide-react"
 import { AnimatedButton } from "@/src/common/components/motion/animated-button"
 import { CombinedLogo } from "@/src/common/components/combinedLogo"
 
@@ -90,9 +90,9 @@ export default function NotFound() {
             className="w-full sm:w-auto border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/30"
             whileHoverScale={1.03}
           >
-            <Link href="/dashboard/pacientes">
-              <Users className="mr-2 h-4 w-4" />
-              Pacientes
+            <Link href="/clinica/dashboard">
+              <ChartNoAxesCombined className="mr-2 h-4 w-4" />
+              Dashboard
             </Link>
           </AnimatedButton>
         </motion.div>
@@ -104,7 +104,7 @@ export default function NotFound() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7, duration: 0.5 }}
       >
-        © {new Date().getFullYear()} Oralsim - Sistema de Gestão de Recebíveis
+        © {new Date().getFullYear()} Oralsim - Sistema de Gestão Inteligente
       </motion.div>
     </div>
   )

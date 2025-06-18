@@ -80,7 +80,7 @@ export default function MessagesPage() {
             Gerencie todas as mensagens do sistema de cobrança e notificações
           </p>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" disabled>
           <Download className="h-4 w-4 mr-2" />
           Exportar
         </Button>

@@ -236,7 +236,7 @@ export default function PatientDetailsPage() {
                 <Send className="h-4 w-4 mr-2" />
                 Enviar WhatsApp
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Download className="h-4 w-4 mr-2" />
                 Exportar Dados
               </DropdownMenuItem>

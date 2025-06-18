@@ -136,7 +136,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           isSidebarCollapsed ? "w-16" : "w-72"
         } hidden sm:flex flex-col border-r bg-card/50 backdrop-blur-sm transition-all duration-300 flex-shrink-0`}
       >
-        <div className="flex h-16 items-center justify-between border-b px-4">
+        <div className="flex h-16 items-center justify-between px-4">
           {!isSidebarCollapsed && (
             <div className="flex items-center gap-2">
               <CombinedLogo variant="default" />
