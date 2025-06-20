@@ -44,6 +44,7 @@ import type { IPatient } from "@/src/common/interfaces/IPatient"
 import { Skeleton } from "@/src/common/components/ui/skeleton"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/src/common/components/ui/use-toast"
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return "N/A"
@@ -63,6 +64,15 @@ export default function PatientsPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [isTableLoading, setIsTableLoading] = useState(false)
+  const { toast } = useToast()
+
+  const handleCopyPhone = (phoneNumber: string) => {
+      navigator.clipboard.writeText(phoneNumber.replace(/\D/g, ""))
+      toast({
+        title: "Número copiado para área de trasnferência",
+        description: formatPhone(phoneNumber),
+      })
+    }
 
   const handleNavigation =
     (action: "detail" | "edit" | "call" | "email" | "remove", id: string) =>
@@ -381,15 +391,12 @@ export default function PatientsPage() {
                                   <Eye className="h-4 w-4 mr-2" />
                                   Ver Detalhes
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleNavigation("call", patient.id)} disabled>
-                                  <Phone className="h-4 w-4 mr-2" />
-                                  Ligar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleNavigation("email", patient.id)} disabled>
-                                  <Mail className="h-4 w-4 mr-2" />
-                                  Enviar Email
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                onClick={() => handleCopyPhone(patient.phones[0].phone_number)}
+                              >
+                                <Phone className="h-4 w-4 mr-2" />
+                                Ligar Agora
+                              </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>

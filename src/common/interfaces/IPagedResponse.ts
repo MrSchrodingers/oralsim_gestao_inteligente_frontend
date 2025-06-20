@@ -11,6 +11,11 @@ export interface IPagedResponse<T> {
     with_notifications: number,
     whatsapp: number,
     sms: number,
-    email: number
+    email: number,
+    high: number
+    medium: number
+    normal: number
+    total_overdue: number
+    avg_attempts: number
   }
 }

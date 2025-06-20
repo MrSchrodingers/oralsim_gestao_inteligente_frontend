@@ -11,7 +11,15 @@ const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedRespo
 const update = (id: string, data: Partial<IPendingCall>): Promise<AxiosResponse<IPendingCall>> =>
     apiService.patch(`${endpoint}/${id}/`, data);
 
+const markDone = (
+    id: string,
+    success: boolean,
+    notes?: string
+  ): Promise<AxiosResponse<void>> =>
+    apiService.post(`${endpoint}/${id}/mark-done`, { success, notes });
+
 export const pendingCallService = {
     getAll,
     update,
+    markDone,
 };

@@ -9,6 +9,45 @@ export type PatientWithFlow = IPatient & {
   flowData?: IContactSchedule | ICollectionCase
 }
 
+export const getStepBadge = (step: number) => {
+  const colors = [
+    "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+    "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  ]
+
+  return <Badge className={colors[step % colors.length]}>Etapa {step}</Badge>
+}
+
+export const getPriorityBadge = (attempts: number, overdueAmount: string) => {
+  const overdue = Number.parseFloat(overdueAmount)
+
+  if (attempts >= 2 || overdue > 1000) {
+    return (
+      <Badge variant="destructive">
+        <AlertCircle className="h-3 w-3 mr-1" />
+        Alta
+      </Badge>
+    )
+  } else if (attempts >= 1 || overdue > 500) {
+    return (
+      <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+        <Clock className="h-3 w-3 mr-1" />
+        Média
+      </Badge>
+    )
+  } else {
+    return (
+      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+        <Target className="h-3 w-3 mr-1" />
+        Normal
+      </Badge>
+    )
+  }
+}
+
 export const getFlowBadge = (
   flowType?: "notification_billing" | "cordial_billing" | null
 ) => {
@@ -47,6 +86,8 @@ export const getChannelIcon = (channel: string) => {
       return <Mail className="h-4 w-4 text-purple-600" />
     case "phonecall":
       return <PhoneCall className="h-4 w-4 text-orange-600" />
+    case "letter":
+      return <Mail className="h-4 w-4 text-orange-600" />
     default:
       return <MessageSquare className="h-4 w-4" />
   }
@@ -58,6 +99,7 @@ export const getChannelBadge = (channel: string) => {
     sms: { label: "SMS", className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
     email: { label: "E-mail", className: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
     phonecall: { label: "Ligação", className: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+    letter: { label: "Carta Amigável", className: "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200" }
   }
 
   const config = configs[channel as keyof typeof configs] || { label: channel, className: "bg-gray-100 text-gray-800" }

@@ -155,6 +155,7 @@ export default function MessagesPage() {
                     <SelectItem value="sms">SMS</SelectItem>
                     <SelectItem value="email">E-mail</SelectItem>
                     <SelectItem value="phonecall">Ligação</SelectItem>
+                    <SelectItem value="letter">Carta Amigável</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={stepFilter} onValueChange={handleStepChange}>

@@ -40,7 +40,6 @@ const navItems = [
   { href: "/clinica/dashboard", icon: BarChart3, label: "Painel Geral" },
   { href: "/clinica/pacientes", icon: Users, label: "Pacientes" },
   { href: "/clinica/mensagens", icon: MessageSquare, label: "Mensagens" },
-  { href: "/clinica/notificacoes", icon: Bell, label: "Notificações" },
   { href: "/clinica/ligacoes", icon: Phone, label: "Ligações Pendentes" },
   { href: "/clinica/configuracoes", icon: Settings, label: "Configurações" },
 ]

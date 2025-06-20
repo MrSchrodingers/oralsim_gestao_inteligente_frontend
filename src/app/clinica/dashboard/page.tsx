@@ -25,6 +25,7 @@ import {
   PieChart,
   TrendingUp,
   Calendar,
+  Loader2,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Progress } from "@/src/common/components/ui/progress"
@@ -44,15 +45,46 @@ import { formatCurrency } from "@/src/common/utils/formatters"
 import { FunnelRow } from "@/src/common/components/dashboard/FunnelRow"
 import { QuickActionCard } from "@/src/common/components/dashboard/QuickActionCard"
 import { ActivityItem } from "@/src/common/components/dashboard/ActivityItem"
+import { subDays } from "date-fns"
+import { dashboardService } from "@/src/common/services/dashboard.service"
 
 export default function DashboardPage() {
   const [slicePeriod, setSlicePeriod] = useState<number | undefined>(undefined) // Padrão em: Todo Período
+  const [isExporting, setIsExporting] = useState(false) 
   const router = useRouter()
   const { data: currentUser } = useCurrentUser()
   const { data: dashboard, isLoading, isError, error, refetch, isFetching } =
     useFetchDashboardSummary(currentUser?.clinics?.[0]?.id, slicePeriod)
 
   if (isLoading || !currentUser) return <DashboardLoadingSkeleton />
+
+  const handleExport = async () => {
+    setIsExporting(true)                                        // 3) começo do loading
+    try {
+      const endDate = new Date().toISOString().split("T")[0]
+      const params: Record<string, string> = { end_date: endDate }
+
+      if (slicePeriod) {
+        const start = subDays(new Date(), slicePeriod)
+        params.start_date = start.toISOString().split("T")[0]
+      }
+
+      const response = await dashboardService.getReport(params)
+      const blob = new Blob([response.data], { type: "application/pdf" })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", `relatorio_dashboard_${endDate}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error("Erro ao exportar relatório:", err)
+    } finally {
+      setIsExporting(false)                                     // 3) fim do loading
+    }
+  }
 
   if (isError || !dashboard) {
     return (
@@ -162,9 +194,16 @@ export default function DashboardPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          <Button disabled>
-            <Download className="h-4 w-4 mr-2" />
-            Exportar Relatório
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isFetching || isExporting}
+          >
+            {isExporting
+              ? <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              : <Download className="h-4 w-4 mr-2" />
+            }
+            {isExporting ? 'Exportando…' : 'Exportar Relatório'}
           </Button>
         </div>
       </div>
