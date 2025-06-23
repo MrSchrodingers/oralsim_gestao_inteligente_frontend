@@ -14,8 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/component
 import { Separator } from "@/src/common/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
 import { useToast } from "@/src/common/components/ui/use-toast"
-import type { IRegistrationRequestCreateDTO, IUserCreateDTO } from "@/src/common/interfaces/IUser"
-import { useCreateRegistrationRequest, useCreateUser, useLogin } from "@/src/common/hooks/useUser"
+import type { IRegistrationRequestCreateDTO, IUser, IUserCreateDTO } from "@/src/common/interfaces/IUser"
+import { useCreateRegistrationRequest, useCreateUser, useCurrentUser, useLogin } from "@/src/common/hooks/useUser"
 import { ThemeToggle } from "@/src/common/components/themeToggle"
 import { useSearchOralsinClinics } from "@/src/common/hooks/useOralsin"
 
@@ -50,16 +50,20 @@ export default function LoginForm({ mode = "signin" }: Props) {
   // Hooks de mutação do TanStack Query
   const loginMutation = useLogin()
   const registrationMutation = useCreateRegistrationRequest()
+  const { refetch } = useCurrentUser();
 
-  const handleLoginSuccess = (data: any) => {
+  const handleLoginSuccess = async () => {
     toast({
       title: "Login bem-sucedido!",
       description: `Bem-vindo(a) de volta.`,
-    })
-    const targetPath = (data.user?.role !== "admin" ? "/admin/pendentes" : "/clinica/dashboard")
-    router.push(targetPath)
-    router.refresh()
-  }
+    });
+
+    const { data: user } = await refetch(); 
+
+    const targetPath = user?.role === "admin" ? "/admin/pendentes" : "/clinica/dashboard";
+    router.push(targetPath);
+    router.refresh();
+  };
 
   useEffect(() => {
     const loginError = loginMutation.error as any

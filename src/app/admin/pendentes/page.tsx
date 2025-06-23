@@ -330,7 +330,7 @@ export default function ClinicApprovalPage() {
                 <p className="text-sm font-medium text-muted-foreground">Total</p>
                 <p className="text-2xl font-bold">{summary.total}</p>
               </div>
-              <Building2 className="h-8 w-8 text-muted-foreground" />
+              <Building2 className="h-8 w-8 mt-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -342,7 +342,7 @@ export default function ClinicApprovalPage() {
                 <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
                 <p className="text-2xl font-bold text-yellow-600">{summary.pending}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-600" />
+              <Clock className="h-8 w-8 mt-5 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
@@ -354,7 +354,7 @@ export default function ClinicApprovalPage() {
                 <p className="text-sm font-medium text-muted-foreground">Aprovadas</p>
                 <p className="text-2xl font-bold text-green-600">{summary.approved}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-8 w-8 mt-5 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -366,7 +366,7 @@ export default function ClinicApprovalPage() {
                 <p className="text-sm font-medium text-muted-foreground">Rejeitadas</p>
                 <p className="text-2xl font-bold text-red-600">{summary.rejected}</p>
               </div>
-              <XCircle className="h-8 w-8 text-red-600" />
+              <XCircle className="h-8 w-8 mt-5 text-red-600" />
             </div>
           </CardContent>
         </Card>
@@ -378,7 +378,7 @@ export default function ClinicApprovalPage() {
                 <p className="text-sm font-medium text-muted-foreground">Pagas</p>
                 <p className="text-2xl font-bold text-blue-600">{summary.paid}</p>
               </div>
-              <CreditCard className="h-8 w-8 text-blue-600" />
+              <CreditCard className="h-8 w-8 mt-5 text-blue-600" />
             </div>
           </CardContent>
         </Card>

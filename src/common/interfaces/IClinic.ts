@@ -7,6 +7,16 @@ export interface IClinic {
   updated_at?: string;
 }
 
+export interface IClinicSummary {
+  id: string,
+  name: string,
+  total_patients: number,
+  active_patients: number,
+  receivables: number,
+  collection_cases: number,
+  monthly_revenue: string
+}
+
 export interface IClinicCreateDTO {
   name: string;
   cnpj?: string | null;

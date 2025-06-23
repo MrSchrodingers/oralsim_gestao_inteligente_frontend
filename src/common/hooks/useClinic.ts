@@ -3,11 +3,19 @@ import type { IClinic, IClinicCreateDTO, IClinicUpdateDTO } from '@/src/common/i
 import { clinicService } from '../services/clinic.service';
 
 const CLINIC_QUERY_KEY = 'clinics';
+const CLINIC_SUMMARY_QUERY_KEY = 'clinics-summary';
 
 export const useFetchClinics = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CLINIC_QUERY_KEY, params],
     queryFn: () => clinicService.getAll(params).then(res => res.data),
+  });
+};
+
+export const useFetchClinicsSummary = (id: string) => {
+  return useQuery({
+    queryKey: [CLINIC_SUMMARY_QUERY_KEY, id],
+    queryFn: () => clinicService.getSummary(id).then(res => res.data),
   });
 };
 

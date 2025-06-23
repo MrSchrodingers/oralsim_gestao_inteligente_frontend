@@ -40,12 +40,9 @@ import { ThemeToggle } from "@/src/common/components/themeToggle"
 import { Toaster } from "@/src/common/components/ui/toaster"
 
 const navItems = [
-  { href: "/admin/dashboard", icon: BarChart3, label: "Painel Geral" },
   { href: "/admin/usuarios", icon: Users, label: "Usuários" },
   { href: "/admin/pendentes", icon: ListTodo, label: "Usuários Pendentes" },
-  { href: "/admin/sistema", icon: MonitorCog, label: "Sistema" },
   { href: "/admin/planos", icon: DollarSign, label: "Planos" },
-  { href: "/admin/configuracoes", icon: Settings, label: "Configurações" },
 ]
 
 function SidebarContent({ isCollapsed = false }: { isCollapsed?: boolean }) {
