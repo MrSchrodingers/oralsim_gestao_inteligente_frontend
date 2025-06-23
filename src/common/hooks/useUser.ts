@@ -1,15 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userService } from '@/src/common/services/user.service';
 import { useAuthStore, useAuthActions } from '@/src/common/stores/useAuthStore';
-import type { IUser, IUserCreateDTO, IUserUpdateDTO } from '@/src/common/interfaces/IUser';
+import type { IRegistrationRequestCreateDTO, IUser, IUserCreateDTO, IUserUpdateDTO } from '@/src/common/interfaces/IUser';
 import type { ILoginRequest } from '../interfaces/ILogin';
 
 const USER_QUERY_KEY = 'users';
+const REGISTRATION_REQUEST_QUERY_KEY = 'registrationRequests';
 
 export const useFetchUsers = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [USER_QUERY_KEY, params],
     queryFn: () => userService.getAll(params).then(res => res.data),
+  });
+};
+
+export const useCreateRegistrationRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+      mutationFn: (data: IRegistrationRequestCreateDTO) => userService.requestRegistration(data).then(res => res.data),
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: [REGISTRATION_REQUEST_QUERY_KEY] });
+      },
   });
 };
 

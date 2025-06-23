@@ -66,6 +66,7 @@ export function CallCompletionDialog({
             <Label htmlFor="notes">Observações da ligação</Label>
             <Textarea
               id="notes"
+              className="mt-2"
               placeholder="Descreva o resultado da ligação..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

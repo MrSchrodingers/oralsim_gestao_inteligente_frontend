@@ -76,7 +76,7 @@ export default function HomePage() {
             <div className="mt-12 lg:mt-0 lg:col-span-6">
               <div className="relative">
                 <Image
-                  src="/placeholder.svg?height=500&width=600"
+                  src="/images/Dash_Demo.png?height=500&width=600"
                   alt="Dashboard do Sistema Oralsin"
                   width={600}
                   height={500}
@@ -97,7 +97,7 @@ export default function HomePage() {
       {/* Stats Section */}
       <section className="py-16 bg-emerald-600 dark:bg-emerald-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center text-white">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 text-center text-white">
             <div>
               <div className="text-3xl lg:text-4xl font-bold">24h</div>
               <div className="text-emerald-100 mt-2">Implementação completa</div>

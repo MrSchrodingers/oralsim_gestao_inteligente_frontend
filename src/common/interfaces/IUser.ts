@@ -36,3 +36,11 @@ interface IClinicWithDetails {
 export interface IUserFullData extends IUser {
   clinics: IClinicWithDetails[];
 }
+
+export interface IRegistrationRequestCreateDTO {
+  email: string;
+  password?: string;
+  name: string;
+  clinic_name: string;
+  cordial_billing_config: number;
+}

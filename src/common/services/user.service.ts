@@ -1,11 +1,12 @@
 import apiService from "./api.service";
 import type { AxiosResponse } from "axios";
-import type { IUser, IUserCreateDTO, IUserUpdateDTO, IUserFullData } from "@/src/common/interfaces/IUser";
+import type { IUser, IUserCreateDTO, IUserUpdateDTO, IUserFullData, IRegistrationRequestCreateDTO } from "@/src/common/interfaces/IUser";
 import type { ILoginRequest, ILoginResponse } from "@/src/common/interfaces/ILogin";
 import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 
 const endpoint = "/users";
 const authEndpoint = "/auth";
+const registrationEndpoint = "/registration-requests"; 
 
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IUser>>> =>
   apiService.get(endpoint, { params });
@@ -34,6 +35,10 @@ const getCurrentUser = (): Promise<AxiosResponse<IUserFullData>> =>
 const requestPasswordReset = (data: ILoginRequest): Promise<AxiosResponse<ILoginResponse>> =>
   apiService.post(`${authEndpoint}/request-password-reset/`, data);
 
+const requestRegistration = (data: IRegistrationRequestCreateDTO): Promise<AxiosResponse<{ message: string }>> =>
+  apiService.post(registrationEndpoint, data);
+
+
 export const userService = {
   getAll,
   getById,
@@ -43,4 +48,5 @@ export const userService = {
   login,
   getCurrentUser,
   requestPasswordReset,
+  requestRegistration
 };

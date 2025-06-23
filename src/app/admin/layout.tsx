@@ -18,6 +18,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Phone,
+  ListTodo,
+  MonitorCog,
+  DollarSign,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
 import { motion, AnimatePresence } from "framer-motion"
@@ -37,11 +40,12 @@ import { ThemeToggle } from "@/src/common/components/themeToggle"
 import { Toaster } from "@/src/common/components/ui/toaster"
 
 const navItems = [
-  { href: "/clinica/dashboard", icon: BarChart3, label: "Painel Geral" },
-  { href: "/clinica/pacientes", icon: Users, label: "Pacientes" },
-  { href: "/clinica/mensagens", icon: MessageSquare, label: "Mensagens" },
-  { href: "/clinica/ligacoes", icon: Phone, label: "Ligações Pendentes" },
-  { href: "/clinica/configuracoes", icon: Settings, label: "Configurações" },
+  { href: "/admin/dashboard", icon: BarChart3, label: "Painel Geral" },
+  { href: "/admin/usuarios", icon: Users, label: "Usuários" },
+  { href: "/admin/pendentes", icon: ListTodo, label: "Usuários Pendentes" },
+  { href: "/admin/sistema", icon: MonitorCog, label: "Sistema" },
+  { href: "/admin/planos", icon: DollarSign, label: "Planos" },
+  { href: "/admin/configuracoes", icon: Settings, label: "Configurações" },
 ]
 
 function SidebarContent({ isCollapsed = false }: { isCollapsed?: boolean }) {

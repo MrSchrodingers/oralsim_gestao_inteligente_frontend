@@ -6,18 +6,18 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
-import { Loader2, Eye, EyeOff, CheckCircle, Shield, Clock, ArrowLeft } from "lucide-react"
+import { Loader2, Eye, EyeOff, CheckCircle, Shield, Clock, ArrowLeft} from "lucide-react"
 import { Button } from "@/src/common/components/ui/button"
 import { Input } from "@/src/common/components/ui/input"
 import { Label } from "@/src/common/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
-import { Badge } from "@/src/common/components/ui/badge"
 import { Separator } from "@/src/common/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
 import { useToast } from "@/src/common/components/ui/use-toast"
-import type { IUserCreateDTO } from "@/src/common/interfaces/IUser"
-import { useCreateUser, useLogin } from "@/src/common/hooks/useUser"
+import type { IRegistrationRequestCreateDTO, IUserCreateDTO } from "@/src/common/interfaces/IUser"
+import { useCreateRegistrationRequest, useCreateUser, useLogin } from "@/src/common/hooks/useUser"
 import { ThemeToggle } from "@/src/common/components/themeToggle"
+import { useSearchOralsinClinics } from "@/src/common/hooks/useOralsin"
 
 type Props = {
   mode?: "signin" | "signup"
@@ -40,39 +40,43 @@ export default function LoginForm({ mode = "signin" }: Props) {
   const [role, setRole] = useState<IUserCreateDTO["role"]>("clinic")
   const [clinicName, setClinicName] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [clinicSearch, setClinicSearch] = useState("")
+  const [cordialBillingConfig, setCordialBillingConfig] = useState<number>(90)
+
+  const { data: oralsinClinics, isLoading: isLoadingClinics } = useSearchOralsinClinics(clinicSearch)
 
   const redirect = searchParams.get("redirect") || "/clinica/dashboard"
 
   // Hooks de mutação do TanStack Query
   const loginMutation = useLogin()
-  const createUserMutation = useCreateUser()
+  const registrationMutation = useCreateRegistrationRequest()
 
   const handleLoginSuccess = (data: any) => {
     toast({
       title: "Login bem-sucedido!",
       description: `Bem-vindo(a) de volta.`,
     })
-    const targetPath = redirect || (data.user?.role === "admin" ? "/admin/dashboard" : "/clinica/dashboard")
+    const targetPath = (data.user?.role !== "admin" ? "/admin/pendentes" : "/clinica/dashboard")
     router.push(targetPath)
     router.refresh()
   }
 
   useEffect(() => {
     const loginError = loginMutation.error as any
-    const createUserError = createUserMutation.error as any
+    const registrationError = registrationMutation.error as any // Observar erro da nova mutação
 
-    if (loginError || createUserError) {
+    if (loginError || registrationError) {
       const errorMessage =
         loginError?.response?.data?.detail ||
-        createUserError?.response?.data?.detail ||
+        registrationError?.response?.data?.detail ||
         "Ocorreu um erro. Verifique seus dados."
       toast({
-        title: "Erro de Autenticação",
+        title: "Erro",
         description: errorMessage,
         variant: "destructive",
       })
     }
-  }, [loginMutation.error, createUserMutation.error, toast])
+  }, [loginMutation.error, registrationMutation.error, toast])
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -85,33 +89,28 @@ export default function LoginForm({ mode = "signin" }: Props) {
         },
       )
     } else {
-      const createUserData: IUserCreateDTO = {
+      const registrationData: IRegistrationRequestCreateDTO = {
         email,
         password,
         name,
-        role,
-        clinic_name: role === "clinic" ? clinicName : undefined,
+        clinic_name: clinicName,
+        cordial_billing_config: cordialBillingConfig,
       }
 
-      createUserMutation.mutate(createUserData, {
+      // Chamar a nova mutação
+      registrationMutation.mutate(registrationData, {
         onSuccess: () => {
           toast({
-            title: "Conta criada com sucesso!",
-            description: "Fazendo login para você...",
+            title: "Solicitação enviada com sucesso!",
+            description: "Seu cadastro está pendente de aprovação. Entraremos em contato em breve.",
           })
-          // Após criar o usuário, faz o login automaticamente
-          loginMutation.mutate(
-            { email, password },
-            {
-              onSuccess: handleLoginSuccess,
-            },
-          )
+          router.push("/login")
         },
       })
     }
   }
 
-  const isPending = loginMutation.isPending || createUserMutation.isPending
+  const isPending = loginMutation.isPending || registrationMutation.isPending
 
   return (
     <div className="min-h-screen flex">
@@ -251,6 +250,21 @@ export default function LoginForm({ mode = "signin" }: Props) {
                     </div>
 
                     <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Período limite para Cobrança Amigável
+                      </Label>
+                      <Input
+                        id="cordialBillingConfig"
+                        type="number"
+                        required
+                        placeholder="90"
+                        value={cordialBillingConfig}
+                        onChange={(e) => setCordialBillingConfig(Number(e.target.value))}
+                        className="h-11 text-base"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
                       <Label htmlFor="role" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Tipo de Conta
                       </Label>
@@ -271,19 +285,42 @@ export default function LoginForm({ mode = "signin" }: Props) {
 
                     {role === "clinic" && (
                       <div className="space-y-2">
-                        <Label htmlFor="clinic_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Nome da Clínica
-                        </Label>
-                        <Input
-                          id="clinic_name"
-                          type="text"
-                          placeholder="Ex: Clínica OrthoSmile"
-                          value={clinicName}
-                          onChange={(e) => setClinicName(e.target.value)}
-                          className="h-11 text-base"
-                        />
-                        <p className="text-xs text-gray-500">Você pode configurar isso depois nas configurações</p>
-                      </div>
+                      <Label htmlFor="clinic_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Nome da Clínica
+                      </Label>
+                      <Input
+                        id="clinic_search"
+                        type="text"
+                        placeholder="Digite para buscar sua clínica..."
+                        value={clinicSearch}
+                        onChange={(e) => setClinicSearch(e.target.value)}
+
+                        className="h-11 text-base"
+                      />
+                      <Select
+                        value={clinicName}
+                        onValueChange={setClinicName}
+                        disabled={isLoadingClinics || !oralsinClinics?.data}
+                      >
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Selecione sua clínica" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isLoadingClinics ? (
+                            <div className="flex items-center justify-center p-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : (
+                            oralsinClinics?.data.map((clinic) => (
+                              <SelectItem key={clinic.idClinica} value={clinic.nomeClinica}>
+                                {clinic.nomeClinica}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-gray-500">Você pode configurar isso depois nas configurações</p>
+                    </div>
                     )}
                   </>
                 )}
@@ -298,12 +335,12 @@ export default function LoginForm({ mode = "signin" }: Props) {
                   {isPending ? (
                     <>
                       <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                      {mode === "signin" ? "Entrando..." : "Criando conta..."}
+                      {mode === "signin" ? "Entrando..." : "Enviando solicitação..."}
                     </>
                   ) : mode === "signin" ? (
                     "Entrar na conta"
                   ) : (
-                    "Solicitar"
+                    "Solicitar Cadastro"
                   )}
                 </Button>
               </form>
