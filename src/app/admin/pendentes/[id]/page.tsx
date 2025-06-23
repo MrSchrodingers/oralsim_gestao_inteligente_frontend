@@ -46,347 +46,74 @@ import {
 import { useToast } from "@/src/common/components/ui/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
 import { Skeleton } from "@/src/common/components/ui/skeleton"
-
-// Interfaces
-interface PendingClinic {
-  id: string
-  email: string
-  name: string
-  clinic_name: string
-  status: "pending" | "approved" | "rejected"
-  created_at: string
-  updated_at: string
-  is_paid?: boolean
-  selected_plan?: string
-  notes?: string
-}
-
-interface ClinicDetails {
-  idClinica: number
-  nomeClinica: string
-  razaoSocial: string
-  sigla: string
-  estado: string
-  idCidade: number
-  logradouro: string
-  CEP: string
-  ddd: string
-  telefone1: string
-  telefone2?: string
-  bairro: string
-  cnpj: string
-  ativo: number
-  franquia: number
-  timezone: string
-  dataSafra: string
-  dataPrimeiroFaturamento: string
-  programaIndicaSin: number
-  exibeLPOralsin: number
-  urlLandpage?: string
-  urlLPOralsin: string
-  urlFacebook: string
-  urlChatFacebook: string
-  urlWhatsapp?: string
-  emailLead: string
-  nomeCidade: string
-}
-
-interface ActivityLog {
-  id: string
-  action: string
-  description: string
-  user: string
-  timestamp: string
-  type: "info" | "success" | "warning" | "error"
-}
-
-// Mock data
-const mockClinic: PendingClinic = {
-  id: "74dfa454-db54-42d7-a858-16b6e85ebe2a",
-  email: "bauru@oralsin.admin.com.br",
-  name: "Dr. Matheus Munhoz",
-  clinic_name: "Bauru",
-  status: "pending",
-  created_at: "2025-06-23T11:29:04.005013-03:00",
-  updated_at: "2025-06-23T11:29:04.005035-03:00",
-  is_paid: false,
-  selected_plan: "premium",
-  notes: "Clínica com grande potencial na região de Bauru. Responsável muito interessado no sistema.",
-}
-
-const mockClinicDetails: ClinicDetails = {
-  idClinica: 47,
-  nomeClinica: "Bauru",
-  razaoSocial: "P. A. T. YANASE ODONTOLOGIA",
-  sigla: "BAU",
-  estado: "SP",
-  idCidade: 4716,
-  logradouro: "Rua Engenheiro Saint Martin, 17-45",
-  CEP: "17015-351",
-  ddd: "14",
-  telefone1: "(14) 3012-9449",
-  telefone2: "(14) 3012-9450",
-  bairro: "Centro",
-  cnpj: "26.411.050/0001-55",
-  ativo: 1,
-  franquia: 1,
-  timezone: "America/Sao_Paulo",
-  dataSafra: "2017-03-13",
-  dataPrimeiroFaturamento: "2017-03-20",
-  programaIndicaSin: 1,
-  exibeLPOralsin: 1,
-  urlLandpage: "https://www.clinicabauru.com.br",
-  urlLPOralsin: "https://www.oralsin.com.br/bauru",
-  urlFacebook: "https://www.facebook.com/OralSinBauru",
-  urlChatFacebook: "https://m.me/OralSinBauru",
-  urlWhatsapp: "https://wa.me/5514999887766",
-  emailLead: "bauru@oralsin.com.br",
-  nomeCidade: "Bauru",
-}
-
-const mockActivityLog: ActivityLog[] = [
-  {
-    id: "1",
-    action: "Solicitação criada",
-    description: "Nova solicitação de cadastro recebida",
-    user: "Sistema",
-    timestamp: "2025-06-23T11:29:04.005013-03:00",
-    type: "info",
-  },
-  {
-    id: "2",
-    action: "Documentos enviados",
-    description: "Documentos de CNPJ e comprovante de endereço enviados",
-    user: "Dr. Matheus Munhoz",
-    timestamp: "2025-06-23T11:35:20.005013-03:00",
-    type: "success",
-  },
-  {
-    id: "3",
-    action: "Plano selecionado",
-    description: "Plano Premium selecionado",
-    user: "Dr. Matheus Munhoz",
-    timestamp: "2025-06-23T11:40:15.005013-03:00",
-    type: "info",
-  },
-  {
-    id: "4",
-    action: "Aguardando pagamento",
-    description: "Boleto gerado, aguardando confirmação de pagamento",
-    user: "Sistema",
-    timestamp: "2025-06-23T11:45:30.005013-03:00",
-    type: "warning",
-  },
-]
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "N/A"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr))
-}
-
-const formatDateOnly = (dateStr: string) => {
-  if (!dateStr) return "N/A"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(dateStr))
-}
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "pending":
-      return (
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-          <Clock className="h-3 w-3 mr-1" />
-          Pendente
-        </Badge>
-      )
-    case "approved":
-      return (
-        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Aprovada
-        </Badge>
-      )
-    case "rejected":
-      return (
-        <Badge variant="destructive">
-          <XCircle className="h-3 w-3 mr-1" />
-          Rejeitada
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
-  }
-}
-
-const getPlanBadge = (plan?: string) => {
-  if (!plan) return <Badge variant="outline">Não definido</Badge>
-
-  switch (plan) {
-    case "basic":
-      return (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-          <Package className="h-3 w-3 mr-1" />
-          Básico
-        </Badge>
-      )
-    case "premium":
-      return (
-        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-          <Package className="h-3 w-3 mr-1" />
-          Premium
-        </Badge>
-      )
-    case "enterprise":
-      return (
-        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-          <Package className="h-3 w-3 mr-1" />
-          Enterprise
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{plan}</Badge>
-  }
-}
-
-const getActivityIcon = (type: string) => {
-  switch (type) {
-    case "success":
-      return <CheckCircle className="h-4 w-4 text-green-600" />
-    case "warning":
-      return <AlertCircle className="h-4 w-4 text-yellow-600" />
-    case "error":
-      return <XCircle className="h-4 w-4 text-red-600" />
-    default:
-      return <Clock className="h-4 w-4 text-blue-600" />
-  }
-}
+import { useSearchOralsinClinics } from "@/src/common/hooks/useOralsin"
+import type { IOralsinClinic } from "@/src/common/interfaces/IOralsin"
+import { useApproveRegistrationRequest, useFetchRegistrationRequestById, useRejectRegistrationRequest } from "@/src/common/hooks/useRegistrationRequest"
+import { getPendingStatusBadge, getPlanBadge } from "@/src/common/components/helpers/GetBadge"
+import { formatDate, formatDateOnly } from "@/src/common/utils/formatters"
+import Link from "next/link"
 
 export default function ClinicDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
-  const [clinic, setClinic] = useState<PendingClinic | null>(null)
-  const [clinicDetails, setClinicDetails] = useState<ClinicDetails | null>(null)
-  const [activityLog, setActivityLog] = useState<ActivityLog[]>([])
   const [notes, setNotes] = useState("")
 
+  const { data: clinic, isLoading } = useFetchRegistrationRequestById(params.id as string)
+  const { data: oralsinData } = useSearchOralsinClinics(clinic?.clinic_name ?? "")
+  const clinicDetails = oralsinData?.data?.[0] as IOralsinClinic | undefined
+  const approveMutation = useApproveRegistrationRequest()
+  const rejectMutation = useRejectRegistrationRequest()
+
   useEffect(() => {
-    const loadClinicData = async () => {
-      setIsLoading(true)
-      try {
-        // Simular chamadas das APIs
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-
-        setClinic(mockClinic)
-        setClinicDetails(mockClinicDetails)
-        setActivityLog(mockActivityLog)
-        setNotes(mockClinic.notes || "")
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error)
-        toast({
-          title: "Erro ao carregar dados",
-          description: "Não foi possível carregar os dados da clínica.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoading(false)
-      }
+    if (clinic) {
+      setNotes(clinic.notes || "")
     }
-
-    loadClinicData()
-  }, [params.id, toast])
+  }, [clinic])
 
   const handleApprove = async () => {
     if (!clinic) return
 
-    setIsUpdating(true)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const updatedClinic = {
-        ...clinic,
-        status: "approved" as const,
-        updated_at: new Date().toISOString(),
-      }
-
-      setClinic(updatedClinic)
-
-      // Adicionar à timeline
-      const newActivity: ActivityLog = {
-        id: Date.now().toString(),
-        action: "Clínica aprovada",
-        description: "Clínica foi aprovada e pode começar a usar o sistema",
-        user: "Admin",
-        timestamp: new Date().toISOString(),
-        type: "success",
-      }
-      setActivityLog((prev) => [newActivity, ...prev])
-
-      toast({
-        title: "Clínica aprovada com sucesso",
-        description: "A clínica foi aprovada e pode começar a usar o sistema.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao aprovar clínica",
-        description: "Ocorreu um erro ao tentar aprovar a clínica. Tente novamente.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
+    approveMutation.mutate(params.id as string, {
+      onSuccess: () => {
+        toast({
+          title: "Clínica aprovada com sucesso",
+          description: "A clínica foi aprovada e pode começar a usar o sistema.",
+        })
+        setIsUpdating(false)
+      },
+      onError: () => {
+        toast({
+          title: "Erro ao aprovar clínica",
+          description: "Ocorreu um erro ao tentar aprovar a clínica. Tente novamente.",
+          variant: "destructive",
+        })
+        setIsUpdating(false)
+      },
+    })
   }
 
   const handleReject = async () => {
     if (!clinic) return
 
-    setIsUpdating(true)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const updatedClinic = {
-        ...clinic,
-        status: "rejected" as const,
-        updated_at: new Date().toISOString(),
-      }
-
-      setClinic(updatedClinic)
-
-      // Adicionar à timeline
-      const newActivity: ActivityLog = {
-        id: Date.now().toString(),
-        action: "Clínica rejeitada",
-        description: "Clínica foi rejeitada e não poderá usar o sistema",
-        user: "Admin",
-        timestamp: new Date().toISOString(),
-        type: "error",
-      }
-      setActivityLog((prev) => [newActivity, ...prev])
-
-      toast({
-        title: "Clínica rejeitada",
-        description: "A clínica foi rejeitada e não poderá usar o sistema.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao rejeitar clínica",
-        description: "Ocorreu um erro ao tentar rejeitar a clínica. Tente novamente.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
+    rejectMutation.mutate(params.id as string, {
+      onSuccess: () => {
+        toast({
+          title: "Clínica rejeitada",
+          description: "A clínica foi rejeitada e não poderá usar o sistema.",
+        })
+        setIsUpdating(false)
+      },
+      onError: () => {
+        toast({
+          title: "Erro ao rejeitar clínica",
+          description: "Ocorreu um erro ao tentar rejeitar a clínica. Tente novamente.",
+          variant: "destructive",
+        })
+        setIsUpdating(false)
+      },
+    })
   }
 
   const handleSaveNotes = async () => {
@@ -395,8 +122,6 @@ export default function ClinicDetailsPage() {
     setIsUpdating(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 500))
-
-      setClinic({ ...clinic, notes })
 
       toast({
         title: "Observações salvas",
@@ -413,7 +138,10 @@ export default function ClinicDetailsPage() {
     }
   }
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text?: string | null) => {
+    if (!text) return toast({
+      title: "Sem texto para ser copiado",
+    })
     navigator.clipboard.writeText(text)
     toast({
       title: "Copiado para área de transferência",
@@ -557,7 +285,7 @@ export default function ClinicDetailsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Status</p>
-                <div className="mt-1">{getStatusBadge(clinic.status)}</div>
+                <div className="mt-1">{getPendingStatusBadge(clinic.status)}</div>
               </div>
               <Clock className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -797,9 +525,9 @@ export default function ClinicDetailsPage() {
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" asChild>
-                  <a href={clinicDetails.urlLPOralsin} target="_blank" rel="noopener noreferrer">
+                  <Link href={clinicDetails.urlLPOralsin || "#"} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
 
@@ -812,9 +540,9 @@ export default function ClinicDetailsPage() {
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" asChild>
-                  <a href={clinicDetails.urlFacebook} target="_blank" rel="noopener noreferrer">
+                  <Link href={clinicDetails.urlFacebook || "#"} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
 
@@ -827,9 +555,9 @@ export default function ClinicDetailsPage() {
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" asChild>
-                  <a href={clinicDetails.urlChatFacebook} target="_blank" rel="noopener noreferrer">
+                  <Link href={clinicDetails.urlChatFacebook || "#"} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
 
@@ -908,38 +636,6 @@ export default function ClinicDetailsPage() {
                 {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
                 Salvar Observações
               </Button>
-            </CardContent>
-          </Card>
-
-          {/* Timeline de Atividades */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Timeline de Atividades
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activityLog.map((activity, index) => (
-                  <div key={activity.id} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      {getActivityIcon(activity.type)}
-                      {index < activityLog.length - 1 && <div className="w-px h-8 bg-border mt-2" />}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground">{activity.description}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <User className="h-3 w-3" />
-                        <span>{activity.user}</span>
-                        <span>•</span>
-                        <span>{formatDate(activity.timestamp)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </Card>
         </div>

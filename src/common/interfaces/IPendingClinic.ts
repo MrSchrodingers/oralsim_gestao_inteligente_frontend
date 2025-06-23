@@ -8,4 +8,6 @@ export interface IPendingClinic {
   updated_at: string
   is_paid?: boolean
   selected_plan?: string
+  notes?: string
+  oralsin_clinic_id?: number
 }

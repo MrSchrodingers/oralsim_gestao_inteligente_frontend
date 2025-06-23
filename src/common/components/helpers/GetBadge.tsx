@@ -1,7 +1,7 @@
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import { Badge } from "../ui/badge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
-import { AlertCircle, CheckCircle, Clock, Mail, MessageSquare, PhoneCall, Smartphone, Target } from "lucide-react"
+import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle } from "lucide-react"
 import type { IPatient } from "../../interfaces/IPatient"
 
 export type PatientWithFlow = IPatient & {
@@ -19,6 +19,110 @@ export const getStepBadge = (step: number) => {
   ]
 
   return <Badge className={colors[step % colors.length]}>Etapa {step}</Badge>
+}
+
+export const getPlanBadge = (planType?: string) => {
+  if (!planType) return (
+    <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+      <StopCircle className="h-3 w-3 mr-1" />
+      ND
+    </Badge>
+  )
+  switch (planType) {
+    case "basic":
+      return (
+        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+          <Package className="h-3 w-3 mr-1" />
+          Básico
+        </Badge>
+      )
+    case "premium":
+      return (
+        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+          <Package className="h-3 w-3 mr-1" />
+          Premium
+        </Badge>
+      )
+    case "enterprise":
+      return (
+        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+          <Package className="h-3 w-3 mr-1" />
+          Enterprise
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{planType}</Badge>
+  }
+}
+
+export const getSubscriptionBadge = (status: string) => {
+  switch (status) {
+    case "active":
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <CheckCircle className="h-3 w-3 mr-1" />
+          Ativa
+        </Badge>
+      )
+    case "expired":
+      return (
+        <Badge variant="destructive">
+          <XCircle className="h-3 w-3 mr-1" />
+          Expirada
+        </Badge>
+      )
+    case "cancelled":
+      return (
+        <Badge variant="secondary">
+          <XCircle className="h-3 w-3 mr-1" />
+          Cancelada
+        </Badge>
+      )
+    case "trial":
+      return (
+        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+          <Clock className="h-3 w-3 mr-1" />
+          Trial
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
+}
+
+export const getUserStatusBadge = (isActive: boolean) => {
+  return isActive ? (
+    <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+      <UserCheck className="h-3 w-3 mr-1" />
+      Ativo
+    </Badge>
+  ) : (
+    <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+      <UserX className="h-3 w-3 mr-1" />
+      Inativo
+    </Badge>
+  )
+}
+
+export const getRoleBadge = (role: string) => {
+  switch (role) {
+    case "admin":
+      return (
+        <Badge variant="default" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+          <Shield className="h-3 w-3 mr-1" />
+          Admin
+        </Badge>
+      )
+    case "clinic":
+      return (
+        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+          <Building2 className="h-3 w-3 mr-1" />
+          Clínica
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{role}</Badge>
+  }
 }
 
 export const getPriorityBadge = (attempts: number, overdueAmount: string) => {
@@ -110,6 +214,47 @@ export const getChannelBadge = (channel: string) => {
       <span className="ml-1">{config.label}</span>
     </Badge>
   )
+}
+
+export const getActivityIcon = (type: string) => {
+  switch (type) {
+    case "success":
+      return <CheckCircle className="h-4 w-4 text-green-600" />
+    case "warning":
+      return <AlertCircle className="h-4 w-4 text-yellow-600" />
+    case "error":
+      return <XCircle className="h-4 w-4 text-red-600" />
+    default:
+      return <Clock className="h-4 w-4 text-blue-600" />
+  }
+}
+
+export const getPendingStatusBadge = (status: string) => {
+  switch (status) {
+    case "pending":
+      return (
+        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+          <Clock className="h-3 w-3 mr-1" />
+          Pendente
+        </Badge>
+      )
+    case "approved":
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <CheckCircle className="h-3 w-3 mr-1" />
+          Aprovada
+        </Badge>
+      )
+    case "rejected":
+      return (
+        <Badge variant="destructive">
+          <XCircle className="h-3 w-3 mr-1" />
+          Rejeitada
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
 }
 
 export const getStatusBadge = (patient: PatientWithFlow) => {

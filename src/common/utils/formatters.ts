@@ -78,3 +78,24 @@ export function formatCurrency(value?: string | number | null): string {
     currency: "BRL",
   }).format(amount);
 }
+
+
+export const formatDateOnly = (dateStr?: string | null) => {
+  if (!dateStr) return "N/A"
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(dateStr))
+}
+
+export const calculateSubscriptionDays = (startDate: string, endDate: string) => {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const now = new Date()
+
+  const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+  const remainingDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+
+  return { totalDays, remainingDays }
+}

@@ -16,6 +16,15 @@ const searchClinics = (
   });
 };
 
+const getClinicById = (
+  id: number
+): Promise<AxiosResponse<IOralsinPagedResponse>> => {
+  return oralsinApi.get(`/clinica/${id}`, {
+    params: { api_token: "ae48ba16-92b2-4f59-b0b5-d43cc998a30d" },
+  });
+};
+
 export const oralsinService = {
   searchClinics,
+  getClinicById
 };

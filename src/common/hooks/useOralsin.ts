@@ -18,3 +18,10 @@ export const useSearchOralsinClinics = (searchTerm: string) => {
     enabled: debouncedSearchTerm.length >= 3,
   });
 };
+
+export const useFetchOralsinClinic = (id: number, enabled = true) =>
+  useQuery({
+    queryKey: [ORALSIN_CLINIC_QUERY_KEY, id],
+    queryFn: () => oralsinService.getClinicById(id).then(res => res.data),
+    enabled,
+  });

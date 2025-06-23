@@ -55,153 +55,22 @@ import {
 } from "@/src/common/components/ui/alert-dialog"
 import { useToast } from "@/src/common/components/ui/use-toast"
 import { Skeleton } from "@/src/common/components/ui/skeleton"
-import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse"
 import type { IPendingClinic } from "@/src/common/interfaces/IPendingClinic"
-import type { IOralsinClinic, IOralsinPagedResponse } from "@/src/common/interfaces/IOralsin"
 import { formatDate } from "@/src/common/utils/formatters"
+import type { IOralsinClinic } from "@/src/common/interfaces/IOralsin"
+import { useSearchOralsinClinics } from "@/src/common/hooks/useOralsin"
+import { useApproveRegistrationRequest, useFetchRegistrationRequests, useRejectRegistrationRequest } from "@/src/common/hooks/useRegistrationRequest"
+import { getPendingStatusBadge, getPlanBadge } from "@/src/common/components/helpers/GetBadge"
 
-const mockPendingClinics: IPagedResponse<IPendingClinic> = {
-  results: [
-    {
-      id: "74dfa454-db54-42d7-a858-16b6e85ebe2a",
-      email: "bauru@oralsin.admin.com.br",
-      name: "Dr. Matheus Munhoz",
-      clinic_name: "Bauru",
-      status: "pending",
-      created_at: "2025-06-23T11:29:04.005013-03:00",
-      updated_at: "2025-06-23T11:29:04.005035-03:00",
-      is_paid: false,
-      selected_plan: "premium",
-    },
-    {
-      id: "84dfa454-db54-42d7-a858-16b6e85ebe2b",
-      email: "saopaulo@oralsin.admin.com.br",
-      name: "Dra. Ana Silva",
-      clinic_name: "São Paulo Centro",
-      status: "pending",
-      created_at: "2025-06-22T10:15:30.005013-03:00",
-      updated_at: "2025-06-22T10:15:30.005035-03:00",
-      is_paid: true,
-      selected_plan: "basic",
-    },
-  ],
-  total_items: 2,
-  items_on_page: 2,
-  page: 1,
-  page_size: 50,
-  total_pages: 1,
-}
-
-const mockClinicDetails: Partial<IOralsinPagedResponse> = {
-  current_page: 1,
-  data: [
-    {
-      idClinica: 47,
-      nomeClinica: "Bauru",
-      razaoSocial: "P. A. T. YANASE ODONTOLOGIA",
-      sigla: "BAU",
-      estado: "SP",
-      idCidade: 4716,
-      logradouro: "Rua Engenheiro Saint Martin, 17-45",
-      CEP: "17015-351",
-      ddd: "14",
-      telefone1: "(14) 3012-9449",
-      telefone2: null,
-      bairro: "Centro",
-      cnpj: "26.411.050/0001-55",
-      ativo: 1,
-      franquia: 1,
-      timezone: "America/Sao_Paulo",
-      dataSafra: "2017-03-13",
-      dataPrimeiroFaturamento: "2017-03-20",
-      programaIndicaSin: 1,
-      exibeLPOralsin: 1,
-      urlLandpage: null,
-      urlLPOralsin: "https://www.oralsin.com.br/bauru",
-      urlFacebook: "https://www.facebook.com/OralSinBauru",
-      urlChatFacebook: "https://m.me/OralSinBauru",
-      urlWhatsapp: null,
-      emailLead: "bauru@oralsin.com.br",
-      nomeCidade: "Bauru",
-    },
-  ],
-  total: 1,
-}
-
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "pending":
-      return (
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-          <Clock className="h-3 w-3 mr-1" />
-          Pendente
-        </Badge>
-      )
-    case "approved":
-      return (
-        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Aprovada
-        </Badge>
-      )
-    case "rejected":
-      return (
-        <Badge variant="destructive">
-          <XCircle className="h-3 w-3 mr-1" />
-          Rejeitada
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
-  }
-}
-
-const getPlanBadge = (plan?: string) => {
-  if (!plan) return <Badge variant="outline">Não definido</Badge>
-
-  switch (plan) {
-    case "basic":
-      return (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-          <Package className="h-3 w-3 mr-1" />
-          Básico
-        </Badge>
-      )
-    case "premium":
-      return (
-        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-          <Package className="h-3 w-3 mr-1" />
-          Premium
-        </Badge>
-      )
-    case "enterprise":
-      return (
-        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-          <Package className="h-3 w-3 mr-1" />
-          Enterprise
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{plan}</Badge>
-  }
-}
 
 function ClinicDetailsModal({ clinic }: { clinic: IPendingClinic }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [clinicDetails, setClinicDetails] = useState<IOralsinClinic | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const { data, isLoading, refetch } = useSearchOralsinClinics(searchTerm)
+  const clinicDetails = data?.data?.[0] as IOralsinClinic | undefined
 
-  const loadClinicDetails = async () => {
-    setIsLoading(true)
-    try {
-      // Simular chamada da API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setClinicDetails(mockClinicDetails?.data?.[0] || null)
-    } catch (error) {
-      console.error("Erro ao carregar detalhes:", error)
-    } finally {
-      setIsLoading(false)
-    }
+  const loadClinicDetails = () => {
+    setSearchTerm(clinic.clinic_name)
+    refetch()
   }
 
   return (
@@ -366,14 +235,18 @@ export default function ClinicApprovalPage() {
   const [planFilter, setPlanFilter] = useState<string>("all")
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
-  // Mock data - substitua pela sua lógica de fetch real
-  const [clinicsData, setClinicsData] = useState<IPagedResponse<IPendingClinic>>(mockPendingClinics)
+  const { data: clinicsData, isLoading } = useFetchRegistrationRequests({
+    page,
+    page_size: pageSize,
+  })
+  const approveMutation = useApproveRegistrationRequest()
+  const rejectMutation = useRejectRegistrationRequest()
 
   const filteredClinics = useMemo(() => {
-    let filtered = clinicsData.results
+    const results = clinicsData?.results ?? []
+    let filtered = results
 
     if (statusFilter !== "all") {
       filtered = filtered.filter((clinic) => clinic.status === statusFilter)
@@ -384,77 +257,54 @@ export default function ClinicApprovalPage() {
     }
 
     return filtered
-  }, [clinicsData.results, statusFilter, planFilter])
+  }, [clinicsData, statusFilter, planFilter])
 
-  const handleApprove = async (clinicId: string) => {
-    setIsLoading(true)
-    try {
-      // Simular chamada da API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setClinicsData((prev) => ({
-        ...prev,
-        results: prev.results.map((clinic) =>
-          clinic.id === clinicId
-            ? { ...clinic, status: "approved" as const, updated_at: new Date().toISOString() }
-            : clinic,
-        ),
-      }))
-
-      toast({
-        title: "Clínica aprovada com sucesso",
-        description: "A clínica foi aprovada e pode começar a usar o sistema.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao aprovar clínica",
-        description: "Ocorreu um erro ao tentar aprovar a clínica. Tente novamente.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+  const handleApprove = (clinicId: string) => {
+    approveMutation.mutate(clinicId, {
+      onSuccess: () => {
+        toast({
+          title: "Clínica aprovada com sucesso",
+          description: "A clínica foi aprovada e pode começar a usar o sistema.",
+        })
+      },
+      onError: () => {
+        toast({
+          title: "Erro ao aprovar clínica",
+          description: "Ocorreu um erro ao tentar aprovar a clínica. Tente novamente.",
+          variant: "destructive",
+        })
+      },
+    })
   }
 
-  const handleReject = async (clinicId: string) => {
-    setIsLoading(true)
-    try {
-      // Simular chamada da API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setClinicsData((prev) => ({
-        ...prev,
-        results: prev.results.map((clinic) =>
-          clinic.id === clinicId
-            ? { ...clinic, status: "rejected" as const, updated_at: new Date().toISOString() }
-            : clinic,
-        ),
-      }))
-
-      toast({
-        title: "Clínica rejeitada",
-        description: "A clínica foi rejeitada e não poderá usar o sistema.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao rejeitar clínica",
-        description: "Ocorreu um erro ao tentar rejeitar a clínica. Tente novamente.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+  const handleReject = (clinicId: string) => {
+    rejectMutation.mutate(clinicId, {
+      onSuccess: () => {
+        toast({
+          title: "Clínica rejeitada",
+          description: "A clínica foi rejeitada e não poderá usar o sistema.",
+        })
+      },
+      onError: () => {
+        toast({
+          title: "Erro ao rejeitar clínica",
+          description: "Ocorreu um erro ao tentar rejeitar a clínica. Tente novamente.",
+          variant: "destructive",
+        })
+      },
+    })
   }
 
   const summary = useMemo(() => {
-    const total = clinicsData.results.length
-    const pending = clinicsData.results.filter((c) => c.status === "pending").length
-    const approved = clinicsData.results.filter((c) => c.status === "approved").length
-    const rejected = clinicsData.results.filter((c) => c.status === "rejected").length
-    const paid = clinicsData.results.filter((c) => c.is_paid).length
+    const results = clinicsData?.results ?? []
+    const total = results.length
+    const pending = results.filter((c) => c.status === "pending").length
+    const approved = results.filter((c) => c.status === "approved").length
+    const rejected = results.filter((c) => c.status === "rejected").length
+    const paid = results.filter((c) => c.is_paid).length
 
     return { total, pending, approved, rejected, paid }
-  }, [clinicsData.results])
+  }, [clinicsData])
 
   return (
     <div className="space-y-6">
@@ -463,7 +313,9 @@ export default function ClinicApprovalPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">Aprovação de Clínicas</h1>
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            {(isLoading || approveMutation.isPending || rejectMutation.isPending) && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
           </div>
           <p className="text-muted-foreground">Gerencie as solicitações de cadastro de novas clínicas no sistema</p>
         </div>
@@ -612,7 +464,7 @@ export default function ClinicApprovalPage() {
                         <span className="truncate max-w-[200px]">{clinic.email}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(clinic.status)}</TableCell>
+                    <TableCell>{getPendingStatusBadge(clinic.status)}</TableCell>
                     <TableCell>{getPlanBadge(clinic.selected_plan)}</TableCell>
                     <TableCell>
                       {clinic.is_paid ? (
