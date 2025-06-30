@@ -21,6 +21,20 @@ export const getStepBadge = (step: number) => {
   return <Badge className={colors[step % colors.length]}>Etapa {step}</Badge>
 }
 
+export const getActiveStatusBadge = (isActive: boolean) => {
+  return isActive ? (
+    <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+      <UserCheck className="h-3 w-3 mr-1" />
+      Ativo
+    </Badge>
+  ) : (
+    <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+      <UserX className="h-3 w-3 mr-1" />
+      Inativo
+    </Badge>
+  )
+}
+
 export const getPlanBadge = (planType?: string) => {
   if (!planType) return (
     <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">

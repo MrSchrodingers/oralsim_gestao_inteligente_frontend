@@ -9,7 +9,8 @@ export function formatCPF(cpf: string): string {
   return cpf;
 }
 
-export const formatPhone = (phone: string) => {
+export const formatPhone = (phone?: string | null ) => {
+  if (!phone) return "N/A"
   const cleaned = phone.replace(/\D/g, "")
   if (cleaned.length === 13) {
     return `+${cleaned.slice(0, 2)} (${cleaned.slice(2, 4)}) ${cleaned.slice(4, 9)}-${cleaned.slice(9)}`

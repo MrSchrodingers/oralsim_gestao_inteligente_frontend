@@ -3,7 +3,7 @@ import type { AxiosResponse } from "axios";
 import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 import type { IClinic, IClinicCreateDTO, IClinicSummary, IClinicUpdateDTO } from "../interfaces/IClinic";
 
-const endpoint = "/clinic";
+const endpoint = "/clinics";
 
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IClinic>>> =>
   apiService.get(endpoint, { params });
@@ -12,7 +12,7 @@ const getById = (id: string): Promise<AxiosResponse<IClinic>> =>
   apiService.get(`${endpoint}/${id}/`);
 
 const getSummary = (id: string): Promise<AxiosResponse<IClinicSummary>> =>
-  apiService.get(`${endpoint}/${id}/summary/`);
+  apiService.get(`${endpoint}/${id}/summary`);
 
 const create = (data: IClinicCreateDTO): Promise<AxiosResponse<IClinic>> =>
   apiService.post(endpoint, data);

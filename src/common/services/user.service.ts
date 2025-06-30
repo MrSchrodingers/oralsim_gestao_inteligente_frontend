@@ -7,12 +7,13 @@ import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 const endpoint = "/users";
 const authEndpoint = "/auth";
 const registrationEndpoint = "/registration-requests"; 
+const userDataEndpoint = "/users-data";
 
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IUser>>> =>
   apiService.get(endpoint, { params });
 
 const getById = (id: string): Promise<AxiosResponse<IUserFullData>> =>
-  apiService.get(`${endpoint}/${id}/`);
+  apiService.get(`${endpoint}/${id}`);
 
 const create = (data: IUserCreateDTO): Promise<AxiosResponse<IUser>> =>
   apiService.post(endpoint, data);
@@ -38,6 +39,8 @@ const requestPasswordReset = (data: ILoginRequest): Promise<AxiosResponse<ILogin
 const requestRegistration = (data: IRegistrationRequestCreateDTO): Promise<AxiosResponse<{ message: string }>> =>
   apiService.post(registrationEndpoint, data);
 
+const getUserData = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IUserFullData>>> =>
+  apiService.get(userDataEndpoint, { params });
 
 export const userService = {
   getAll,
@@ -48,5 +51,6 @@ export const userService = {
   login,
   getCurrentUser,
   requestPasswordReset,
-  requestRegistration
+  requestRegistration,
+  getUserData
 };

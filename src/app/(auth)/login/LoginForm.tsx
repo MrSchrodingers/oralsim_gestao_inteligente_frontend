@@ -323,7 +323,6 @@ export default function LoginForm({ mode = "signin" }: Props) {
                           )}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-gray-500">Você pode configurar isso depois nas configurações</p>
                     </div>
                     )}
                   </>

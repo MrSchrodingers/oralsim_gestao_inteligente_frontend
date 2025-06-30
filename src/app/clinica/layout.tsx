@@ -216,7 +216,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={"/placeholder.svg"} alt={`@${user.name}`} />
                   <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                    {user.name?.charAt(0).toUpperCase()}
+                  {(() => {
+                            const cleaned = user.name.replace(/-/g, "").trim();
+                            const words   = cleaned.split(/\s+/);
+
+                            // Somente um nome → pega as 3 primeiras letras
+                            if (words.length === 1) {
+                              return cleaned.slice(0, 3).toUpperCase();
+                            }
+
+                            // Vários nomes → pega a primeira letra de cada um (máx. 3)
+                            return words
+                              .map(w => w[0])
+                              .join("")
+                              .slice(0, 3)
+                              .toUpperCase();
+                          })()}
                   </AvatarFallback>
                 </Avatar>
               </Button>

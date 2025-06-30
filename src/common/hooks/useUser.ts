@@ -6,11 +6,19 @@ import type { ILoginRequest } from '../interfaces/ILogin';
 
 const USER_QUERY_KEY = 'users';
 const REGISTRATION_REQUEST_QUERY_KEY = 'registrationRequests';
+const USER_DATA_QUERY_KEY = 'userdata';
 
 export const useFetchUsers = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [USER_QUERY_KEY, params],
     queryFn: () => userService.getAll(params).then(res => res.data),
+  });
+};
+
+export const useFetchUsersData = (params?: Record<string, any>) => {
+  return useQuery({
+    queryKey: [USER_DATA_QUERY_KEY, params],
+    queryFn: () => userService.getUserData(params).then(res => res.data),
   });
 };
 

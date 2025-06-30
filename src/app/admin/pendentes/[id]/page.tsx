@@ -79,7 +79,7 @@ export default function ClinicDetailsPage() {
       onSuccess: () => {
         toast({
           title: "Clínica aprovada com sucesso",
-          description: "A clínica foi aprovada e pode começar a usar o sistema.",
+          description: "A clínica foi aprovada e em instantes poderá usar o sistema.",
         })
         setIsUpdating(false)
       },

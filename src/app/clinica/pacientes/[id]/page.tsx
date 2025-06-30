@@ -15,11 +15,9 @@ import {
   CheckCircle,
   Clock,
   FileText,
-  Target,
   PhoneCall,
   MoreHorizontal,
   Download,
-  Send,
   MessageSquare,
   MessageCircle,
   PhoneOutgoing,
@@ -807,16 +805,6 @@ export default function PatientDetailsPage() {
                   <p className="text-muted-foreground mb-4">
                     Este paciente não está em nenhum fluxo de cobrança no momento.
                   </p>
-                  <div className="flex justify-center gap-4">
-                    <Button variant="outline" size="sm">
-                      <Target className="h-4 w-4 mr-2" />
-                      Iniciar Gestão de Recebíveis
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <PhoneCall className="h-4 w-4 mr-2" />
-                      Iniciar Cobrança Amigável
-                    </Button>
-                  </div>
                 </div>
               )}
             </CardContent>

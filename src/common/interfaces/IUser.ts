@@ -16,13 +16,14 @@ export interface IUserCreateDTO {
   email: string;
   password?: string;
   name: string;
+  is_active: boolean;
   role: 'admin' | 'clinic';
   clinic_name?: string | null;
 }
 
 export interface IUserUpdateDTO extends Partial<IUserCreateDTO> {}
 
-interface IClinicWithDetails {
+export interface IClinicWithDetails {
   id: string;
   oralsin_clinic_id: number;
   name: string;

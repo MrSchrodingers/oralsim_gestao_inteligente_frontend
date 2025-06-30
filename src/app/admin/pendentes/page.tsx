@@ -264,7 +264,7 @@ export default function ClinicApprovalPage() {
       onSuccess: () => {
         toast({
           title: "Clínica aprovada com sucesso",
-          description: "A clínica foi aprovada e pode começar a usar o sistema.",
+          description: "A clínica foi aprovada e em instantes poderá usar o sistema.",
         })
       },
       onError: () => {
@@ -442,11 +442,22 @@ export default function ClinicApprovalPage() {
                         <Avatar className="h-10 w-10">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                            {clinic.clinic_name
-                              .split(" ")
-                              .map((n: string) => n[0])
+                          {(() => {
+                            const cleaned = clinic.clinic_name.replace(/-/g, "").trim();
+                            const words   = cleaned.split(/\s+/);
+
+                            // Somente um nome → pega as 3 primeiras letras
+                            if (words.length === 1) {
+                              return cleaned.slice(0, 3).toUpperCase();
+                            }
+
+                            // Vários nomes → pega a primeira letra de cada um (máx. 3)
+                            return words
+                              .map(w => w[0])
                               .join("")
-                              .slice(0, 2)}
+                              .slice(0, 3)
+                              .toUpperCase();
+                          })()}
                           </AvatarFallback>
                         </Avatar>
                         <div>

@@ -305,7 +305,7 @@ export default function PendingCallsPage() {
                             </Avatar>
                             <div>
                               <p className="font-medium">{call.patient.name}</p>
-                              <p className="text-sm text-muted-foreground">{formatPhone(call.patient.phones[0].phone_number)}</p>
+                              <p className="text-sm text-muted-foreground">{formatPhone(call.patient?.phones?.[0]?.phone_number || null) }</p>
                             </div>
                           </div>
                         </TableCell>
