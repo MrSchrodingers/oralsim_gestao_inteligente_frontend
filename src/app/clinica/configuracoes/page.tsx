@@ -379,7 +379,7 @@ export default function ConfiguracoesPage() {
                         onChange={(e) => updateNestedFormData("clinic", "address", "street", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formData.clinic.address.street}</p>
+                      <p className="text-sm font-medium mt-1">{formData?.clinic?.address?.street || "N/A"}</p>
                     )}
                   </div>
 
@@ -392,7 +392,7 @@ export default function ConfiguracoesPage() {
                         onChange={(e) => updateNestedFormData("clinic", "address", "number", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formData.clinic.address.number}</p>
+                      <p className="text-sm font-medium mt-1">{formData?.clinic?.address?.number || "N/A"}</p>
                     )}
                   </div>
 
@@ -405,7 +405,7 @@ export default function ConfiguracoesPage() {
                         onChange={(e) => updateNestedFormData("clinic", "address", "complement", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formData.clinic.address.complement || "N/A"}</p>
+                      <p className="text-sm font-medium mt-1">{formData?.clinic?.address?.complement || "N/A"}</p>
                     )}
                   </div>
                 </div>
@@ -420,7 +420,7 @@ export default function ConfiguracoesPage() {
                         onChange={(e) => updateNestedFormData("clinic", "address", "neighborhood", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formData.clinic.address.neighborhood}</p>
+                      <p className="text-sm font-medium mt-1">{formData?.clinic?.address?.neighborhood}</p>
                     )}
                   </div>
 
@@ -433,7 +433,7 @@ export default function ConfiguracoesPage() {
                         onChange={(e) => updateNestedFormData("clinic", "address", "city", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formData.clinic.address.city}</p>
+                      <p className="text-sm font-medium mt-1">{formData?.clinic?.address?.city || "N/A"}</p>
                     )}
                   </div>
 
@@ -455,7 +455,7 @@ export default function ConfiguracoesPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formData.clinic.address.state}</p>
+                      <p className="text-sm font-medium mt-1">{formData?.clinic?.address?.state || "N/A"}</p>
                     )}
                   </div>
 
@@ -468,7 +468,7 @@ export default function ConfiguracoesPage() {
                         onChange={(e) => updateNestedFormData("clinic", "address", "zip_code", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formatZipCode(formData.clinic.address.zip_code)}</p>
+                      <p className="text-sm font-medium mt-1">{formatZipCode(formData.clinic.address.zip_code) || "N/A"}</p>
                     )}
                   </div>
                 </div>
@@ -550,7 +550,6 @@ export default function ConfiguracoesPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src="/placeholder.svg" />
                   <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                     {formData.user.name.charAt(0).toUpperCase()}
                   </AvatarFallback>

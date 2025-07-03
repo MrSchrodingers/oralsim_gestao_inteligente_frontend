@@ -15,6 +15,7 @@ import {
   PhoneOutgoing,
   MessageSquare,
   Download,
+  RefreshCw,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
@@ -62,6 +63,7 @@ export default function PendingCallsPage() {
     isLoading: isLoadingCalls,
     isFetching: isFetchingCalls,
     isError: isErrorCalls,
+    refetch
   } = useFetchPendingCalls({ page, page_size: pageSize })
 
   const { data: summary, isLoading: isLoadingSummary, isError: isErrorSummary } = usePendingCallsSummary()
@@ -140,10 +142,6 @@ export default function PendingCallsPage() {
     }
   }
 
-  const makeCall = (phone: string) => {
-    window.location.href = `tel:${phone.replace(/\D/g, "")}`
-  }
-
   const clearFilters = () => {
     setStepFilter("all")
     setPriorityFilter("all")
@@ -181,10 +179,16 @@ export default function PendingCallsPage() {
           </div>
           <p className="text-muted-foreground">Gerencie as ligações que precisam ser realizadas para os pacientes</p>
         </div>
-        <Button variant="outline" disabled>
-          <Download className="h-4 w-4 mr-2" />
-          Exportar
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => refetch()} disabled={isFetchingCalls}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetchingCalls ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Button variant="outline" disabled>
+            <Download className="h-4 w-4 mr-2" />
+            Exportar
+          </Button>
+        </div>
       </div>
 
       {/* Cards de estatísticas com skeleton */}
@@ -227,10 +231,17 @@ export default function PendingCallsPage() {
                 <SelectValue placeholder="Filtrar por etapa" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as etapas</SelectItem>
-                <SelectItem value="2">Etapa 2</SelectItem>
-                <SelectItem value="13">Etapa 13</SelectItem>
-              </SelectContent>
+                    <SelectItem value="all">Todas Etapas</SelectItem>
+                    {pendingCalls
+                      .map((fC) => fC.current_step)
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .sort((a, b) => a - b)
+                      .map((step) => (
+                        <SelectItem key={step} value={step.toString()}>
+                          Step {step}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
             </Select>
             <Select
               value={priorityFilter}
@@ -241,7 +252,7 @@ export default function PendingCallsPage() {
                 <SelectValue placeholder="Prioridade" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="all">Todas Prioridades</SelectItem>
                 <SelectItem value="high">Alta</SelectItem>
                 <SelectItem value="medium">Média</SelectItem>
                 <SelectItem value="normal">Normal</SelectItem>
@@ -305,7 +316,7 @@ export default function PendingCallsPage() {
                             </Avatar>
                             <div>
                               <p className="font-medium">{call.patient.name}</p>
-                              <p className="text-sm text-muted-foreground">{formatPhone(call.patient?.phones?.[0]?.phone_number || null) }</p>
+                              <p className="text-sm text-muted-foreground">{formatPhone(call.patient?.phones?.[0]?.phone_number || null)}</p>
                             </div>
                           </div>
                         </TableCell>

@@ -207,7 +207,6 @@ const Header = ({ user, onBack, onToggleStatus, loading }: HeaderProps) => (
       </Button>
 
       <Avatar className="h-12 w-12">
-        <AvatarImage src="/placeholder.svg" />
         <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
         {(() => {
                             const cleaned = user.name.replace(/-/g, "").trim();
@@ -240,8 +239,8 @@ const Header = ({ user, onBack, onToggleStatus, loading }: HeaderProps) => (
           variant={user.is_active ? "outline" : "default"}
           className={
             user.is_active
-              ? "text-red-600 border-red-200 hover:bg-red-50"
-              : "bg-green-600 hover:bg-green-700"
+              ? "text-red-600 border-red-200 hover:bg-red-500"
+              : "bg-green-600"
           }
           disabled={loading}
         >

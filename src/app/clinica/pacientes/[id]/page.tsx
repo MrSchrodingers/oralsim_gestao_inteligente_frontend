@@ -53,7 +53,7 @@ import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useC
 import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
 import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig"
 import { formatCurrency, formatDate, formatDateTime, formatPhone } from "@/src/common/utils/formatters"
-import { getFlowBadge } from "@/src/common/components/helpers/GetBadge"
+import { getChannelBadge, getFlowBadge } from "@/src/common/components/helpers/GetBadge"
 import {
   PatientInfoSkeleton,
   ContractInfoSkeleton,
@@ -136,21 +136,6 @@ const getStatusBadge = (status?: string | null, received?: boolean) => {
   }
 }
 
-const getChannelIcon = (channel: string) => {
-  switch (channel) {
-    case "whatsapp":
-      return <MessageSquare className="h-4 w-4" />
-    case "sms":
-      return <MessageCircle className="h-4 w-4" />
-    case "email":
-      return <MailOpen className="h-4 w-4" />
-    case "phonecall":
-      return <PhoneOutgoing className="h-4 w-4" />
-    default:
-      return <Activity className="h-4 w-4" />
-  }
-}
-
 export default function PatientDetailsPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const { id } = useParams<{ id: string }>()
@@ -196,7 +181,6 @@ export default function PatientDetailsPage() {
           {patient ? (
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
-                <AvatarImage src="/placeholder.svg" />
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                   {patientInitials}
                 </AvatarFallback>
@@ -602,9 +586,6 @@ export default function PatientDetailsPage() {
                   </div>
 
                   <div className="relative">
-                    {/* Linha vertical conectora */}
-                    <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200 dark:bg-gray-800"></div>
-
                     {/* Timeline items */}
                     <div className="space-y-8">
                       {flowSteps.map((step, index) => {
@@ -616,7 +597,7 @@ export default function PatientDetailsPage() {
                           <div key={step.id} className="relative flex items-start gap-4">
                             {/* Círculo indicador */}
                             <div
-                              className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 ${
+                              className={`relative z-10 flex h-12 w-12 mt-8 shrink-0 items-center justify-center rounded-full border-2 ${
                                 isCurrentStep
                                   ? "border-blue-600 bg-blue-50 dark:bg-blue-950 dark:border-blue-500"
                                   : isPastStep
@@ -662,16 +643,9 @@ export default function PatientDetailsPage() {
                                 {step.channels.map((channel) => (
                                   <div
                                     key={channel}
-                                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                      isCurrentStep
-                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                                        : isPastStep
-                                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                                    }`}
+                                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium`}
                                   >
-                                    {getChannelIcon(channel)}
-                                    <span className="capitalize">{channel}</span>
+                                    {getChannelBadge(channel)}
                                   </div>
                                 ))}
                               </div>
@@ -736,15 +710,12 @@ export default function PatientDetailsPage() {
                       <h4 className="font-medium text-sm text-muted-foreground">Atividades Recentes</h4>
 
                       <div className="relative">
-                        {/* Linha vertical conectora */}
-                        <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
-
                         {/* Timeline items */}
                         <div className="space-y-6">
                           {mockDealActivities.map((activity, index) => (
                             <div key={activity.id} className="relative flex items-start gap-4">
                               {/* Círculo indicador */}
-                              <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/30 dark:border-orange-700">
+                              <div className="relative z-10 flex h-12 w-12 mt-10 shrink-0 items-center justify-center rounded-full border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/30 dark:border-orange-700">
                                 {activity.type === "call" ? (
                                   <PhoneOutgoing className="h-5 w-5 text-orange-600" />
                                 ) : activity.type === "task" ? (

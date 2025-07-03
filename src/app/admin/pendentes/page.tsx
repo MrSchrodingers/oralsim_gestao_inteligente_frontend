@@ -440,7 +440,6 @@ export default function ClinicApprovalPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                           {(() => {
                             const cleaned = clinic.clinic_name.replace(/-/g, "").trim();

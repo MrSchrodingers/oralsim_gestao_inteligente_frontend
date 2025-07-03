@@ -202,7 +202,6 @@ export default function ClinicDetailsPage() {
           </Button>
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12">
-              <AvatarImage src="/placeholder.svg" />
               <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                 {clinic.clinic_name
                   .split(" ")

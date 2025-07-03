@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  RefreshCw,
 } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
@@ -37,7 +38,7 @@ import { useFetchPatients, usePatientsSummary } from "@/src/common/hooks/usePati
 import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useCollectionCase"
 import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
 import { formatPhone } from "@/src/common/utils/formatters"
-import { getFlowBadge, getStatusBadge} from "@/src/common/components/helpers/GetBadge"
+import { getFlowBadge, getStatusBadge } from "@/src/common/components/helpers/GetBadge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import type { IPatient } from "@/src/common/interfaces/IPatient"
@@ -67,42 +68,43 @@ export default function PatientsPage() {
   const { toast } = useToast()
 
   const handleCopyPhone = (phoneNumber: string) => {
-      navigator.clipboard.writeText(phoneNumber.replace(/\D/g, ""))
-      toast({
-        title: "Número copiado para área de trasnferência",
-        description: formatPhone(phoneNumber),
-      })
-    }
+    navigator.clipboard.writeText(phoneNumber.replace(/\D/g, ""))
+    toast({
+      title: "Número copiado para área de trasnferência",
+      description: formatPhone(phoneNumber),
+    })
+  }
 
   const handleNavigation =
     (action: "detail" | "edit" | "call" | "email" | "remove", id: string) =>
-    (e: ReactMouseEvent<HTMLDivElement>) => {
-      e.preventDefault()
+      (e: ReactMouseEvent<HTMLDivElement>) => {
+        e.preventDefault()
 
-      switch (action) {
-        case "detail":
-          router.push(`/clinica/pacientes/${id}`)
-          break
-        case "edit":
-          router.push(`/clinica/pacientes/${id}/editar`)
-          break
-        case "call":
-          // usa tel: para abrir o dialer
-          window.location.href = `tel:${patientsWithFlow.find(p => p.id === id)?.phones?.[0].phone_number}`
-          break
-        case "email":
-          window.location.href = `mailto:${patientsWithFlow.find(p => p.id === id)?.email}`
-          break
-        default:
-          break
+        switch (action) {
+          case "detail":
+            router.push(`/clinica/pacientes/${id}`)
+            break
+          case "edit":
+            router.push(`/clinica/pacientes/${id}/editar`)
+            break
+          case "call":
+            // usa tel: para abrir o dialer
+            window.location.href = `tel:${patientsWithFlow.find(p => p.id === id)?.phones?.[0].phone_number}`
+            break
+          case "email":
+            window.location.href = `mailto:${patientsWithFlow.find(p => p.id === id)?.email}`
+            break
+          default:
+            break
+        }
       }
-    }
 
   const {
     data: patientsData,
     isLoading: isLoadingPatients,
     isFetching: isFetchingPatients,
     isError: isErrorPatients,
+    refetch
   } = useFetchPatients({
     page,
     page_size: pageSize,
@@ -188,6 +190,10 @@ export default function PatientsPage() {
           <p className="text-muted-foreground">Gerencie todos os pacientes e acompanhe seus fluxos de cobrança</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => refetch()} disabled={isFetchingPatients}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetchingPatients ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
           <Button variant="outline" disabled>
             <Download className="h-4 w-4 mr-2" />
             Exportar
@@ -267,7 +273,7 @@ export default function PatientsPage() {
                   <SelectValue placeholder="Notificações" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="all">Todos status</SelectItem>
                   <SelectItem value="enabled">Habilitadas</SelectItem>
                   <SelectItem value="disabled">Desabilitadas</SelectItem>
                 </SelectContent>
@@ -277,135 +283,134 @@ export default function PatientsPage() {
         </CardHeader>
         <CardContent>
           {/* Tabela com indicador sutil de loading */}
-            <div className={`rounded-md border ${isRefetching ? "opacity-75 transition-opacity" : ""}`}>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Paciente</TableHead>
-                    <TableHead>Contato</TableHead>
-                    <TableHead>Notificações</TableHead>
-                    <TableHead>Fluxo</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Última Atualização</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
+          <div className={`rounded-md border ${isRefetching ? "opacity-75 transition-opacity" : ""}`}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Paciente</TableHead>
+                  <TableHead>Contato</TableHead>
+                  <TableHead>Notificações</TableHead>
+                  <TableHead>Fluxo</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Última Atualização</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
 
-                {isRefetching ? (
-                    // Skeleton apenas para as linhas
-                    <tbody className="animate-pulse">
-                      {Array.from({ length: pageSize }).map((_, i) => (
-                        <TableRow key={i}>
-                          <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-8" /></TableCell>
-                        </TableRow>
-                      ))}
-                    </tbody>
-                  ) : (
-                    <TableBody>
-                      {patientsWithFlow.map((patient: IPatient) => (
-                        <TableRow key={patient.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage src="/placeholder.svg" />
-                                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                                  {patient.name
-                                    .split(" ")
-                                    .map((n: string) => n[0])
-                                    .join("")
-                                    .slice(0, 2)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium">{patient.name}</p>
-                                <p className="text-sm text-muted-foreground">CPF: {patient.cpf || "N/A"}</p>
-                              </div>
+              {isRefetching ? (
+                // Skeleton apenas para as linhas
+                <tbody className="animate-pulse">
+                  {Array.from({ length: pageSize }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                    </TableRow>
+                  ))}
+                </tbody>
+              ) : (
+                <TableBody>
+                  {patientsWithFlow.map((patient: IPatient) => (
+                    <TableRow key={patient.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                              {patient.name
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                                .slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{patient.name}</p>
+                            <p className="text-sm text-muted-foreground">CPF: {patient.cpf || "N/A"}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span className="truncate max-w-[200px]">{patient.email || "N/A"}</span>
+                          </div>
+                          {patient.phones?.length > 0 && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Phone className="h-4 w-4 text-muted-foreground" />
+                              <span>{formatPhone(patient.phones[0].phone_number)}</span>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2 text-sm">
-                                <Mail className="h-4 w-4 text-muted-foreground" />
-                                <span className="truncate max-w-[200px]">{patient.email || "N/A"}</span>
-                              </div>
-                              {patient.phones?.length > 0 && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <span>{formatPhone(patient.phones[0].phone_number)}</span>
-                                </div>
-                              )}
-                              {patient.address && (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <MapPin className="h-4 w-4" />
-                                  <span>
-                                    {patient.address.city}, {patient.address.state}
-                                  </span>
-                                </div>
-                              )}
+                          )}
+                          {patient.address && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <MapPin className="h-4 w-4" />
+                              <span>
+                                {patient.address.city}, {patient.address.state}
+                              </span>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {patient.is_notification_enabled ? (
-                                <>
-                                  <Bell className="h-4 w-4 text-green-600" />
-                                  <Badge
-                                    variant="default"
-                                    className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  >
-                                    Habilitadas
-                                  </Badge>
-                                </>
-                              ) : (
-                                <>
-                                  <BellOff className="h-4 w-4 text-red-600" />
-                                  <Badge variant="secondary">Desabilitadas</Badge>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>{getFlowBadge(patient?.flow_type)}</TableCell>
-                          <TableCell>{getStatusBadge(patient)}</TableCell>
-                          <TableCell>
-                            <span className="text-sm text-muted-foreground">
-                              {formatDate(patient.updated_at || patient.created_at || "")}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" disabled={isRefetching}>
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem  onClick={handleNavigation("detail", patient.id)} >
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  Ver Detalhes
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                onClick={() => handleCopyPhone(patient.phones[0].phone_number)}
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {patient.is_notification_enabled ? (
+                            <>
+                              <Bell className="h-4 w-4 text-green-600" />
+                              <Badge
+                                variant="default"
+                                className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                               >
-                                <Phone className="h-4 w-4 mr-2" />
-                                Ligar Agora
-                              </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  )}
-              </Table>
-            </div>
+                                Habilitadas
+                              </Badge>
+                            </>
+                          ) : (
+                            <>
+                              <BellOff className="h-4 w-4 text-red-600" />
+                              <Badge variant="secondary">Desabilitadas</Badge>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{getFlowBadge(patient?.flow_type)}</TableCell>
+                      <TableCell>{getStatusBadge(patient)}</TableCell>
+                      <TableCell>
+                        <span className="text-sm text-muted-foreground">
+                          {formatDate(patient.updated_at || patient.created_at || "")}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" disabled={isRefetching}>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleNavigation("detail", patient.id)} >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Ver Detalhes
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleCopyPhone(patient.phones[0].phone_number)}
+                            >
+                              <Phone className="h-4 w-4 mr-2" />
+                              Ligar Agora
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              )}
+            </Table>
+          </div>
           {/* Controles de paginação com indicadores de loading */}
           {patientsData && patientsData.total_items > 0 && (
             <div className="flex items-center justify-between px-2 py-4">

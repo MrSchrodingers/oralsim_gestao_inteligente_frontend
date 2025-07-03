@@ -255,7 +255,7 @@ export default function LoginForm({ mode = "signin" }: Props) {
 
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Período limite para Cobrança Amigável
+                        Período mínimo para Cobrança Amigável
                       </Label>
                       <Input
                         id="cordialBillingConfig"

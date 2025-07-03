@@ -148,7 +148,6 @@ function UserMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-3 hover:bg-accent hover:text-accent-foreground rounded-md p-2 transition-colors">
           <Avatar className="h-8 w-8">
-            <AvatarImage alt={user.name || "Avatar do usuário"} src={"/placeholder.svg"} />
             <AvatarFallback className="text-sm font-medium">
               {user.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
             </AvatarFallback>

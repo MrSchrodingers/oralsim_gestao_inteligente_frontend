@@ -8,10 +8,10 @@ import {
   MoreHorizontal,
   Copy,
   Download,
-  Search,
   ChevronLeft,
   ChevronRight,
   Workflow,
+  RefreshCw,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
@@ -26,12 +26,10 @@ import {
   DropdownMenuTrigger,
 } from "@/src/common/components/ui/dropdownMenu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
-import { Input } from "@/src/common/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/common/components/ui/tabs"
 import { useFetchMessages, useMessagesSummary } from "@/src/modules/notification/hooks/useMessage"
 import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig"
 import type { IMessage } from "@/src/modules/notification/interfaces/IMessage"
-import type { IFlowStepConfig } from "@/src/modules/notification/interfaces/IFlowStepConfig"
 import { extractVariables } from "@/src/common/utils/extractVariables"
 import { getChannelBadge } from "@/src/common/components/helpers/GetBadge"
 import { formatDate } from "@/src/common/utils/formatters"
@@ -51,7 +49,7 @@ export default function MessagesPage() {
     return p
   }, [page, pageSize, typeFilter, stepFilter])
 
-  const { data: messagesData, isLoading } = useFetchMessages(queryParams)
+  const { data: messagesData, isFetching, refetch } = useFetchMessages(queryParams)
   const { data: summary } = useMessagesSummary()
   const { data: flowStepData } = useFetchFlowStepConfigs()
 
@@ -80,10 +78,16 @@ export default function MessagesPage() {
             Gerencie todas as mensagens do sistema de cobrança e notificações
           </p>
         </div>
-        <Button variant="outline" disabled>
-          <Download className="h-4 w-4 mr-2" />
-          Exportar
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => refetch()} disabled={isFetching}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Button variant="outline" disabled>
+            <Download className="h-4 w-4 mr-2" />
+            Exportar
+          </Button>
+        </div>
       </div>
 
       {/* Estatísticas */}
@@ -159,18 +163,18 @@ export default function MessagesPage() {
                   </SelectContent>
                 </Select>
                 <Select value={stepFilter} onValueChange={handleStepChange}>
-                  <SelectTrigger className="w-full sm:w-32">
+                  <SelectTrigger className="w-full sm:w-40">
                     <SelectValue placeholder="Step" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="all">Todas Etapas</SelectItem>
                     {flowStepData?.results
                       .map((fs) => fs.step_number)
                       .filter((v, i, a) => a.indexOf(v) === i)
                       .sort((a, b) => a - b)
                       .map((step) => (
                         <SelectItem key={step} value={step.toString()}>
-                          Step {step}
+                          Etapa {step}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -185,7 +189,7 @@ export default function MessagesPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Tipo</TableHead>
-                      <TableHead>Step</TableHead>
+                      <TableHead>Etapa</TableHead>
                       <TableHead>Conteúdo</TableHead>
                       <TableHead>Variáveis</TableHead>
                       <TableHead>Última Atualização</TableHead>
@@ -350,7 +354,7 @@ export default function MessagesPage() {
         <TabsContent value="flowchart" className="space-y-6">
           <Card>
             <CardContent className="p-6">
-              <FlowChart/>
+              <FlowChart />
             </CardContent>
           </Card>
         </TabsContent>

@@ -80,7 +80,7 @@ export default function HomePage() {
                   alt="Dashboard do Sistema Oralsin"
                   width={600}
                   height={500}
-                  className="rounded-xl shadow-2xl"
+                  className="rounded-sm shadow-2xl"
                 />
                 <div className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
                   <div className="flex items-center gap-3">

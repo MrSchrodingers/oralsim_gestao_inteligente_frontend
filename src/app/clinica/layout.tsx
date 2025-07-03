@@ -214,7 +214,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <span className="text-xs leading-none text-muted-foreground">{user.email}</span>
                 </div>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={"/placeholder.svg"} alt={`@${user.name}`} />
                   <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                   {(() => {
                             const cleaned = user.name.replace(/-/g, "").trim();

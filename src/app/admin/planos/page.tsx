@@ -258,15 +258,15 @@ export default function PlansPage() {
       </div>
 
       {/* Cards de Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between"> 
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total de Planos</p>
                 <p className="text-2xl font-bold">{mockMetrics.total_plans}</p>
               </div>
-              <Package className="h-8 w-8 text-muted-foreground" />
+              <Package className="h-8 w-8 mt-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -278,19 +278,7 @@ export default function PlansPage() {
                 <p className="text-sm font-medium text-muted-foreground">Planos Ativos</p>
                 <p className="text-2xl font-bold text-green-600">{mockMetrics.active_plans}</p>
               </div>
-              <Package className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Planos Inativos</p>
-                <p className="text-2xl font-bold text-red-600">{mockMetrics.inactive_plans}</p>
-              </div>
-              <Archive className="h-8 w-8 text-red-600" />
+              <Package className="h-8 w-8 mt-5 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -302,7 +290,7 @@ export default function PlansPage() {
                 <p className="text-sm font-medium text-muted-foreground">Total Assinantes</p>
                 <p className="text-2xl font-bold text-blue-600">{mockMetrics.total_subscribers}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-8 w-8 mt-5 text-blue-600" />
             </div>
           </CardContent>
         </Card>
@@ -316,7 +304,7 @@ export default function PlansPage() {
                   {formatCurrency(mockMetrics.monthly_revenue)}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <DollarSign className="h-8 w-8 mt-5 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -330,7 +318,7 @@ export default function PlansPage() {
                   {formatCurrency(mockMetrics.annual_revenue)}
                 </p>
               </div>
-              <TrendingUp className="h-8 w-8 text-purple-600" />
+              <TrendingUp className="h-8 w-8 mt-5 text-purple-600" />
             </div>
           </CardContent>
         </Card>
