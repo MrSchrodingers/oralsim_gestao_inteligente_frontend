@@ -1,4 +1,5 @@
 import type  { IAddress } from './IAddress';
+import type { IContract } from './IContract';
 import type  { IPatientPhone } from './IPatientPhone';
 
 export interface IPatient {
@@ -10,10 +11,11 @@ export interface IPatient {
   address?: IAddress | null;
   contact_name?: string | null;
   email?: string | null;
-  is_notification_enabled: boolean;
+  channels?: number;
   phones: IPatientPhone[];
   created_at?: string;
   flow_type?: "notification_billing" | "cordial_billing" | null | undefined;
+  contract?: IContract
   updated_at?: string;
 }
 
@@ -21,5 +23,4 @@ export interface IPatientUpdateDTO {
   name?: string;
   cpf?: string | null;
   email?: string | null;
-  is_notification_enabled?: boolean;
 }

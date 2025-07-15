@@ -1,7 +1,7 @@
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import { Badge } from "../ui/badge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
-import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle } from "lucide-react"
+import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Banknote, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle, Ban, CircleOff } from "lucide-react"
 import type { IPatient } from "../../interfaces/IPatient"
 
 export type PatientWithFlow = IPatient & {
@@ -170,7 +170,7 @@ export const getFlowBadge = (
   flowType?: "notification_billing" | "cordial_billing" | null
 ) => {
   if (!flowType) {
-    return <Badge variant="secondary">Sem Fluxo</Badge>
+    return <Ban className="h-4 w-4 text-red-600" />
   }
 
   if (flowType === "notification_billing") {
@@ -205,7 +205,7 @@ export const getChannelIcon = (channel: string) => {
     case "phonecall":
       return <PhoneCall className="h-4 w-4 text-orange-600" />
     case "letter":
-      return <Mail className="h-4 w-4 text-orange-600" />
+      return <Mail className="h-4 w-4 text-teal-600" />
     default:
       return <MessageSquare className="h-4 w-4" />
   }
@@ -273,7 +273,11 @@ export const getPendingStatusBadge = (status: string) => {
 
 export const getStatusBadge = (patient: PatientWithFlow) => {
   if (!patient.flowType) {
-    return <Badge variant="outline">Inativo</Badge>
+    return (
+      <div className="flex justify-center gap-2">
+        <CircleOff className="h-4 w-4 text-red-600" />
+      </div>
+    )
   }
 
   if (patient.flowType === "notification_billing") {
@@ -287,7 +291,7 @@ export const getStatusBadge = (patient: PatientWithFlow) => {
     const Icon = statusInfo.icon
 
     return (
-      <Badge variant={statusInfo.variant} className="flex items-center gap-1">
+      <Badge variant={statusInfo.variant} className="flex items-center justify-center gap-1">
         <Icon className="h-3 w-3" />
         {statusInfo.label}
       </Badge>
@@ -304,7 +308,7 @@ export const getStatusBadge = (patient: PatientWithFlow) => {
     const Icon = statusInfo.icon
 
     return (
-      <Badge variant={statusInfo.variant} className="flex items-center gap-1">
+      <Badge variant={statusInfo.variant} className="flex justify-center text-center gap-1">
         <Icon className="h-3 w-3" />
         {statusInfo.label}
       </Badge>

@@ -10,7 +10,6 @@ import {
   Bell,
   BellOff,
   Eye,
-  Edit,
   Download,
   AlertCircle,
   Target,
@@ -22,7 +21,6 @@ import {
 } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
-import { Badge } from "@/src/common/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/common/components/ui/table"
 import {
   DropdownMenu,
@@ -33,12 +31,12 @@ import {
   DropdownMenuTrigger,
 } from "@/src/common/components/ui/dropdownMenu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import { useFetchPatients, usePatientsSummary } from "@/src/common/hooks/usePatient"
 import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useCollectionCase"
 import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
 import { formatPhone } from "@/src/common/utils/formatters"
-import { getFlowBadge, getStatusBadge } from "@/src/common/components/helpers/GetBadge"
+import { getFlowBadge, getStatusBadge, type PatientWithFlow } from "@/src/common/components/helpers/GetBadge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import type { IPatient } from "@/src/common/interfaces/IPatient"
@@ -57,6 +55,9 @@ const formatDate = (dateStr: string) => {
     minute: "2-digit",
   }).format(new Date(dateStr))
 }
+
+const DEFAULT_PAGE_SIZE = 5;
+const PAGE_SIZES = [5, 10, 25, 50, 100] as const;
 
 export default function PatientsPage() {
   const router = useRouter()
@@ -88,7 +89,6 @@ export default function PatientsPage() {
             router.push(`/clinica/pacientes/${id}/editar`)
             break
           case "call":
-            // usa tel: para abrir o dialer
             window.location.href = `tel:${patientsWithFlow.find(p => p.id === id)?.phones?.[0].phone_number}`
             break
           case "email":
@@ -109,7 +109,7 @@ export default function PatientsPage() {
     page,
     page_size: pageSize,
     flow_type: flowFilter !== "all" ? flowFilter : undefined,
-    is_notification_enabled: notificationFilter !== "all" ? notificationFilter === "enabled" : undefined,
+    do_notifications: notificationFilter !== "all" ? notificationFilter === "enabled" : undefined,
   })
   const { data: summary } = usePatientsSummary();
 
@@ -117,7 +117,6 @@ export default function PatientsPage() {
 
   const {
     data: collectionCasesData,
-    isLoading: isLoadingCollection,
     isError: isErrorCollection,
   } = useFetchCollectionCases(
     patientIds.length ? { patient_id__in: patientIds.join(","), page_size: patientIds.length } : undefined,
@@ -125,14 +124,11 @@ export default function PatientsPage() {
 
   const {
     data: contactSchedulesData,
-    isLoading: isLoadingSchedules,
     isError: isErrorSchedules,
   } = useFetchContactSchedules(
     patientIds.length ? { patient_id__in: patientIds.join(","), page_size: patientIds.length } : undefined,
   )
 
-  // Diferencia entre loading inicial e refetch
-  const isInitialLoading = isLoadingPatients || isLoadingCollection || isLoadingSchedules
   const isRefetching = isFetchingPatients && !isLoadingPatients
   const isError = isErrorPatients || isErrorCollection || isErrorSchedules
 
@@ -157,6 +153,37 @@ export default function PatientsPage() {
       return { ...patient, flowType: patient.flow_type ?? null }
     })
   }, [patientsData, collectionCasesData, contactSchedulesData])
+
+  const channelsMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    patientsWithFlow.forEach(p => {
+      map[p.id] = (map[p.id] || 0) + 1;
+    });
+    return map;
+  }, [patientsWithFlow]);
+
+  const uniqueCount = useMemo(
+    () => new Set(patientsWithFlow.map(p => p.id)).size,
+    [patientsWithFlow]
+  );
+
+  useEffect(() => {
+    if (flowFilter === "notification_billing" && uniqueCount < pageSize) {
+      const idx = PAGE_SIZES.indexOf(pageSize as any);
+      if (idx !== -1 && idx < PAGE_SIZES.length - 1) {
+        setPageSize(PAGE_SIZES[idx + 1]);
+      }
+    }
+  }, [flowFilter, uniqueCount, pageSize]);
+
+  useEffect(() => {
+    if (flowFilter !== "notification_billing") {
+      setPageSize(DEFAULT_PAGE_SIZE);
+      setPage(1);
+    }
+  }, [flowFilter]);
+
+  const hasDuplicates = Object.values(channelsMap).some(c => c > 1);
 
   useEffect(() => {
     setIsTableLoading(isFetchingPatients);
@@ -202,7 +229,7 @@ export default function PatientsPage() {
       </div>
 
       {/* Cards de estatísticas com indicador sutil de loading */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className={isRefetching ? "opacity-75 transition-opacity" : ""}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -233,17 +260,6 @@ export default function PatientsPage() {
                 <p className="text-2xl font-bold text-orange-600">{summary?.with_collection}</p>
               </div>
               <PhoneCall className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className={isRefetching ? "opacity-75 transition-opacity" : ""}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Notificações Ativas</p>
-                <p className="text-2xl font-bold text-green-600">{summary?.with_notifications}</p>
-              </div>
-              <Bell className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -293,6 +309,7 @@ export default function PatientsPage() {
                   <TableHead>Fluxo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Última Atualização</TableHead>
+                  {hasDuplicates && <TableHead>N° Canais</TableHead>}
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -314,99 +331,114 @@ export default function PatientsPage() {
                 </tbody>
               ) : (
                 <TableBody>
-                  {patientsWithFlow.map((patient: IPatient) => (
-                    <TableRow key={patient.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                              {patient.name
-                                .split(" ")
-                                .map((n: string) => n[0])
-                                .join("")
-                                .slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{patient.name}</p>
-                            <p className="text-sm text-muted-foreground">CPF: {patient.cpf || "N/A"}</p>
+                  {patientsWithFlow.map((patient, idx) => {
+                    const count = channelsMap[patient.id] || 0;
+                    console.log(count)
+
+                    // se for repetido, só renderiza na primeira vez
+                    if (count > 1) {
+                      const firstIdx = patientsWithFlow.findIndex(p => p.id === patient.id);
+                      if (idx !== firstIdx) return null;
+                    }
+
+                    return (
+                      <TableRow key={patient.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                {patient.name
+                                  .split(" ")
+                                  .map((n: string) => n[0])
+                                  .join("")
+                                  .slice(0, 2)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{patient.name}</p>
+                              <p className="text-sm text-muted-foreground">CPF: {patient.cpf || "N/A"}</p>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
-                            <span className="truncate max-w-[200px]">{patient.email || "N/A"}</span>
-                          </div>
-                          {patient.phones?.length > 0 && (
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
                             <div className="flex items-center gap-2 text-sm">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <span>{formatPhone(patient.phones[0].phone_number)}</span>
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              <span className="truncate max-w-[200px]">{patient.email || "N/A"}</span>
                             </div>
-                          )}
-                          {patient.address && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <MapPin className="h-4 w-4" />
-                              <span>
-                                {patient.address.city}, {patient.address.state}
-                              </span>
+                            {patient.phones?.length > 0 && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span>{formatPhone(patient.phones[0].phone_number)}</span>
+                              </div>
+                            )}
+                            {patient.address && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="h-4 w-4" />
+                                <span>
+                                  {patient.address.city}, {patient.address.state}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-center gap-2">
+                            {patient?.flow_type == "notification_billing" ? (
+                              <>
+                                <Bell className="h-4 w-4 text-green-600" />
+                              </>
+                            ) : (
+                              <>
+                                <BellOff className="h-4 w-4 text-red-600" />
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-center gap-2">
+                            {getFlowBadge(patient?.flow_type)}
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(patient as PatientWithFlow)}</TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {formatDate(patient.updated_at || patient.created_at || "")}
+                          </span>
+                        </TableCell>
+                        {hasDuplicates && (
+                          <TableCell>
+                            <div className="flex justify-center gap-2">
+                              {(count ?? 0) > 1 ? count : null}
                             </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {patient.is_notification_enabled ? (
-                            <>
-                              <Bell className="h-4 w-4 text-green-600" />
-                              <Badge
-                                variant="default"
-                                className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          </TableCell>
+                        )}
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" disabled={isRefetching}>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={handleNavigation("detail", patient.id)} >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleCopyPhone(patient.phones[0].phone_number)}
                               >
-                                Habilitadas
-                              </Badge>
-                            </>
-                          ) : (
-                            <>
-                              <BellOff className="h-4 w-4 text-red-600" />
-                              <Badge variant="secondary">Desabilitadas</Badge>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{getFlowBadge(patient?.flow_type)}</TableCell>
-                      <TableCell>{getStatusBadge(patient)}</TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
-                          {formatDate(patient.updated_at || patient.created_at || "")}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" disabled={isRefetching}>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={handleNavigation("detail", patient.id)} >
-                              <Eye className="h-4 w-4 mr-2" />
-                              Ver Detalhes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleCopyPhone(patient.phones[0].phone_number)}
-                            >
-                              <Phone className="h-4 w-4 mr-2" />
-                              Ligar Agora
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                                <Phone className="h-4 w-4 mr-2" />
+                                Ligar Agora
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               )}
             </Table>

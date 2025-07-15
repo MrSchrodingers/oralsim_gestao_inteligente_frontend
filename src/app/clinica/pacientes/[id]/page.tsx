@@ -326,7 +326,7 @@ export default function PatientDetailsPage() {
                     )}
 
                     <div className="flex items-center gap-3">
-                      {patient?.is_notification_enabled ? (
+                      {contract?.do_notifications ? (
                         <Bell className="h-4 w-4 text-green-600" />
                       ) : (
                         <BellOff className="h-4 w-4 text-red-600" />
@@ -334,7 +334,7 @@ export default function PatientDetailsPage() {
                       <div>
                         <p className="text-sm font-medium">Notificações</p>
                         <p className="text-sm text-muted-foreground">
-                          {patient?.is_notification_enabled ? "Habilitadas" : "Desabilitadas"}
+                          {contract?.do_notifications ? "Habilitadas" : "Desabilitadas"}
                         </p>
                       </div>
                     </div>

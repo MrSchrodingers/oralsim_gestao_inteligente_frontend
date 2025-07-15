@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Calendar,
   Loader2,
+  Banknote,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Progress } from "@/src/common/components/ui/progress"
@@ -143,21 +144,21 @@ export default function DashboardPage() {
       description: "Tempo médio de atraso nos pagamentos",
     },
     {
-      title: "Pacientes no Fluxo",
+      title: "Pacientes em Gestão de Recebíveis",
       value: Object.values(notification?.byStep ?? {})
         .reduce((a, b) => a + b, 0)
         .toString(),
-      icon: Users,
+      icon: Bell,
+      description: "Pacientes ativos no processo de notificações", 
+    },
+    {
+      title: "Pacientes em Cobrança Amigável",
+      value: collection?.totalCases.toString() ?? "0",
+      icon: Banknote,
       description: "Pacientes ativos no processo de cobrança",
     },
     {
-      title: "Notificações Pendentes",
-      value: (notification?.pendingSchedules ?? 0).toString(),
-      icon: Bell,
-      description: "Notificações agendadas para envio",
-    },
-    {
-      title: "Contratos Ativos",
+      title: "Total de Contratos Ativos",
       value: stats.totalContracts.toString(),
       icon: FileText,
       description: "Total de contratos em vigência",
