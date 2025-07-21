@@ -1,7 +1,7 @@
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import { Badge } from "../ui/badge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
-import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Banknote, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle, Ban, CircleOff } from "lucide-react"
+import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Banknote, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle, Ban, CircleOff, Activity, User, MailOpen, MessageSquareText, MessageCircle } from "lucide-react"
 import type { IPatient } from "../../interfaces/IPatient"
 
 export type PatientWithFlow = IPatient & {
@@ -206,6 +206,145 @@ export const getChannelIcon = (channel: string) => {
       return <PhoneCall className="h-4 w-4 text-orange-600" />
     case "letter":
       return <Mail className="h-4 w-4 text-teal-600" />
+    default:
+      return <MessageSquare className="h-4 w-4" />
+  }
+}
+
+export const getTriggerBadge = (trigger: string) => {
+  return trigger === "automated" ? (
+    <Badge variant="secondary">
+      <Activity className="h-3 w-3 mr-1" />
+      Automático
+    </Badge>
+  ) : (
+    <Badge variant="outline">
+      <User className="h-3 w-3 mr-1" />
+      Manual
+    </Badge>
+  )
+}
+
+export const getContactTypeBadge = (contactType: string) => {
+  const config = {
+    email: {
+      label: "Email",
+      variant: "default" as const,
+      className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    },
+    phonecall: {
+      label: "Ligação",
+      variant: "default" as const,
+      className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    },
+    sms: {
+      label: "SMS",
+      variant: "default" as const,
+      className: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+    },
+    whatsapp: {
+      label: "WhatsApp",
+      variant: "default" as const,
+      className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+    },
+  }
+
+  const statusConfig = config[contactType as keyof typeof config] || {
+    label: contactType,
+    className: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+  }
+
+  return (
+    <Badge variant="outline" className={statusConfig.className}>
+      {statusConfig.label}
+    </Badge>
+  )
+}
+
+export const getSuccessBadge = (success: boolean) => {
+  return success ? (
+    <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+      <CheckCircle className="h-3 w-3 mr-1" />
+      Sucesso
+    </Badge>
+  ) : (
+    <Badge variant="destructive">
+      <XCircle className="h-3 w-3 mr-1" />
+      Falhou
+    </Badge>
+  )
+}
+
+export const getFeedbackStatusBadge = (feedbackStatus: string | null) => {
+  if (!feedbackStatus) return null
+
+  const config = {
+    answered: { label: "Atendido", className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
+    no_answer: { label: "Não Atendido", className: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" },
+    delivered: { label: "Entregue", className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+    read: { label: "Lido", className: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
+    failed: { label: "Falhou", className: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" },
+  }
+
+  const statusConfig = config[feedbackStatus as keyof typeof config] || {
+    label: feedbackStatus,
+    className: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+  }
+
+  return (
+    <Badge variant="outline" className={statusConfig.className}>
+      {statusConfig.label}
+    </Badge>
+  )
+}
+
+export const getPaymentStatusBadge = (status?: string | null, received?: boolean) => {
+  if (received) {
+    return (
+      <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        Pago
+      </Badge>
+    )
+  }
+
+  switch (status?.toLowerCase()) {
+    case "compensado":
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <CheckCircle className="h-3 w-3 mr-1" />
+          Compensado
+        </Badge>
+      )
+    case "não compensado":
+      return (
+        <Badge variant="destructive">
+          <AlertCircle className="h-3 w-3 mr-1" />
+          Não Compensado
+        </Badge>
+      )
+    case "pendente":
+      return (
+        <Badge variant="secondary">
+          <Clock className="h-3 w-3 mr-1" />
+          Pendente
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status || "N/A"}</Badge>
+  }
+}
+
+export const getContactTypeIcon = (contactType: string) => {
+  switch (contactType) {
+    case "email":
+      return <MailOpen className="h-4 w-4" />
+    case "phonecall":
+      return <PhoneCall className="h-4 w-4" />
+    case "sms":
+      return <MessageSquareText className="h-4 w-4" />
+    case "whatsapp":
+      return <MessageCircle className="h-4 w-4" />
     default:
       return <MessageSquare className="h-4 w-4" />
   }

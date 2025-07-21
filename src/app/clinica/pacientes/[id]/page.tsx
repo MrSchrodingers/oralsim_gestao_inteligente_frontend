@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   ArrowLeft,
   User,
@@ -18,17 +18,16 @@ import {
   PhoneCall,
   MoreHorizontal,
   Download,
-  MessageSquare,
-  MessageCircle,
   PhoneOutgoing,
   Calendar,
   CheckCircle2,
   AlertTriangle,
-  MailOpen,
   Activity,
   Milestone,
   CheckCheck,
   XCircle,
+  Search,
+  Filter,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
@@ -52,8 +51,17 @@ import { useFetchInstallments } from "@/src/common/hooks/useInstallment"
 import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useCollectionCase"
 import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
 import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig"
-import { formatCurrency, formatDate, formatDateTime, formatPhone } from "@/src/common/utils/formatters"
-import { getChannelBadge, getFlowBadge } from "@/src/common/components/helpers/GetBadge"
+import { formatCurrency, formatDate, formatDateTime, formatDuration, formatPhone } from "@/src/common/utils/formatters"
+import {
+  getChannelBadge,
+  getContactTypeBadge,
+  getContactTypeIcon,
+  getFeedbackStatusBadge,
+  getFlowBadge,
+  getPaymentStatusBadge,
+  getSuccessBadge,
+  getTriggerBadge
+} from "@/src/common/components/helpers/GetBadge"
 import {
   PatientInfoSkeleton,
   ContractInfoSkeleton,
@@ -61,6 +69,11 @@ import {
   PatientHeaderSkeleton,
   StatusCardsSkeleton,
 } from "@/src/common/components/patients/skeletons"
+import { Input } from "@/src/common/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
+import { useFetchContactHistory } from "@/src/modules/notification/hooks/useContactHistory"
+import { useFetchMessages } from "@/src/modules/notification/hooks/useMessage"
+import { MessagePreview } from "@/src/common/components/messages/MessagePreview"
 
 // Mock data para acordos de cobrança amigável
 const mockDealActivities = [
@@ -99,45 +112,10 @@ const mockDealActivities = [
   },
 ]
 
-const getStatusBadge = (status?: string | null, received?: boolean) => {
-  if (received) {
-    return (
-      <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-        <CheckCircle className="h-3 w-3 mr-1" />
-        Pago
-      </Badge>
-    )
-  }
-
-  switch (status?.toLowerCase()) {
-    case "compensado":
-      return (
-        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Compensado
-        </Badge>
-      )
-    case "não compensado":
-      return (
-        <Badge variant="destructive">
-          <AlertCircle className="h-3 w-3 mr-1" />
-          Não Compensado
-        </Badge>
-      )
-    case "pendente":
-      return (
-        <Badge variant="secondary">
-          <Clock className="h-3 w-3 mr-1" />
-          Pendente
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status || "N/A"}</Badge>
-  }
-}
-
 export default function PatientDetailsPage() {
   const [activeTab, setActiveTab] = useState("overview")
+  const [contactHistoryFilter, setContactHistoryFilter] = useState("all")
+  const [contactHistorySearch, setContactHistorySearch] = useState("")
   const { id } = useParams<{ id: string }>()
 
   const { data: patient } = useFetchPatientById(id)
@@ -151,23 +129,51 @@ export default function PatientDetailsPage() {
   const currentStep = scheduleData?.results?.[0]?.current_step ?? 0
   const { data: flowStepsData } = useFetchFlowStepConfigs()
   const flowSteps = flowStepsData?.results ?? []
+  const { data: contactHistory } = useFetchContactHistory({ patient_id: id, page_size: 20 })
+  const contactHistories = contactHistory?.results ?? []
+
+  const messageIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          contactHistories
+            .map(({ message_id }) => message_id)
+            .filter(Boolean)
+        )
+      ),
+    [contactHistories]
+  );
+  const { data: messages } = useFetchMessages(
+    { id__in: messageIds.join(","), page_size: messageIds.length || 1 },
+  );
+  const messageById = useMemo(() => {
+    return Object.fromEntries(
+      (messages?.results ?? []).map((m: any) => [m.id, m]),
+    )
+  }, [messages])
+
 
   const patientInitials = patient?.name
     ? patient?.name
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .slice(0, 2)
+      .split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .slice(0, 2)
     : ""
 
   const totalInstallments = installments.length
   const paidInstallments = installments.filter((i) => i.received).length
   const overdueInstallments = installments.filter((i) => !i.received && new Date(i.due_date) < new Date()).length
   const totalAmount = installments.reduce((sum, i) => sum + Number(i.installment_amount), 0)
-  // const paidAmount = installments
-  //   .filter((i) => i.received)
-  //   .reduce((sum, i) => sum + Number.parseFloat(String(i.installment_amount)), 0)
-  //   .reduce((sum, i) => sum + Number(i.installment_amount), 0)
+  const filteredContactHistory = contactHistories.filter((contact) => {
+    const matchesFilter = contactHistoryFilter === "all" || contact.contact_type === contactHistoryFilter
+    const matchesSearch =
+      contactHistorySearch === "" ||
+      contact.contact_type.toLowerCase().includes(contactHistorySearch.toLowerCase()) ||
+      (contact.observation && contact.observation.toLowerCase().includes(contactHistorySearch.toLowerCase()))
+
+    return matchesFilter && matchesSearch
+  })
 
   return (
     <div className="space-y-6">
@@ -428,7 +434,7 @@ export default function PatientDetailsPage() {
                             {formatCurrency(installment?.installment_amount)}
                           </TableCell>
                           <TableCell>
-                            {getStatusBadge(installment?.installment_status, installment?.received)}
+                            {getPaymentStatusBadge(installment?.installment_status, installment?.received)}
                           </TableCell>
                           <TableCell>{installment?.payment_method?.name}</TableCell>
                           <TableCell>{installment?.is_current && <Badge variant="outline">Atual</Badge>}</TableCell>
@@ -554,15 +560,112 @@ export default function PatientDetailsPage() {
                 <Clock className="h-5 w-5" />
                 Histórico de Contatos
               </CardTitle>
+              <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Buscar por tipo de contato ou observação..."
+                      value={contactHistorySearch}
+                      onChange={(e) => setContactHistorySearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <Select value={contactHistoryFilter} onValueChange={setContactHistoryFilter}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Filtrar por tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="phonecall">Ligação</SelectItem>
+                    <SelectItem value="sms">SMS</SelectItem>
+                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhum histórico encontrado</h3>
-                <p className="text-muted-foreground">
-                  O histórico de contatos aparecerá aqui quando houver interações registradas.
-                </p>
-              </div>
+              {filteredContactHistory.length > 0 ? (
+                <div className="space-y-4">
+                  {filteredContactHistory.map((contact) => {
+                    const linkedMessage = contact.message_id
+                      ? messageById[contact.message_id]
+                      : undefined
+
+                    return (
+                      <div key={contact.id} className="border rounded-lg p-4 space-y-3">
+                        {/* Cabeçalho do contato */}
+                        <div className="flex items-start justify-between">
+                          {/* Lado esquerdo: ícone + badges do tipo */}
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 p-2 rounded-full bg-muted">
+                              {getContactTypeIcon(contact.contact_type)}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                {getContactTypeBadge(contact.contact_type)}
+                                {getTriggerBadge(contact.notification_trigger)}
+                              </div>
+                              <p className="text-sm font-medium">{formatDateTime(contact.sent_at)}</p>
+                            </div>
+                          </div>
+
+                          {/* Lado direito: preview + badges de status */}
+                          <div className="flex items-center gap-2">
+                            {linkedMessage && <MessagePreview message={linkedMessage} />}
+                            {getSuccessBadge(contact.success)}
+                            {contact.feedback_status && getFeedbackStatusBadge(contact.feedback_status)}
+                          </div>
+                        </div>
+
+                        {/* Metadados adicionais */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                          {contact.duration_ms && (
+                            <div>
+                              <span className="font-medium text-muted-foreground">Duração:</span>
+                              <span className="ml-2">{formatDuration(contact.duration_ms)}</span>
+                            </div>
+                          )}
+                          {contact.message_id && (
+                            <div>
+                              <span className="font-medium text-muted-foreground">ID da Mensagem:</span>
+                              <span className="ml-2 font-mono text-xs">{contact.message_id}</span>
+                            </div>
+                          )}
+                          {contact.schedule_id && (
+                            <div>
+                              <span className="font-medium text-muted-foreground">Agendamento:</span>
+                              <span className="ml-2 font-mono text-xs">{contact.schedule_id}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {contact.observation && (
+                          <div className="pt-2 border-t">
+                            <p className="text-sm">
+                              <span className="font-medium text-muted-foreground">Observação:</span>
+                              <span className="ml-2">{contact.observation}</span>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Nenhum contato encontrado</h3>
+                  <p className="text-muted-foreground">
+                    {contactHistorySearch || contactHistoryFilter !== "all"
+                      ? "Tente ajustar os filtros de busca."
+                      : "O histórico de contatos aparecerá aqui quando houver interações registradas."}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -597,13 +700,12 @@ export default function PatientDetailsPage() {
                           <div key={step.id} className="relative flex items-start gap-4">
                             {/* Círculo indicador */}
                             <div
-                              className={`relative z-10 flex h-12 w-12 mt-8 shrink-0 items-center justify-center rounded-full border-2 ${
-                                isCurrentStep
+                              className={`relative z-10 flex h-12 w-12 mt-8 shrink-0 items-center justify-center rounded-full border-2 ${isCurrentStep
                                   ? "border-blue-600 bg-blue-50 dark:bg-blue-950 dark:border-blue-500"
                                   : isPastStep
                                     ? "border-green-600 bg-green-50 dark:bg-green-950 dark:border-green-500"
                                     : "border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700"
-                              }`}
+                                }`}
                             >
                               {isPastStep ? (
                                 <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-500" />
@@ -616,23 +718,21 @@ export default function PatientDetailsPage() {
 
                             {/* Conteúdo */}
                             <div
-                              className={`flex-1 rounded-lg border p-4 shadow-sm ${
-                                isCurrentStep
+                              className={`flex-1 rounded-lg border p-4 shadow-sm ${isCurrentStep
                                   ? "border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-900"
                                   : isPastStep
                                     ? "border-green-200 bg-green-50 dark:bg-green-950/30 dark:border-green-900"
                                     : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                              }`}
+                                }`}
                             >
                               <div className="mb-1 flex items-center justify-between">
                                 <h4
-                                  className={`font-medium ${
-                                    isCurrentStep
+                                  className={`font-medium ${isCurrentStep
                                       ? "text-blue-800 dark:text-blue-300"
                                       : isPastStep
                                         ? "text-green-800 dark:text-green-300"
                                         : "text-gray-900 dark:text-gray-100"
-                                  }`}
+                                    }`}
                                 >
                                   {step.description}
                                 </h4>

@@ -333,7 +333,6 @@ export default function PatientsPage() {
                 <TableBody>
                   {patientsWithFlow.map((patient, idx) => {
                     const count = channelsMap[patient.id] || 0;
-                    console.log(count)
 
                     // se for repetido, só renderiza na primeira vez
                     if (count > 1) {

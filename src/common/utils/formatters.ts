@@ -41,7 +41,11 @@ export function formatDate(dateString?: string | null): string {
   return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
 }
 
-export function formatDateTime(dateString: string): string {
+export function formatDateTime(dateString?: string | null): string {
+  if (!dateString) {
+    return ""
+  }
+
   try {
     return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR });
   } catch (error) {
@@ -99,4 +103,12 @@ export const calculateSubscriptionDays = (startDate: string, endDate: string) =>
   const remainingDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
   return { totalDays, remainingDays }
+}
+
+export const formatDuration = (durationMs: number | null) => {
+  if (!durationMs) return null
+  const seconds = Math.floor(durationMs / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
 }
