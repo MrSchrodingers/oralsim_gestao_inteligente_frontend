@@ -165,6 +165,9 @@ export default function PatientDetailsPage() {
   const paidInstallments = installments.filter((i) => i.received).length
   const overdueInstallments = installments.filter((i) => !i.received && new Date(i.due_date) < new Date()).length
   const totalAmount = installments.reduce((sum, i) => sum + Number(i.installment_amount), 0)
+  const totalOverdueAmount = installments
+  .filter(installment => installment.received === false)
+  .reduce((sum, i) => (sum + Number(i.installment_amount)), 0)
   const filteredContactHistory = contactHistories.filter((contact) => {
     const matchesFilter = contactHistoryFilter === "all" || contact.contact_type === contactHistoryFilter
     const matchesSearch =
@@ -491,12 +494,12 @@ export default function PatientDetailsPage() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
-                      <p className="text-lg font-semibold">{formatCurrency(contract?.final_contract_value)}</p>
+                      <p className="text-lg font-semibold">{formatCurrency(totalAmount)}</p>
                     </div>
 
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Valor em Atraso</p>
-                      <p className="text-lg font-semibold text-red-600">{formatCurrency(contract?.overdue_amount)}</p>
+                      <p className="text-lg font-semibold text-red-600">{formatCurrency(totalOverdueAmount)}</p>
                     </div>
 
                     <div>

@@ -40,6 +40,7 @@ import { useFetchPendingCalls, usePendingCallsSummary, useUpdatePendingCall } fr
 import { StatsCardsSkeleton } from "@/src/common/components/calls/StatsCardsSkeleton"
 import { PendingCallsSkeleton } from "@/src/common/components/calls/PendingCallsSkeleton"
 import { useRouter } from "next/navigation"
+import { useFetchInstallments } from "@/src/common/hooks/useInstallment"
 
 export default function PendingCallsPage() {
   const router = useRouter()
@@ -74,6 +75,9 @@ export default function PendingCallsPage() {
   const isRefetching = !isLoadingCalls && isFetchingCalls
   const hasError = isErrorCalls || isErrorSummary
   const pendingCalls = pendingCallsData?.results ?? []
+  const contractsIds = pendingCalls.map(call => call.contract.id) ?? []
+  const { data: installmentsData } = useFetchInstallments(contractsIds.length > 0 ? { contract_id: contractsIds.join(",") } : undefined)
+  const installments = installmentsData?.results ?? []
 
   const filteredCalls = useMemo(() => {
     let calls = pendingCalls
@@ -300,6 +304,12 @@ export default function PendingCallsPage() {
               ) : (
                 <TableBody>
                   {filteredCalls.map((call) => {
+                    const installment = installments
+                    .filter(installment => installment.contract_id === call.contract.id)
+                    .filter(installment => installment.received === false)
+                    .reduce((sum, i) => (sum + Number(i.installment_amount)), 0)
+
+                    console.log(installment)
                     const phone = call.patient.phones?.[0]?.phone_number ?? ""
                     return (
                       <TableRow key={call.id} className={isMutating ? "opacity-60 pointer-events-none" : ""}>
@@ -324,7 +334,7 @@ export default function PendingCallsPage() {
                           <div className="space-y-1">
                             <p className="font-medium text-sm">{call.contract.oralsin_contract_id}</p>
                             <p className="text-sm text-muted-foreground">
-                              Valor: {formatCurrency(call.contract.final_contract_value)}
+                              Valor: {formatCurrency(installment)}
                             </p>
                             <p className="text-sm text-red-600 font-medium">
                               Atraso: {formatCurrency(call.contract.overdue_amount)}
@@ -380,7 +390,7 @@ export default function PendingCallsPage() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() =>
-                                  router.push(`/clinica/paciente/${call.patient.id}`)
+                                  router.push(`/clinica/pacientes/${call.patient.id}`)
                                 }
                               >
                                 <User className="h-4 w-4 mr-2" />
