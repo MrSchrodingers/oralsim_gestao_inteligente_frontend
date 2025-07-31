@@ -7,6 +7,7 @@ export const useFetchCollectionCases = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [COLLECTION_CASE_QUERY_KEY, params],
     queryFn: () => collectionCaseService.getAll(params).then(res => res.data),
+    enabled: !!params, 
   });
 };
 

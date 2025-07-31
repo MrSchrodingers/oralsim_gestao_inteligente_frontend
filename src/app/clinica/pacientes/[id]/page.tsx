@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import {
   ArrowLeft,
   User,
@@ -28,6 +28,8 @@ import {
   XCircle,
   Search,
   Filter,
+  RefreshCw,
+  FolderSyncIcon,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
@@ -49,7 +51,7 @@ import { useFetchPatientById } from "@/src/common/hooks/usePatient"
 import { useFetchContracts } from "@/src/common/hooks/useContract"
 import { useFetchInstallments } from "@/src/common/hooks/useInstallment"
 import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useCollectionCase"
-import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
+import { useFetchContactSchedules, useUpdateContactSchedule } from "@/src/modules/notification/hooks/useContactSchedule"
 import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig"
 import { formatCurrency, formatDate, formatDateTime, formatDuration, formatPhone } from "@/src/common/utils/formatters"
 import {
@@ -74,6 +76,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useFetchContactHistory } from "@/src/modules/notification/hooks/useContactHistory"
 import { useFetchMessages } from "@/src/modules/notification/hooks/useMessage"
 import { MessagePreview } from "@/src/common/components/messages/MessagePreview"
+import { getDealStageNameById } from "@/src/common/utils/dealStagesMapper"
+import { dealStatusMapper, syncStatusMapper } from "@/src/common/utils/statusMappers"
 
 // Mock data para acordos de cobrança amigável
 const mockDealActivities = [
@@ -113,70 +117,125 @@ const mockDealActivities = [
 ]
 
 export default function PatientDetailsPage() {
-  const [activeTab, setActiveTab] = useState("overview")
-  const [contactHistoryFilter, setContactHistoryFilter] = useState("all")
-  const [contactHistorySearch, setContactHistorySearch] = useState("")
-  const { id } = useParams<{ id: string }>()
+  // 1. Estado da UI
+  const [activeTab, setActiveTab] = useState("overview");
+  const [contactHistoryFilter, setContactHistoryFilter] = useState("all");
+  const [contactHistorySearch, setContactHistorySearch] = useState("");
 
-  const { data: patient } = useFetchPatientById(id)
-  const { data: contractsData } = useFetchContracts({ patient_id: id, page_size: 1 })
-  const contract = contractsData?.results?.[0]
-  const { data: installmentsData } = useFetchInstallments(contract ? { contract_id: contract?.id } : undefined)
-  const installments = installmentsData?.results ?? []
-  const { data: collectionCaseData } = useFetchCollectionCases({ patient_id: id, page_size: 1 })
-  const collectionCase = collectionCaseData?.results?.[0]
-  const { data: scheduleData } = useFetchContactSchedules({ patient_id: id, page_size: 1 })
-  const currentStep = scheduleData?.results?.[0]?.current_step ?? 0
-  const { data: flowStepsData } = useFetchFlowStepConfigs()
-  const flowSteps = flowStepsData?.results ?? []
-  const { data: contactHistory } = useFetchContactHistory({ patient_id: id, page_size: 20 })
-  const contactHistories = contactHistory?.results ?? []
+  // 2. Roteamento e Parâmetros
+  const { id } = useParams<{ id: string }>();
 
-  const messageIds = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          contactHistories
-            .map(({ message_id }) => message_id)
-            .filter(Boolean)
-        )
-      ),
+  // 3. Busca de Dados (Data Fetching Layer)
+  const { data: patient, refetch: refetchPatient, isFetching: isFetchingPatient } = useFetchPatientById(id);
+  const { data: contractsData, refetch: refetchContracts, isFetching: isFetchingContracts } = useFetchContracts({ patient_id: id, page_size: 1 });
+  const contract = useMemo(() => contractsData?.results?.[0], [contractsData]);
+  const { data: installmentsData, refetch: refetchInstallments, isFetching: isFetchingInstallments } = useFetchInstallments(contract ? { contract_id: contract.id } : undefined);
+  const { data: collectionCaseData, refetch: refetchCollectionCases, isFetching: isFetchingCollectionCases } = useFetchCollectionCases({ patient_id: id, page_size: 1 });
+  
+  const scheduleParams = useMemo(() => ({ patient_id: id, page_size: 1 }), [id]);
+  const { data: scheduleData, refetch: refetchSchedules, isFetching: isFetchingSchedules } = useFetchContactSchedules(scheduleParams);
+  
+  const { data: flowStepsData } = useFetchFlowStepConfigs();
+  const { data: contactHistoryData, refetch: refetchHistory, isFetching: isFetchingHistory } = useFetchContactHistory({ patient_id: id, page_size: 20 });
+
+  const contactHistories = useMemo(() => contactHistoryData?.results ?? [], [contactHistoryData]);
+  const messageIds = useMemo(() =>
+    Array.from(new Set(contactHistories.map(({ message_id }) => message_id).filter(Boolean))),
     [contactHistories]
   );
-  const { data: messages } = useFetchMessages(
+  
+  const { data: messagesData } = useFetchMessages(
     { id__in: messageIds.join(","), page_size: messageIds.length || 1 },
+    { enabled: messageIds.length > 0 }
   );
-  const messageById = useMemo(() => {
-    return Object.fromEntries(
-      (messages?.results ?? []).map((m: any) => [m.id, m]),
-    )
-  }, [messages])
 
+  // 4. Mutações (Mutations Layer)
+  const { mutate: updateSchedule } = useUpdateContactSchedule(scheduleParams);
 
-  const patientInitials = patient?.name
-    ? patient?.name
-      .split(" ")
-      .map((n: string) => n[0])
-      .join("")
-      .slice(0, 2)
-    : ""
+  // 5. Dados Derivados e Transformados (Memoized Derived State)
+  const installments = useMemo(() => installmentsData?.results ?? [], [installmentsData]);
+  const collectionCase = useMemo(() => collectionCaseData?.results?.[0], [collectionCaseData]);
+  const currentStep = useMemo(() => scheduleData?.results?.[0]?.current_step ?? 0, [scheduleData]);
+  const flowSteps = useMemo(() => flowStepsData?.results ?? [], [flowStepsData]);
 
-  const totalInstallments = installments.length
-  const paidInstallments = installments.filter((i) => i.received).length
-  const overdueInstallments = installments.filter((i) => !i.received && new Date(i.due_date) < new Date()).length
-  const totalAmount = installments.reduce((sum, i) => sum + Number(i.installment_amount), 0)
-  const totalOverdueAmount = installments
-  .filter(installment => installment.received === false)
-  .reduce((sum, i) => (sum + Number(i.installment_amount)), 0)
-  const filteredContactHistory = contactHistories.filter((contact) => {
-    const matchesFilter = contactHistoryFilter === "all" || contact.contact_type === contactHistoryFilter
-    const matchesSearch =
-      contactHistorySearch === "" ||
-      contact.contact_type.toLowerCase().includes(contactHistorySearch.toLowerCase()) ||
-      (contact.observation && contact.observation.toLowerCase().includes(contactHistorySearch.toLowerCase()))
+  const messageById = useMemo(() =>
+    Object.fromEntries((messagesData?.results ?? []).map((m: any) => [m.id, m])),
+    [messagesData]
+  );
+  
+  const patientInitials = useMemo(() =>
+    patient?.name
+      ? patient.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)
+      : "",
+    [patient?.name]
+  );
 
-    return matchesFilter && matchesSearch
-  })
+  const installmentSummary = useMemo(() => {
+    const total = installments.length;
+    const paid = installments.filter(i => i.received).length;
+    const overdue = installments.filter(i => !i.received && new Date(i.due_date) < new Date()).length;
+    const totalAmount = installments.reduce((sum, i) => sum + Number(i.installment_amount), 0);
+    const totalOverdueAmount = installments
+      .filter(i => !i.received)
+      .reduce((sum, i) => sum + Number(i.installment_amount), 0);
+    return { total, paid, overdue, totalAmount, totalOverdueAmount };
+  }, [installments]);
+
+  const filteredContactHistory = useMemo(() =>
+    contactHistories.filter(contact => {
+      const filterLower = contactHistoryFilter.toLowerCase();
+      const searchLower = contactHistorySearch.toLowerCase();
+      const matchesFilter = filterLower === "all" || contact.contact_type.toLowerCase() === filterLower;
+      const matchesSearch =
+        searchLower === "" ||
+        contact.contact_type.toLowerCase().includes(searchLower) ||
+        (contact.observation && contact.observation.toLowerCase().includes(searchLower));
+      return matchesFilter && matchesSearch;
+    }),
+    [contactHistories, contactHistoryFilter, contactHistorySearch]
+  );
+
+  // Dados derivados específicos do CollectionCase
+  const collectionCaseDetails = useMemo(() => {
+    if (!collectionCase) return null;
+    console.log(collectionCase)
+    const currentStage = getDealStageNameById(collectionCase.stage_id);
+    const lastStage = collectionCase.last_stage_id ? getDealStageNameById(collectionCase.last_stage_id) : null;
+    const syncStatus = syncStatusMapper[collectionCase.deal_sync_status] || syncStatusMapper.default;
+    const dealStatus = dealStatusMapper[collectionCase.status] || dealStatusMapper.default;
+
+    return {
+      currentStage,
+      lastStage,
+      syncStatus: { ...syncStatus, Icon: syncStatus.icon },
+      dealStatus: { ...dealStatus, Icon: dealStatus.icon },
+      isRegisteredInPipedrive: !!collectionCase.deal_id,
+    };
+  }, [collectionCase]);
+
+  // 6. Handlers e Estado Agregado
+  const isRefreshing = useMemo(() => (
+    isFetchingPatient || isFetchingContracts || isFetchingInstallments ||
+    isFetchingCollectionCases || isFetchingSchedules || isFetchingHistory
+  ), [
+    isFetchingPatient, isFetchingContracts, isFetchingInstallments,
+    isFetchingCollectionCases, isFetchingSchedules, isFetchingHistory,
+  ]);
+
+  const handleRefresh = useCallback(() => {
+    Promise.allSettled([
+      refetchPatient(),
+      refetchContracts(),
+      refetchInstallments(),
+      refetchCollectionCases(),
+      refetchSchedules(),
+      refetchHistory(),
+    ]);
+  }, [
+    refetchPatient, refetchContracts, refetchInstallments,
+    refetchCollectionCases, refetchSchedules, refetchHistory,
+  ]);
+
 
   return (
     <div className="space-y-6">
@@ -206,6 +265,10 @@ export default function PatientDetailsPage() {
           )}
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -232,7 +295,7 @@ export default function PatientDetailsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total de Parcelas</p>
-                  <p className="text-2xl font-bold">{totalInstallments}</p>
+                  <p className="text-2xl font-bold">{installmentSummary.total}</p>
                 </div>
                 <FileText className="h-8 w-8 mt-5 text-muted-foreground" />
               </div>
@@ -243,7 +306,7 @@ export default function PatientDetailsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Parcelas Pagas</p>
-                  <p className="text-2xl font-bold text-green-600">{paidInstallments}</p>
+                  <p className="text-2xl font-bold text-green-600">{installmentSummary.paid}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 mt-5 text-green-600" />
               </div>
@@ -254,7 +317,7 @@ export default function PatientDetailsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Em Atraso</p>
-                  <p className="text-2xl font-bold text-red-600">{overdueInstallments}</p>
+                  <p className="text-2xl font-bold text-red-600">{installmentSummary.overdue}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 mt-5 text-red-600" />
               </div>
@@ -265,7 +328,7 @@ export default function PatientDetailsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
-                  <p className="text-2xl font-bold">{formatCurrency(String(totalAmount))}</p>
+                  <p className="text-2xl font-bold">{formatCurrency(String(installmentSummary.totalAmount))}</p>
                 </div>
                 <DollarSign className="h-8 w-8 mt-5 text-muted-foreground" />
               </div>
@@ -494,12 +557,12 @@ export default function PatientDetailsPage() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
-                      <p className="text-lg font-semibold">{formatCurrency(totalAmount)}</p>
+                      <p className="text-lg font-semibold">{formatCurrency(installmentSummary.totalAmount)}</p>
                     </div>
 
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Valor em Atraso</p>
-                      <p className="text-lg font-semibold text-red-600">{formatCurrency(totalOverdueAmount)}</p>
+                      <p className="text-lg font-semibold text-red-600">{formatCurrency(installmentSummary.totalOverdueAmount)}</p>
                     </div>
 
                     <div>
@@ -695,6 +758,7 @@ export default function PatientDetailsPage() {
                     {/* Timeline items */}
                     <div className="space-y-8">
                       {flowSteps.map((step, index) => {
+                        console.log(currentStep)
                         const isCurrentStep = step.step_number === currentStep
                         const isPastStep = step.step_number < currentStep
                         const isFutureStep = step.step_number > currentStep
@@ -769,109 +833,131 @@ export default function PatientDetailsPage() {
                 </div>
               ) : patient?.flow_type === "cordial_billing" ? (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-2">
-                    <PhoneCall className="h-5 w-5 text-orange-600" />
-                    <p className="text-sm font-medium">Paciente está em fluxo de Cobrança Amigável</p>
-                  </div>
+      <div className="flex items-center gap-2">
+        <PhoneCall className="h-5 w-5 text-orange-600" />
+        <p className="text-sm font-medium">Paciente está em fluxo de Cobrança Amigável</p>
+      </div>
 
-                  <div className="rounded-lg border bg-white p-4 dark:bg-gray-950 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold mb-4">Status do Acordo</h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Deal ID</p>
-                        <p className="text-lg font-semibold">{collectionCase?.deal_id || "Pendente"}</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Status de Sincronização</p>
-                        <div className="flex items-center gap-2">
-                          {collectionCase?.deal_sync_status === "created" ? (
-                            <CheckCheck className="h-5 w-5 text-green-600" />
-                          ) : collectionCase?.deal_sync_status === "pending" ? (
-                            <Clock className="h-5 w-5 text-amber-600" />
-                          ) : (
-                            <XCircle className="h-5 w-5 text-red-600" />
-                          )}
-                          <Badge
-                            variant={
-                              collectionCase?.deal_sync_status === "created"
-                                ? "default"
-                                : collectionCase?.deal_sync_status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                            className="capitalize"
-                          >
-                            {collectionCase?.deal_sync_status}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-sm text-muted-foreground">Atividades Recentes</h4>
-
-                      <div className="relative">
-                        {/* Timeline items */}
-                        <div className="space-y-6">
-                          {mockDealActivities.map((activity, index) => (
-                            <div key={activity.id} className="relative flex items-start gap-4">
-                              {/* Círculo indicador */}
-                              <div className="relative z-10 flex h-12 w-12 mt-10 shrink-0 items-center justify-center rounded-full border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/30 dark:border-orange-700">
-                                {activity.type === "call" ? (
-                                  <PhoneOutgoing className="h-5 w-5 text-orange-600" />
-                                ) : activity.type === "task" ? (
-                                  <CheckCircle2 className="h-5 w-5 text-orange-600" />
-                                ) : (
-                                  <Calendar className="h-5 w-5 text-orange-600" />
-                                )}
-                              </div>
-
-                              {/* Conteúdo */}
-                              <div className="flex-1 rounded-lg border border-orange-200 bg-orange-50 p-4 shadow-sm dark:bg-orange-950/20 dark:border-orange-900/50">
-                                <div className="mb-1 flex items-center justify-between">
-                                  <h4 className="font-medium text-orange-800 dark:text-orange-300">
-                                    {activity.subject}
-                                  </h4>
-                                  <Badge variant="outline" className="capitalize">
-                                    {activity.type}
-                                  </Badge>
-                                </div>
-
-                                <div className="mt-2 text-sm">
-                                  <p className="text-gray-600 dark:text-gray-400">
-                                    <span className="font-medium">Data:</span> {formatDate(activity.due_date)}
-                                  </p>
-                                  {activity.person_name && (
-                                    <p className="text-gray-600 dark:text-gray-400">
-                                      <span className="font-medium">Contato:</span> {activity.person_name}
-                                    </p>
-                                  )}
-                                  {activity.org_name && (
-                                    <p className="text-gray-600 dark:text-gray-400">
-                                      <span className="font-medium">Organização:</span> {activity.org_name}
-                                    </p>
-                                  )}
-                                  {activity.note && (
-                                    <p className="text-gray-600 dark:text-gray-400 mt-2 border-t border-orange-200 dark:border-orange-800 pt-2">
-                                      {activity.note}
-                                    </p>
-                                  )}
-                                </div>
-
-                                <div className="mt-2 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  <span>Concluído em {formatDate(activity.marked_as_done_time)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Status do Pipedrive */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              {collectionCaseDetails?.isRegisteredInPipedrive ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              )}
+              Status no Pipedrive
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Cadastro</p>
+                <div className="flex items-center gap-2">
+                  {collectionCaseDetails?.isRegisteredInPipedrive ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-700 dark:text-green-400">
+                        Cadastrado (Deal #{collectionCase?.deal_id})
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Não cadastrado</span>
+                    </>
+                  )}
                 </div>
+              </div>
+
+              {collectionCaseDetails?.isRegisteredInPipedrive && (
+                <>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Status de Sincronização</p>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={collectionCaseDetails?.syncStatus.color as any}>{collectionCaseDetails?.syncStatus.label}</Badge>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Status do Negócio</p>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={collectionCaseDetails?.dealStatus.color as any}>{collectionCaseDetails?.dealStatus.label}</Badge>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Informações do Caso */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-orange-600" />
+              Informações do Caso
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">Valor</p>
+              <p className="text-2xl font-bold text-orange-600">{formatCurrency(collectionCase?.amount)}</p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">Data de Abertura</p>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{formatDate(collectionCase?.opened_at)}</span>
+              </div>
+            </div>
+
+            {collectionCaseDetails?.currentStage && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Estágio Atual</p>
+                <Badge variant="outline" className="text-xs">
+                  {collectionCaseDetails?.currentStage}
+                </Badge>
+              </div>
+            )}
+
+            {collectionCaseDetails?.lastStage && collectionCaseDetails?.lastStage !== collectionCaseDetails?.currentStage && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Último Estágio</p>
+                <Badge variant="secondary" className="text-xs">
+                  {collectionCaseDetails?.lastStage}
+                </Badge>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Pipeline Information */}
+      {collectionCaseDetails?.currentStage && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Etapa Atual: {collectionCaseDetails?.currentStage}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+            {collectionCaseDetails?.lastStage && collectionCaseDetails?.lastStage !== collectionCaseDetails?.currentStage && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Última etapa registrada:</span>
+                <Badge variant="default">{collectionCaseDetails?.lastStage}</Badge>
+              </div>
+            )}
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground">ID do Caso: {collectionCase?.id}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
               ) : (
                 <div className="text-center py-12">
                   <AlertTriangle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />

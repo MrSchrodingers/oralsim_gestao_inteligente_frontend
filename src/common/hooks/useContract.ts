@@ -14,6 +14,7 @@ export const useFetchContracts = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CONTRACT_QUERY_KEY, params],
     queryFn: () => contractService.getAll(params).then(res => res.data),
+    enabled: !!params, 
   });
 };
 

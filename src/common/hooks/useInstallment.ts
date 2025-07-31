@@ -7,6 +7,7 @@ export const useFetchInstallments = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [INSTALLMENT_QUERY_KEY, params],
     queryFn: () => installmentService.getAll(params).then(res => res.data),
+    enabled: !!params, 
   });
 };
 

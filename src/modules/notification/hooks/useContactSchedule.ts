@@ -21,13 +21,54 @@ export const useCreateContactSchedule = () => {
   });
 };
 
-export const useUpdateContactSchedule = () => {
+export const useUpdateContactSchedule = (paramsToInvalidate?: Record<string, any>) => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: IContactScheduleUpdateDTO }) => contactScheduleService.update(id, data).then(res => res.data),
-    onSuccess: (data: IContactSchedule) => {
-      queryClient.invalidateQueries({ queryKey: [CONTACT_SCHEDULE_QUERY_KEY] });
-      queryClient.setQueryData([CONTACT_SCHEDULE_QUERY_KEY, data.id], data);
+    // A função de mutação agora recebe apenas a DTO
+    mutationFn: (scheduleData: { id: string; data: IContactScheduleUpdateDTO }) => 
+      contactScheduleService.update(scheduleData.id, scheduleData.data).then(res => res.data),
+
+    // `onMutate` é executado antes da mutação, ideal para a atualização otimista
+    onMutate: async (updatedSchedule) => {
+      // 1. Define a chave da query que queremos atualizar
+      const queryKey = [CONTACT_SCHEDULE_QUERY_KEY, paramsToInvalidate];
+
+      // 2. Cancela qualquer refetch pendente para evitar sobrescrever nossa atualização otimista
+      await queryClient.cancelQueries({ queryKey });
+
+      // 3. Pega um snapshot do estado anterior do cache
+      const previousSchedules = queryClient.getQueryData<any>(queryKey);
+
+      // 4. Atualiza o cache otimisticamente com os novos dados
+      if (previousSchedules) {
+        queryClient.setQueryData(queryKey, {
+          ...previousSchedules,
+          results: previousSchedules.results.map((schedule: IContactSchedule) =>
+            schedule.id === updatedSchedule.id
+              ? { ...schedule, ...updatedSchedule.data }
+              : schedule
+          ),
+        });
+      }
+
+      // 5. Retorna o snapshot para que possamos reverter em caso de erro
+      return { previousSchedules, queryKey };
+    },
+
+    // Em caso de erro, reverte o cache para o estado anterior
+    onError: (err, variables, context) => {
+      if (context?.previousSchedules) {
+        queryClient.setQueryData(context.queryKey, context.previousSchedules);
+      }
+    },
+
+    // Após o sucesso ou erro, sempre invalida a query para garantir que os dados
+    // estejam sincronizados com o servidor.
+    onSettled: (data, error, variables, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
     },
   });
 };

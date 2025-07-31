@@ -7,6 +7,7 @@ export const useFetchContactHistory = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CONTACT_HISTORY_QUERY_KEY, params],
     queryFn: () => contactHistoryService.getAll(params).then(res => res.data),
+    enabled: !!params, 
   });
 };
 

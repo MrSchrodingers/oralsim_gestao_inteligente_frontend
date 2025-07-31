@@ -10,7 +10,7 @@ export interface IMessageSummary {
   email: number;
 }
 
-export const useFetchMessages = (params?: Record<string, any>) => {
+export const useFetchMessages = (params?: Record<string, any>, p0?: { enabled: boolean; }) => {
   return useQuery({
     queryKey: [MESSAGE_QUERY_KEY, params],
     queryFn: () => messageService.getAll(params).then(res => res.data),
