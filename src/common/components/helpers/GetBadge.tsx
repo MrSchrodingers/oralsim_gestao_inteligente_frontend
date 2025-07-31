@@ -369,6 +369,22 @@ export const getChannelBadge = (channel: string) => {
   )
 }
 
+export const getChannel = (channel: string) => {
+  const configs = {
+    whatsapp: { label: "WhatsApp", className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
+    sms: { label: "SMS", className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+    email: { label: "E-mail", className: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
+    phonecall: { label: "Ligação", className: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+    letter: { label: "Carta Amigável", className: "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200" }
+  }
+
+  const config = configs[channel as keyof typeof configs] || { label: channel, className: "bg-gray-100 text-gray-800" }
+
+  return (
+      <span className="ml-1">{config.label}</span>
+  )
+}
+
 export const getActivityIcon = (type: string) => {
   switch (type) {
     case "success":

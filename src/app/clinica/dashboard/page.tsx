@@ -48,6 +48,7 @@ import { QuickActionCard } from "@/src/common/components/dashboard/QuickActionCa
 import { ActivityItem } from "@/src/common/components/dashboard/ActivityItem"
 import { subDays } from "date-fns"
 import { dashboardService } from "@/src/common/services/dashboard.service"
+import { getChannel, getChannelBadge } from "@/src/common/components/helpers/GetBadge"
 
 export default function DashboardPage() {
   const [slicePeriod, setSlicePeriod] = useState<number | undefined>(undefined) // Padrão em: Todo Período
@@ -489,7 +490,7 @@ export default function DashboardPage() {
                         type="system"
                         message={
                           <>
-                            Notificação <strong>{n.channel.toUpperCase()}</strong> para{" "}
+                            Notificação de {getChannel(n.channel)} para{" "}   
                             <span className="font-semibold text-primary">{n.patient}</span>
                             {!n.success && (
                               <Badge variant="destructive" className="ml-2 text-xs">
