@@ -69,7 +69,7 @@ export default function ClinicTabs({
         <SubscriptionDetails
           plan={plan}
           subStatusBadge={
-            clinicStats ? getSubscriptionBadge(clinicStats?.subscription_status) : null
+           null
           }
           subscriptionInfo={subscriptionInfo}
         />
