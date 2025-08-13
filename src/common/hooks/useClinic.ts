@@ -5,6 +5,7 @@ import { clinicService } from '../services/clinic.service';
 const CLINIC_QUERY_KEY = 'clinics';
 const CLINIC_SUMMARY_QUERY_KEY = 'clinics-summary';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchClinics = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CLINIC_QUERY_KEY, params],

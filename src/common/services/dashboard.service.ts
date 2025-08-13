@@ -5,9 +5,11 @@ import type { IDashboardSummary } from "@/src/common/interfaces/IDashboardSummar
 const endpoint = "/dashboard-summary/";
 const reportEndpoint = "/dashboard-report/";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getSummary = (params?: Record<string, any>): Promise<AxiosResponse<IDashboardSummary>> =>
   apiService.get(endpoint, { params })
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getReport = (params?: Record<string, any>): Promise<AxiosResponse<Blob>> =>
   apiService.get(reportEndpoint, { params, responseType: 'blob' });
 

@@ -21,4 +21,4 @@ export interface IAddressCreateDTO {
   zip_code: string;
 }
 
-export interface IAddressUpdateDTO extends Partial<IAddressCreateDTO> {}
+export type IAddressUpdateDTO = Partial<IAddressCreateDTO>

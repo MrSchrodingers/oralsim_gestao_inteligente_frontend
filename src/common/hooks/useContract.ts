@@ -10,6 +10,7 @@ export interface IContractsSummary {
   cancelled: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchContracts = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CONTRACT_QUERY_KEY, params],
@@ -18,6 +19,7 @@ export const useFetchContracts = (params?: Record<string, any>) => {
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useContractsSummary = (params?: Record<string, any>) =>
   useQuery<IContractsSummary>({
     queryKey: ['contract-summary', params],

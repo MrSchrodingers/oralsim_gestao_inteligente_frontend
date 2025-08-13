@@ -348,8 +348,8 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  "Reduzimos nossa inadimplência em 65% nos primeiros 2 meses. O sistema é intuitivo e a automação nos
-                  poupou horas de trabalho manual."
+                &quot;Reduzimos nossa inadimplência em 65% nos primeiros 2 meses. O sistema é intuitivo e a automação nos
+                  poupou horas de trabalho manual.&quot;
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -371,8 +371,8 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  "Os dashboards em tempo real nos deram uma visão completa do nosso fluxo de caixa. Agora tomamos
-                  decisões baseadas em dados reais."
+                  &quot;Os dashboards em tempo real nos deram uma visão completa do nosso fluxo de caixa. Agora tomamos
+                  decisões baseadas em dados reais.&quot;
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -394,8 +394,8 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  "A implementação foi super rápida e o suporte é excepcional. Nossos pacientes adoraram receber
-                  lembretes automáticos."
+                  &quot;A implementação foi super rápida e o suporte é excepcional. Nossos pacientes adoraram receber
+                  lembretes automáticos.&quot;
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">

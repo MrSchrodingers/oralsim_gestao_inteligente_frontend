@@ -172,16 +172,6 @@ export default function PlanDetailsPage() {
     }).format(amount / 100)
   }
 
-  const formatDate = (timestamp: number) => {
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(timestamp))
-  }
-
   const formatDateOnly = (timestamp: number) => {
     return new Intl.DateTimeFormat("pt-BR", {
       day: "2-digit",
@@ -241,6 +231,7 @@ export default function PlanDetailsPage() {
         title: mockPlan.active ? "Plano desativado" : "Plano ativado",
         description: `O plano foi ${mockPlan.active ? "desativado" : "ativado"} com sucesso.`,
       })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Erro",
@@ -331,7 +322,7 @@ export default function PlanDetailsPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>{mockPlan.active ? "Desativar" : "Ativar"} Plano</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja {mockPlan.active ? "desativar" : "ativar"} o plano "{mockPlan.name}"?
+                  Tem certeza que deseja {mockPlan.active ? "desativar" : "ativar"} o plano &quot;{mockPlan.name}&quot;?
                   {mockPlan.active && " Novos assinantes não poderão mais se inscrever neste plano."}
                 </AlertDialogDescription>
               </AlertDialogHeader>

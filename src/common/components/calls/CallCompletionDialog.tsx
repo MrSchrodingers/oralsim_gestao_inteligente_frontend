@@ -8,11 +8,11 @@ import { Textarea } from "../ui/textarea";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import { useMarkPendingCallDone } from "@/src/modules/notification/hooks/usePendingCall";
+import type { IPendingCall } from "@/src/modules/notification/interfaces/IPendingCall";
 
 export function CallCompletionDialog({
   call,
-  onComplete,
-}: { call: any; onComplete: (success: boolean, notes: string) => void }) {
+}: { call: IPendingCall; onComplete: (success: boolean, notes: string) => void }) {
   const [notes, setNotes] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
@@ -57,7 +57,7 @@ export function CallCompletionDialog({
               </Avatar>
               <div>
                 <p className="font-medium">{call.patient.name}</p>
-                <p className="text-sm text-muted-foreground">{call.patient.phone}</p>
+                <p className="text-sm text-muted-foreground">{call.patient.phones?.[0]?.phone_number}</p>
               </div>
             </div>
           </div>

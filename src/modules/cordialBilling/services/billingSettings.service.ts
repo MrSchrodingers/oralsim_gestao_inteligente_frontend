@@ -5,6 +5,7 @@ import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 
 const endpoint = "/billing-settings";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getByClinicId = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IBillingSettings>>> =>
   apiService.get(`${endpoint}`, { params });
 

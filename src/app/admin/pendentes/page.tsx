@@ -12,7 +12,6 @@ import {
   X,
   Clock,
   CreditCard,
-  Package,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -33,7 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/src/common/components/ui/dropdownMenu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import {
   Dialog,
   DialogContent,
@@ -520,7 +519,7 @@ export default function ClinicApprovalPage() {
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Aprovar Clínica</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Tem certeza que deseja aprovar a clínica "{clinic.clinic_name}"? Esta ação
+                                      Tem certeza que deseja aprovar a clínica &quot;{clinic.clinic_name}&quot;? Esta ação
                                       permitirá que a clínica acesse o sistema.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
@@ -546,7 +545,7 @@ export default function ClinicApprovalPage() {
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Rejeitar Clínica</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Tem certeza que deseja rejeitar a clínica "{clinic.clinic_name}"? Esta ação
+                                      Tem certeza que deseja rejeitar a clínica &quot;{clinic.clinic_name}&quot;? Esta ação
                                       impedirá que a clínica acesse o sistema.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>

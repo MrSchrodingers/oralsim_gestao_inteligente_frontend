@@ -5,6 +5,7 @@ import type { ICollectionCase } from "../interfaces/ICollectionCase";
 
 const endpoint = "/collection-case";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<ICollectionCase>>> =>
     apiService.get(endpoint, { params });
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { FileQuestion, Home, ArrowLeft, Users, ChartNoAxesCombined } from "lucide-react"
+import { FileQuestion, Home, ArrowLeft, ChartNoAxesCombined } from "lucide-react"
 import { AnimatedButton } from "@/src/common/components/motion/animated-button"
 import { CombinedLogo } from "@/src/common/components/combinedLogo"
 

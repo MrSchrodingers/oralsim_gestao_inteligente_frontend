@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
@@ -14,8 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/component
 import { Separator } from "@/src/common/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
 import { useToast } from "@/src/common/components/ui/use-toast"
-import type { IRegistrationRequestCreateDTO, IUser, IUserCreateDTO } from "@/src/common/interfaces/IUser"
-import { useCreateRegistrationRequest, useCreateUser, useCurrentUser, useLogin } from "@/src/common/hooks/useUser"
+import type { IRegistrationRequestCreateDTO, IUserCreateDTO } from "@/src/common/interfaces/IUser"
+import { useCreateRegistrationRequest, useCurrentUser, useLogin } from "@/src/common/hooks/useUser"
 import { ThemeToggle } from "@/src/common/components/themeToggle"
 import { useSearchOralsinClinics } from "@/src/common/hooks/useOralsin"
 
@@ -65,7 +66,7 @@ export default function LoginForm({ mode = "signin" }: Props) {
     router.refresh();
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     const loginError = loginMutation.error as any
     const registrationError = registrationMutation.error as any // Observar erro da nova mutação
 

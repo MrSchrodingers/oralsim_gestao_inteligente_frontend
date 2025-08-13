@@ -3,6 +3,7 @@ import { paymentMethodService } from '@/src/common/services/paymentMethod.servic
 
 const PAYMENT_METHOD_QUERY_KEY = 'paymentMethods';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchPaymentMethods = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [PAYMENT_METHOD_QUERY_KEY, params],

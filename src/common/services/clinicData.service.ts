@@ -5,6 +5,7 @@ import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 
 const endpoint = "/clinic-data";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IClinicData>>> =>
   apiService.get(endpoint, { params });
 

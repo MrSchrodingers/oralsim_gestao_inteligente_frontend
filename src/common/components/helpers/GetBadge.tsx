@@ -1,7 +1,7 @@
 import type { ICollectionCase } from "@/src/modules/cordialBilling/interfaces/ICollectionCase"
 import { Badge } from "../ui/badge"
 import type { IContactSchedule } from "@/src/modules/notification/interfaces/IContactSchedule"
-import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Banknote, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle, Ban, CircleOff, Activity, User, MailOpen, MessageSquareText, MessageCircle } from "lucide-react"
+import { AlertCircle, Building2, CheckCircle, Clock, Mail, MessageSquare, Package, PhoneCall, Shield, Smartphone, StopCircle, Target, UserCheck, UserX, XCircle, Ban, CircleOff, Activity, User, MailOpen, MessageSquareText, MessageCircle } from "lucide-react"
 import type { IPatient } from "../../interfaces/IPatient"
 
 export type PatientWithFlow = IPatient & {

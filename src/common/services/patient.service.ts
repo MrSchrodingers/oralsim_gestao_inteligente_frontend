@@ -6,6 +6,7 @@ import type { IPatientRegisterRequest } from "../interfaces/IPatientRegisterRequ
 
 const endpoint = "/patients";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IPatient>>> =>
   apiService.get(endpoint, { params });
 

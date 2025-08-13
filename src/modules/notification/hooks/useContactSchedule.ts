@@ -4,6 +4,7 @@ import type { IContactSchedule, IContactScheduleCreateDTO, IContactScheduleUpdat
 
 const CONTACT_SCHEDULE_QUERY_KEY = 'contactSchedules';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchContactSchedules = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CONTACT_SCHEDULE_QUERY_KEY, params],
@@ -21,6 +22,7 @@ export const useCreateContactSchedule = () => {
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useUpdateContactSchedule = (paramsToInvalidate?: Record<string, any>) => {
   const queryClient = useQueryClient();
 
@@ -38,6 +40,8 @@ export const useUpdateContactSchedule = (paramsToInvalidate?: Record<string, any
       await queryClient.cancelQueries({ queryKey });
 
       // 3. Pega um snapshot do estado anterior do cache
+      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const previousSchedules = queryClient.getQueryData<any>(queryKey);
 
       // 4. Atualiza o cache otimisticamente com os novos dados

@@ -3,6 +3,7 @@ import { flowStepConfigService } from '@/src/modules/notification/services/flowS
 
 const FLOW_STEP_CONFIG_QUERY_KEY = 'flowStepConfigs';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchFlowStepConfigs = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [FLOW_STEP_CONFIG_QUERY_KEY, params],

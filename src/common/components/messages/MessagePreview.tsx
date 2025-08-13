@@ -5,8 +5,9 @@ import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Badge } from "../ui/badge"
 import { getChannelBadge, getChannelIcon } from "../helpers/GetBadge"
+import type { IMessage } from "@/src/modules/notification/interfaces/IMessage"
 
-export const MessagePreview = ({ message }: { message: any }) => {
+export const MessagePreview = ({ message }: { message: IMessage }) => {
   const variables = extractVariables(message.content)
 
   return (

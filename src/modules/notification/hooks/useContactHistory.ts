@@ -3,6 +3,7 @@ import { contactHistoryService } from '@/src/modules/notification/services/conta
 
 const CONTACT_HISTORY_QUERY_KEY = 'contactHistory';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchContactHistory = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CONTACT_HISTORY_QUERY_KEY, params],

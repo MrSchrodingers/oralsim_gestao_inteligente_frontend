@@ -13,4 +13,4 @@ export interface IClinicPhoneCreateDTO {
   phone_type?: string | null;
 }
 
-export interface IClinicPhoneUpdateDTO extends Partial<IClinicPhoneCreateDTO> {}
+export type IClinicPhoneUpdateDTO = Partial<IClinicPhoneCreateDTO>

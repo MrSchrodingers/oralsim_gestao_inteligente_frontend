@@ -4,6 +4,7 @@ import type { IClinicData, IClinicDataCreateDTO, IClinicDataUpdateDTO } from '@/
 
 const CLINIC_DATA_QUERY_KEY = 'clinicData';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchClinicData = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CLINIC_DATA_QUERY_KEY, params],

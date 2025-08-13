@@ -5,6 +5,7 @@ import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 
 const endpoint = "/payment-methods";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IPaymentMethod>>> =>
     apiService.get(endpoint, { params });
 

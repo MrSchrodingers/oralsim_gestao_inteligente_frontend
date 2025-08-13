@@ -21,7 +21,7 @@ export interface IUserCreateDTO {
   clinic_name?: string | null;
 }
 
-export interface IUserUpdateDTO extends Partial<IUserCreateDTO> {}
+export type IUserUpdateDTO = Partial<IUserCreateDTO>
 
 export interface IClinicWithDetails {
   id: string;

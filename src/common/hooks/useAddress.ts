@@ -4,6 +4,7 @@ import type { IAddress, IAddressCreateDTO, IAddressUpdateDTO } from '@/src/commo
 
 const ADDRESS_QUERY_KEY = 'addresses';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchAddresses = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [ADDRESS_QUERY_KEY, params],

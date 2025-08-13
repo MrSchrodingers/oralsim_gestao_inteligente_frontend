@@ -15,14 +15,11 @@ import {
   CreditCard,
   Package,
   Clock,
-  User,
   FileText,
   ExternalLink,
   Copy,
   Edit,
   AlertCircle,
-  CheckCircle,
-  XCircle,
   Facebook,
   MessageCircle,
   Loader2,
@@ -44,7 +41,7 @@ import {
   AlertDialogTrigger,
 } from "@/src/common/components/ui/alert-dialog"
 import { useToast } from "@/src/common/components/ui/use-toast"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback} from "@/src/common/components/ui/avatar"
 import { Skeleton } from "@/src/common/components/ui/skeleton"
 import { useSearchOralsinClinics } from "@/src/common/hooks/useOralsin"
 import type { IOralsinClinic } from "@/src/common/interfaces/IOralsin"
@@ -127,6 +124,7 @@ export default function ClinicDetailsPage() {
         title: "Observações salvas",
         description: "As observações foram salvas com sucesso.",
       })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Erro ao salvar observações",
@@ -236,7 +234,7 @@ export default function ClinicDetailsPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Rejeitar Clínica</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Tem certeza que deseja rejeitar a clínica "{clinic.clinic_name}"? Esta ação impedirá que a clínica
+                      Tem certeza que deseja rejeitar a clínica &quot;{clinic.clinic_name}&quot;? Esta ação impedirá que a clínica
                       acesse o sistema.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -260,7 +258,7 @@ export default function ClinicDetailsPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Aprovar Clínica</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Tem certeza que deseja aprovar a clínica "{clinic.clinic_name}"? Esta ação permitirá que a clínica
+                      Tem certeza que deseja aprovar a clínica &quot;{clinic.clinic_name}&quot;? Esta ação permitirá que a clínica
                       acesse o sistema.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

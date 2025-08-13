@@ -24,4 +24,4 @@ export interface IContactScheduleCreateDTO {
   installment_id?: string | null;
 }
 
-export interface IContactScheduleUpdateDTO extends Partial<IContactScheduleCreateDTO> {}
+export type IContactScheduleUpdateDTO = Partial<IContactScheduleCreateDTO>

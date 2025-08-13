@@ -25,4 +25,4 @@ export interface IClinicDataCreateDTO {
   first_billing_date?: string | null;
 }
 
-export interface IClinicDataUpdateDTO extends Partial<IClinicDataCreateDTO> {}
+export type IClinicDataUpdateDTO = Partial<IClinicDataCreateDTO>

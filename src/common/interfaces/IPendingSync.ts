@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface IPendingSync {
   id: string;
   object_type: 'clinic' | 'patient';

@@ -15,7 +15,7 @@ export const useFetchBillingSettings = (clinicId: string) => {
 export const useUpdateBillingSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ clinicId, data }: { clinicId: string; data: IBillingSettings }) => billingSettingsService.update(data).then(res => res.data),
+    mutationFn: ({ data }: { clinicId: string; data: IBillingSettings }) => billingSettingsService.update(data).then(res => res.data),
     onSuccess: (data: IBillingSettings) => {
       queryClient.invalidateQueries({ queryKey: [BILLING_SETTINGS_QUERY_KEY, data.clinic_id] });
       queryClient.setQueryData([BILLING_SETTINGS_QUERY_KEY, data.clinic_id], data);

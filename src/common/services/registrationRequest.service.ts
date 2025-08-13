@@ -6,6 +6,7 @@ import type { IPendingClinic } from "@/src/common/interfaces/IPendingClinic";
 const endpoint = "/registration-requests";
 
 const getAll = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   params?: Record<string, any>,
 ): Promise<AxiosResponse<IPagedResponse<IPendingClinic>>> =>
   apiService.get(endpoint, { params });

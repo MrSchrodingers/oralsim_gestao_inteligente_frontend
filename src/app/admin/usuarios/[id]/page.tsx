@@ -8,9 +8,6 @@ import {
   Building2,
   UserCheck,
   UserX,
-  Package,
-  CreditCard,
-  Activity,
   AlertCircle,
   Loader2,
   Copy,
@@ -23,7 +20,7 @@ import {
   CardTitle,
 } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import { Skeleton } from "@/src/common/components/ui/skeleton"
 import { useToast } from "@/src/common/components/ui/use-toast"
 import { Label } from "@/src/common/components/ui/label"
@@ -41,9 +38,7 @@ import {
 
 import {
   getActiveStatusBadge,
-  getPlanBadge,
   getRoleBadge,
-  getSubscriptionBadge,
 } from "@/src/common/components/helpers/GetBadge"
 import { calculateSubscriptionDays, formatDate } from "@/src/common/utils/formatters"
 
@@ -138,7 +133,7 @@ export default function UserDetailsPage() {
         loading={updateStatus.isPending}
       />
 
-      <StatusCards user={user} clinicStats={clinicStats} />
+      <StatusCards user={user} />
 
       {user.role === "admin" ? (
         <AdminContent user={user} copy={copy} />
@@ -261,7 +256,7 @@ const Header = ({ user, onBack, onToggleStatus, loading }: HeaderProps) => (
         <AlertDialogHeader>
           <AlertDialogTitle>{user.is_active ? "Desativar" : "Ativar"} Usuário</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja {user.is_active ? "desativar" : "ativar"} o usuário "{user.name}"?
+            Tem certeza que deseja {user.is_active ? "desativar" : "ativar"} o usuário &quot;{user.name}&quot;?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -279,7 +274,7 @@ const Header = ({ user, onBack, onToggleStatus, loading }: HeaderProps) => (
 )
 
 /* --------------------------- STATUS CARDS ------------------------------ */
-const StatusCards = ({ user, clinicStats }: { user: IUserFullData; clinicStats?: any }) => (
+const StatusCards = ({ user }: { user: IUserFullData }) => (
   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
     <StatCard label="Tipo" icon={user.role === "admin" ? Shield : Building2} badge={getRoleBadge(user.role)} />
     <StatCard
@@ -287,16 +282,6 @@ const StatusCards = ({ user, clinicStats }: { user: IUserFullData; clinicStats?:
       icon={user.is_active ? UserCheck : UserX}
       badge={getActiveStatusBadge(user.is_active)}
     />
-    {clinicStats && clinicStats?.plan && clinicStats?.plan?.type (
-      <>
-        <StatCard label="Plano" icon={Package} badge={getPlanBadge(clinicStats.plan.type)} />
-        <StatCard
-          label="Assinatura"
-          icon={CreditCard}
-          badge={getSubscriptionBadge(clinicStats.subscription_status)}
-        />
-      </>
-    )}
   </div>
 )
 
@@ -367,24 +352,6 @@ const InfoGrid = ({
               <Copy className="h-3 w-3" />
             </Button>
           )}
-        </div>
-      </div>
-    ))}
-  </div>
-)
-
-const TimeLine = ({
-  items,
-}: {
-  items: { color: string; title: string; time: string }[]
-}) => (
-  <div className="space-y-4">
-    {items.map((e, i) => (
-      <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
-        <div className={`h-2 w-2 ${e.color} rounded-full`} />
-        <div className="flex-1">
-          <p className="text-sm font-medium">{e.title}</p>
-          <p className="text-xs text-muted-foreground">{e.time}</p>
         </div>
       </div>
     ))}

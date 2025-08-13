@@ -9,8 +9,6 @@ import type { IClinicSummary } from "@/src/common/interfaces/IClinic"
 import OverviewStats from "./OverviewStats"
 import PlanCard from "./PlanCard"
 import ClinicInfo from "./ClinicInfo"
-import SubscriptionDetails from "./SubscriptionDetails"
-import { getSubscriptionBadge } from "@/src/common/components/helpers/GetBadge"
 
 /* Tipagem auxiliar */
 interface SubscriptionInfo {
@@ -65,7 +63,7 @@ export default function ClinicTabs({
       </TabsContent>
 
       {/* ---------------- Assinatura ----------------- */}
-      <TabsContent value="subscription" className="space-y-6">
+      {/* <TabsContent value="subscription" className="space-y-6">
         <SubscriptionDetails
           plan={plan}
           subStatusBadge={
@@ -73,7 +71,7 @@ export default function ClinicTabs({
           }
           subscriptionInfo={subscriptionInfo}
         />
-      </TabsContent>
+      </TabsContent> */}
     </Tabs>
   )
 }

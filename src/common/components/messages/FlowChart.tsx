@@ -1,20 +1,19 @@
 import type { IFlowStepConfig } from "@/src/modules/notification/interfaces/IFlowStepConfig";
 import type { IMessage } from "@/src/modules/notification/interfaces/IMessage";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Clock } from "lucide-react";
 import { getChannelBadge, getChannelIcon } from "../helpers/GetBadge";
 import { MessagePreview } from "./MessagePreview";
-import { Button } from "../ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFetchMessages } from "@/src/modules/notification/hooks/useMessage";
 import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig";
 
 export const FlowChart = () => {
-  const { data: messagesData, isLoading } = useFetchMessages({page_size: 10000 })
+  const { data: messagesData } = useFetchMessages({page_size: 10000 })
   const { data: flowStepData } = useFetchFlowStepConfigs({page_size: 10000 })
 
-  const messages: IMessage[] = messagesData?.results ?? []     
+  const messages: IMessage[] = useMemo(() => messagesData?.results ?? [], [messagesData])
+    
   const flowSteps: IFlowStepConfig[] = flowStepData?.results ?? []
 
   // agrupa mensagens por step

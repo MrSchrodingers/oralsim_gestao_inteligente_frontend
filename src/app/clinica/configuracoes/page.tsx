@@ -26,7 +26,7 @@ import { Switch } from "@/src/common/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/common/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/common/components/ui/tabs"
 import { Separator } from "@/src/common/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import { useCurrentUser, useUpdateUser } from "@/src/common/hooks/useUser"
 import { useUpdateClinicData } from "@/src/common/hooks/useClinicData"
 import { useUpdateAddress } from "@/src/common/hooks/useAddress"
@@ -36,6 +36,15 @@ import { formatCNPJ } from "@/src/common/utils/formatCNPJ"
 import { useFetchClinicPhones } from "@/src/common/hooks/useClinicPhone"
 import { formatDate } from "@/src/common/utils/formatters"
 import { formatZipCode } from "@/src/common/utils/formatZipCode"
+import type { IClinicData } from "@/src/common/interfaces/IClinicData"
+import type { IUser } from "@/src/common/interfaces/IUser"
+import type { IBillingSettings } from "@/src/modules/cordialBilling/interfaces/IBillingSettings"
+
+type FormData = {
+  user: IUser;
+  clinic: IClinicData;
+  billing: IBillingSettings;
+};
 
 export default function ConfiguracoesPage() {
   const [isEditing, setIsEditing] = useState<string | null>(null)
@@ -48,16 +57,17 @@ export default function ConfiguracoesPage() {
 
   const clinicPhonesData = clinicPhones?.results
 
-  const [formData, setFormData] = useState({
-    clinic: clinic?.data ?? ({} as any),
-    user: currentUser ?? ({} as any),
-    billing: billing ?? ({} as any),
-  })
+
+  const [formData, setFormData] = useState<FormData>({
+    clinic: (clinic?.data as IClinicData) ?? ({} as IClinicData),
+    user: currentUser ?? ({} as IUser),
+    billing: billing ?? ({} as IBillingSettings),
+  });
 
   useEffect(() => {
     if (currentUser && clinic && billing) {
       setFormData({
-        clinic: { ...(clinic.data as any) },
+        clinic: { ...(clinic.data as IClinicData) },
         user: { ...currentUser },
         billing: { ...billing },
       })
@@ -90,17 +100,17 @@ export default function ConfiguracoesPage() {
           address_id: formData.clinic.address?.id,
         },
       })
-    } else if (section === 'clinic-address') {
+    } else if (section === 'clinic-address' && formData.clinic.address?.id) {
       await updateAddress({
-        id: formData.clinic.address.id,
+        id: formData.clinic?.address.id,
         data: {
-          street: formData.clinic.address.street,
-          number: formData.clinic.address.number,
-          complement: formData.clinic.address.complement,
-          neighborhood: formData.clinic.address.neighborhood,
-          city: formData.clinic.address.city,
-          state: formData.clinic.address.state,
-          zip_code: formData.clinic.address.zip_code,
+          street: formData.clinic?.address?.street,
+          number: formData.clinic?.address?.number,
+          complement: formData.clinic?.address?.complement,
+          neighborhood: formData.clinic?.address?.neighborhood,
+          city: formData.clinic?.address?.city,
+          state: formData.clinic?.address?.state,
+          zip_code: formData.clinic?.address?.zip_code,
         },
       })
     } else if (section === 'user-info') {
@@ -130,34 +140,52 @@ export default function ConfiguracoesPage() {
     setIsEditing(null)
     if (currentUser && clinic && billing) {
       setFormData({
-        clinic: { ...(clinic.data as any) },
+        clinic: { ...(clinic.data as IClinicData) },
         user: { ...currentUser },
         billing: { ...billing },
       })
     }
   }
 
-  const updateFormData = (section: string, field: string, value: any) => {
-    setFormData((prev) => ({
+  function updateFormData<
+    S extends keyof FormData,
+    F extends keyof FormData[S]
+  >(section: S, field: F, value: FormData[S][F]) {
+    setFormData(prev => ({
       ...prev,
       [section]: {
-        ...prev[section as keyof typeof prev],
+        ...prev[section],
         [field]: value,
-      },
-    }))
+      } as FormData[S],
+    }));
   }
 
-  const updateNestedFormData = (section: string, nestedField: string, field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [nestedField]: {
-          ...(prev[section as keyof typeof prev] as any)[nestedField],
-          [field]: value,
-        },
-      },
-    }))
+  function updateNestedFormData<
+    S extends keyof FormData,
+    N extends keyof FormData[S],
+    NN extends NonNullable<FormData[S][N]>,
+    F extends keyof NN
+  >(
+    section: S,
+    nestedField: N,
+    field: F,
+    value: NN[F]
+  ) {
+    setFormData(prev => {
+      const sectionObj = prev[section];
+      const nestedObj = (sectionObj[nestedField] ?? {}) as NN;
+
+      return {
+        ...prev,
+        [section]: {
+          ...sectionObj,
+          [nestedField]: {
+            ...nestedObj,
+            [field]: value,
+          } as FormData[S][N],
+        } as FormData[S],
+      };
+    });
   }
 
   return (
@@ -229,7 +257,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-general" ? (
                       <Input
                         id="corporate_name"
-                        value={formData.clinic.corporate_name}
+                        value={formData.clinic.corporate_name || ""}
                         onChange={(e) => updateFormData("clinic", "corporate_name", e.target.value)}
                       />
                     ) : (
@@ -242,7 +270,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-general" ? (
                       <Input
                         id="acronym"
-                        value={formData.clinic.acronym}
+                        value={formData.clinic.acronym || ""}
                         disabled
                       />
                     ) : (
@@ -261,7 +289,7 @@ export default function ConfiguracoesPage() {
                     <Label htmlFor="timezone">Fuso Horário</Label>
                     {isEditing === "clinic-general" ? (
                       <Select
-                        value={formData.clinic.timezone}
+                        value={formData.clinic.timezone || ""}
                         onValueChange={(value) => updateFormData("clinic", "timezone", value)}
                       >
                         <SelectTrigger>
@@ -287,7 +315,7 @@ export default function ConfiguracoesPage() {
                       <Input
                         id="first_billing_date"
                         type="date"
-                        value={formData.clinic.first_billing_date}
+                        value={formData.clinic.first_billing_date || ""}
                         onChange={(e) => updateFormData("clinic", "first_billing_date", e.target.value)}
                       />
                     ) : (
@@ -375,7 +403,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-address" ? (
                       <Input
                         id="street"
-                        value={formData.clinic.address.street}
+                        value={formData.clinic.address?.street || ""}
                         onChange={(e) => updateNestedFormData("clinic", "address", "street", e.target.value)}
                       />
                     ) : (
@@ -388,7 +416,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-address" ? (
                       <Input
                         id="number"
-                        value={formData.clinic.address.number}
+                        value={formData.clinic.address?.number || ""}
                         onChange={(e) => updateNestedFormData("clinic", "address", "number", e.target.value)}
                       />
                     ) : (
@@ -401,7 +429,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-address" ? (
                       <Input
                         id="complement"
-                        value={formData.clinic.address.complement || ""}
+                        value={formData.clinic.address?.complement || ""}
                         onChange={(e) => updateNestedFormData("clinic", "address", "complement", e.target.value)}
                       />
                     ) : (
@@ -416,7 +444,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-address" ? (
                       <Input
                         id="neighborhood"
-                        value={formData.clinic.address.neighborhood}
+                        value={formData.clinic.address?.neighborhood || ""}
                         onChange={(e) => updateNestedFormData("clinic", "address", "neighborhood", e.target.value)}
                       />
                     ) : (
@@ -429,7 +457,7 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-address" ? (
                       <Input
                         id="city"
-                        value={formData.clinic.address.city}
+                        value={formData.clinic.address?.city || ""}
                         onChange={(e) => updateNestedFormData("clinic", "address", "city", e.target.value)}
                       />
                     ) : (
@@ -441,7 +469,7 @@ export default function ConfiguracoesPage() {
                     <Label htmlFor="state">Estado</Label>
                     {isEditing === "clinic-address" ? (
                       <Select
-                        value={formData.clinic.address.state}
+                        value={formData.clinic.address?.state || ""}
                         onValueChange={(value) => updateNestedFormData("clinic", "address", "state", value)}
                       >
                         <SelectTrigger>
@@ -464,11 +492,11 @@ export default function ConfiguracoesPage() {
                     {isEditing === "clinic-address" ? (
                       <Input
                         id="zip_code"
-                        value={formData.clinic.address.zip_code}
+                        value={formData.clinic.address?.zip_code || ""}
                         onChange={(e) => updateNestedFormData("clinic", "address", "zip_code", e.target.value)}
                       />
                     ) : (
-                      <p className="text-sm font-medium mt-1">{formatZipCode(formData.clinic.address.zip_code) || "N/A"}</p>
+                      <p className="text-sm font-medium mt-1">{formatZipCode(formData.clinic.address?.zip_code || "") || "N/A"}</p>
                     )}
                   </div>
                 </div>

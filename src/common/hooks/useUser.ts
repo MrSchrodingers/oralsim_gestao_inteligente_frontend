@@ -8,6 +8,7 @@ const USER_QUERY_KEY = 'users';
 const REGISTRATION_REQUEST_QUERY_KEY = 'registrationRequests';
 const USER_DATA_QUERY_KEY = 'userdata';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchUsers = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [USER_QUERY_KEY, params],
@@ -15,6 +16,7 @@ export const useFetchUsers = (params?: Record<string, any>) => {
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchUsersData = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [USER_DATA_QUERY_KEY, params],

@@ -5,6 +5,7 @@ import { registrationRequestService } from '../services/registrationRequest.serv
 
 const REGISTRATION_REQUEST_QUERY_KEY = 'registrationRequests';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchRegistrationRequests = (params?: Record<string, any>) =>
   useQuery<IPagedResponse<IPendingClinic>>({
     queryKey: [REGISTRATION_REQUEST_QUERY_KEY, params],

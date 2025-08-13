@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Package, MoreHorizontal, Eye, Edit, Users, DollarSign, TrendingUp, Calendar, ChevronLeft, ChevronRight, Loader2, AlertCircle, Plus, Archive, ArchiveRestore } from 'lucide-react'
+import { Package, MoreHorizontal, Eye, Edit, Users, DollarSign, TrendingUp,ChevronLeft, ChevronRight, Loader2, Plus, Archive, ArchiveRestore } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
 import { Badge } from "@/src/common/components/ui/badge"
@@ -206,7 +206,7 @@ export default function PlansPage() {
     )
   }
 
-  const getIntervalBadge = (interval: string, intervalCount: number) => {
+  const getIntervalBadge = (interval: string) => {
     const text = interval === 'month' ? 'Mensal' : 'Anual'
     const variant = interval === 'month' ? 'default' : 'outline'
     
@@ -227,6 +227,7 @@ export default function PlansPage() {
         title: currentStatus ? "Plano desativado" : "Plano ativado",
         description: `O plano foi ${currentStatus ? 'desativado' : 'ativado'} com sucesso.`,
       })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Erro",
@@ -389,7 +390,7 @@ export default function PlansPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {getIntervalBadge(plan.interval, plan.interval_count)}
+                      {getIntervalBadge(plan.interval)}
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(plan.active)}
@@ -455,7 +456,7 @@ export default function PlansPage() {
                                   {plan.active ? 'Desativar' : 'Ativar'} Plano
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tem certeza que deseja {plan.active ? 'desativar' : 'ativar'} o plano "{plan.name}"?
+                                  Tem certeza que deseja {plan.active ? 'desativar' : 'ativar'} o plano &quot;{plan.name}&quot;?
                                   {plan.active && ' Novos assinantes não poderão mais se inscrever neste plano.'}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>

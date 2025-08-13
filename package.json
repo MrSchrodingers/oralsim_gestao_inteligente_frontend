@@ -45,13 +45,19 @@
     "drizzle-kit": "^0.30.5",
     "drizzle-orm": "^0.40.0",
     "framer-motion": "^12.5.0",
+    "html2canvas-pro": "^1.5.11",
     "jose": "^6.0.10",
+    "jspdf": "^3.0.1",
     "lucide-react": "^0.479.0",
     "next": "15.2.2",
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.54.2",
     "postcss": "^8.5.3",
     "postgres": "^3.4.5",
+    "puppeteer": "^24.16.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-to-print": "^3.1.1",
     "recharts": "^2.15.3",
     "server-only": "^0.0.1",
     "stripe": "^17.7.0",
@@ -63,5 +69,9 @@
     "typescript": "^5.8.2",
     "zod": "^3.24.2",
     "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.33.0",
+    "eslint-config-next": "15.4.6"
   }
 }

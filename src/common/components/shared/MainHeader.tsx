@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/src/common/components/ui/dropdownMenu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import { Badge } from "@/src/common/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useQueryClient } from "@tanstack/react-query"

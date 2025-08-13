@@ -15,6 +15,7 @@ export interface IPendingCallSummary {
   avg_attempts: number
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchPendingCalls = (params?: Record<string, any>) =>
   useQuery({
     queryKey: [...PENDING_CALLS_QUERY_KEY, params],
@@ -22,6 +23,7 @@ export const useFetchPendingCalls = (params?: Record<string, any>) =>
     refetchOnWindowFocus: true,
   })
   
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const usePendingCallsSummary = (params?: Record<string, any>) => {
   return useQuery<IPendingCallSummary>({
     queryKey: [...PENDING_CALLS_SUMMARY_QUERY_KEY, params],

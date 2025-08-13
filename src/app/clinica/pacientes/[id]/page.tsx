@@ -18,25 +18,21 @@ import {
   PhoneCall,
   MoreHorizontal,
   Download,
-  PhoneOutgoing,
   Calendar,
   CheckCircle2,
   AlertTriangle,
   Activity,
   Milestone,
-  CheckCheck,
-  XCircle,
   Search,
   Filter,
   RefreshCw,
-  FolderSyncIcon,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/common/components/ui/card"
 import { Button } from "@/src/common/components/ui/button"
 import { Badge } from "@/src/common/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/common/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/common/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import { Separator } from "@/src/common/components/ui/separator"
 import {
   DropdownMenu,
@@ -51,7 +47,7 @@ import { useFetchPatientById } from "@/src/common/hooks/usePatient"
 import { useFetchContracts } from "@/src/common/hooks/useContract"
 import { useFetchInstallments } from "@/src/common/hooks/useInstallment"
 import { useFetchCollectionCases } from "@/src/modules/cordialBilling/hooks/useCollectionCase"
-import { useFetchContactSchedules, useUpdateContactSchedule } from "@/src/modules/notification/hooks/useContactSchedule"
+import { useFetchContactSchedules } from "@/src/modules/notification/hooks/useContactSchedule"
 import { useFetchFlowStepConfigs } from "@/src/modules/notification/hooks/useFlowStepConfig"
 import { formatCurrency, formatDate, formatDateTime, formatDuration, formatPhone } from "@/src/common/utils/formatters"
 import {
@@ -78,43 +74,7 @@ import { useFetchMessages } from "@/src/modules/notification/hooks/useMessage"
 import { MessagePreview } from "@/src/common/components/messages/MessagePreview"
 import { getDealStageNameById } from "@/src/common/utils/dealStagesMapper"
 import { dealStatusMapper, syncStatusMapper } from "@/src/common/utils/statusMappers"
-
-// Mock data para acordos de cobrança amigável
-const mockDealActivities = [
-  {
-    id: 179,
-    done: true,
-    type: "call",
-    subject: "Chamada",
-    due_date: "2024-10-17",
-    marked_as_done_time: "2024-10-24 13:23:48+00",
-    deal_id: 2264,
-    person_name: "ALEX APARECIDO SODRE AMBROZIO",
-    org_name: "CLINICA ODONTOLOGICA JUIZ DE FORA 2 LTDA",
-  },
-  {
-    id: 13,
-    done: true,
-    type: "task",
-    subject: "PLANILHA",
-    due_date: "2024-09-30",
-    marked_as_done_time: "2024-11-04 19:20:27+00",
-    deal_id: 1477,
-    note: "PLANILHA- contato solicitando feito",
-    org_name: "ALIANÇA ASSISTENCIA ODONTOLOGICA LTDA",
-  },
-  {
-    id: 240,
-    done: true,
-    type: "call",
-    subject: "Chamada",
-    due_date: "2024-10-18",
-    marked_as_done_time: "2024-10-24 19:13:51+00",
-    deal_id: 2484,
-    person_name: "JOVANE DE LIMA SILVA",
-    org_name: "ODONTOLOGIA YANASE, CESTARI & COSIN LTDA",
-  },
-]
+import type { IMessage } from "@/src/modules/notification/interfaces/IMessage"
 
 export default function PatientDetailsPage() {
   // 1. Estado da UI
@@ -149,9 +109,6 @@ export default function PatientDetailsPage() {
     { enabled: messageIds.length > 0 }
   );
 
-  // 4. Mutações (Mutations Layer)
-  const { mutate: updateSchedule } = useUpdateContactSchedule(scheduleParams);
-
   // 5. Dados Derivados e Transformados (Memoized Derived State)
   const installments = useMemo(() => installmentsData?.results ?? [], [installmentsData]);
   const collectionCase = useMemo(() => collectionCaseData?.results?.[0], [collectionCaseData]);
@@ -159,7 +116,7 @@ export default function PatientDetailsPage() {
   const flowSteps = useMemo(() => flowStepsData?.results ?? [], [flowStepsData]);
 
   const messageById = useMemo(() =>
-    Object.fromEntries((messagesData?.results ?? []).map((m: any) => [m.id, m])),
+    Object.fromEntries((messagesData?.results ?? []).map((m: IMessage) => [m.id, m])),
     [messagesData]
   );
   
@@ -757,11 +714,10 @@ export default function PatientDetailsPage() {
                   <div className="relative">
                     {/* Timeline items */}
                     <div className="space-y-8">
-                      {flowSteps.map((step, index) => {
+                      {flowSteps.map((step) => {
                         console.log(currentStep)
                         const isCurrentStep = step.step_number === currentStep
                         const isPastStep = step.step_number < currentStep
-                        const isFutureStep = step.step_number > currentStep
 
                         return (
                           <div key={step.id} className="relative flex items-start gap-4">
@@ -877,14 +833,14 @@ export default function PatientDetailsPage() {
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">Status de Sincronização</p>
                     <div className="flex items-center gap-2">
-                      <Badge variant={collectionCaseDetails?.syncStatus.color as any}>{collectionCaseDetails?.syncStatus.label}</Badge>
+                      <Badge variant={collectionCaseDetails?.syncStatus.color}>{collectionCaseDetails?.syncStatus.label}</Badge>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">Status do Negócio</p>
                     <div className="flex items-center gap-2">
-                      <Badge variant={collectionCaseDetails?.dealStatus.color as any}>{collectionCaseDetails?.dealStatus.label}</Badge>
+                      <Badge variant={collectionCaseDetails?.dealStatus.color}>{collectionCaseDetails?.dealStatus.label}</Badge>
                     </div>
                   </div>
                 </>

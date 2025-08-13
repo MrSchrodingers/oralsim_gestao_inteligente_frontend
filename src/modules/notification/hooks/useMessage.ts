@@ -10,13 +10,15 @@ export interface IMessageSummary {
   email: number;
 }
 
-export const useFetchMessages = (params?: Record<string, any>, p0?: { enabled: boolean; }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+export const useFetchMessages = (params?: Record<string, any>, _p0?: { enabled: boolean; }) => {
   return useQuery({
     queryKey: [MESSAGE_QUERY_KEY, params],
     queryFn: () => messageService.getAll(params).then(res => res.data),
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useMessagesSummary = (params?: Record<string, any>) => {
   return useQuery<IMessageSummary>({
     queryKey: ["message-summary", params],

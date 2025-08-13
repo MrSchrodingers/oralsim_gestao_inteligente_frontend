@@ -13,4 +13,4 @@ export interface IPatientPhoneCreateDTO {
   phone_type?: 'home' | 'mobile' | 'commercial' | 'contact' | null;
 }
 
-export interface IPatientPhoneUpdateDTO extends Partial<IPatientPhoneCreateDTO> {}
+export type IPatientPhoneUpdateDTO = Partial<IPatientPhoneCreateDTO>

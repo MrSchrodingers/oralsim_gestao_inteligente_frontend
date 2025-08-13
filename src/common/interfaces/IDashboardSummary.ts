@@ -17,8 +17,15 @@ export interface ICollectionSummary {
   totalCases: number;
   withPipeboard: number;
   withoutPipeboard: number;
+  overdueInAmicable: number;
+  recoveredCA: number;
+  recoveredCAAmount: number;
+  receivablesWithDebt: number;
   overdueMinDaysPlus: number;
   overduePatients: number;
+  receivablesTotalCount: number;
+  recoveredGR: number;
+  recoveredGRAmount: number;
   preOverduePatients: number;
   noBilling: number;
 }
@@ -49,8 +56,11 @@ export interface IMonthlyReceivable {
     receivable: number;
 }
 
+
 export interface IDashboardSummary {
   stats: IStats;
+  amicable: ICollectionSummary;
+  receivables: ICollectionSummary;
   recentPayments: IPaymentSummary[];
   pendingPayments: IPaymentSummary[];
   notification: INotificationSummary | null;

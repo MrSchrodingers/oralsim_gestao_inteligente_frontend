@@ -3,6 +3,7 @@ import { collectionCaseService } from '@/src/modules/cordialBilling/services/col
 
 const COLLECTION_CASE_QUERY_KEY = 'collectionCases';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchCollectionCases = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [COLLECTION_CASE_QUERY_KEY, params],

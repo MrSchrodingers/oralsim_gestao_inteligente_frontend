@@ -4,6 +4,7 @@ import type { IClinicPhone, IClinicPhoneCreateDTO, IClinicPhoneUpdateDTO } from 
 
 const CLINIC_PHONE_QUERY_KEY = 'clinicPhones';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchClinicPhones = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [CLINIC_PHONE_QUERY_KEY, params],

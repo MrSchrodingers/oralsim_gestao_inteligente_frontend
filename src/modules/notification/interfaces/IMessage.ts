@@ -17,4 +17,4 @@ export interface IMessageCreateDTO {
   is_default?: boolean;
 }
 
-export interface IMessageUpdateDTO extends Partial<IMessageCreateDTO> {}
+export type IMessageUpdateDTO = Partial<IMessageCreateDTO>

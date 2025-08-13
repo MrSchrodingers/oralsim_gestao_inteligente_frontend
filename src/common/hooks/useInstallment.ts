@@ -3,6 +3,7 @@ import { installmentService } from '@/src/common/services/installment.service';
 
 const INSTALLMENT_QUERY_KEY = 'installments';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchInstallments = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [INSTALLMENT_QUERY_KEY, params],

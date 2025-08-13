@@ -25,7 +25,6 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "oralsim-ui-theme",
-  attribute = "class",
   enableSystem = true,
   disableTransitionOnChange = false,
   ...props
@@ -53,6 +52,7 @@ export function ThemeProvider({
 
     if (disableTransitionOnChange) {
       root.classList.add("disable-transitions")
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       window.getComputedStyle(root).opacity
     }
 

@@ -22,4 +22,4 @@ export interface IClinicCreateDTO {
   cnpj?: string | null;
 }
 
-export interface IClinicUpdateDTO extends Partial<IClinicCreateDTO> {}
+export type IClinicUpdateDTO = Partial<IClinicCreateDTO>

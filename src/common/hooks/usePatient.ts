@@ -12,6 +12,7 @@ export interface IPatientsSummary {
   with_notifications: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFetchPatients = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [PATIENT_QUERY_KEY, params],
@@ -20,6 +21,7 @@ export const useFetchPatients = (params?: Record<string, any>) => {
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const usePatientsSummary = (params?: Record<string, any>) => {
   return useQuery<IPatientsSummary>({
     queryKey: ["patients-summary", params],

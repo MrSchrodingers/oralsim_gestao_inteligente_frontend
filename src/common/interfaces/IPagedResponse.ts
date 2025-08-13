@@ -17,5 +17,9 @@ export interface IPagedResponse<T> {
     normal: number
     total_overdue: number
     avg_attempts: number
+    active: number
+    finished: number
+    cancelled: number
+  
   }
 }

@@ -5,6 +5,7 @@ import type { IClinic, IClinicCreateDTO, IClinicSummary, IClinicUpdateDTO } from
 
 const endpoint = "/clinics";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IClinic>>> =>
   apiService.get(endpoint, { params });
 

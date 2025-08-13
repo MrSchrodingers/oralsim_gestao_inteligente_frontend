@@ -6,7 +6,6 @@ import {
   PhoneCall,
   MoreHorizontal,
   User,
-  FileText,
   DollarSign,
   AlertCircle,
   ChevronLeft,
@@ -74,7 +73,8 @@ export default function PendingCallsPage() {
   const isInitialLoading = isLoadingCalls || isLoadingSummary
   const isRefetching = !isLoadingCalls && isFetchingCalls
   const hasError = isErrorCalls || isErrorSummary
-  const pendingCalls = pendingCallsData?.results ?? []
+  const pendingCalls = useMemo(() => pendingCallsData?.results ?? [], [pendingCallsData])
+
   const contractsIds = pendingCalls.map(call => call.contract.id) ?? []
   const { data: installmentsData } = useFetchInstallments(contractsIds.length > 0 ? { contract_id: contractsIds.join(",") } : undefined)
   const installments = installmentsData?.results ?? []
@@ -135,6 +135,7 @@ export default function PendingCallsPage() {
         title: "Ligação registrada",
         description: success ? "Concluída com sucesso" : "Tentativa registrada",
       })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Erro",

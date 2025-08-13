@@ -13,10 +13,8 @@ import {
   Loader2,
   Search,
   Eye,
-  Edit,
   Mail,
   Phone,
-  RefreshCcw,
   RefreshCw,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -51,7 +49,7 @@ import {
   SelectValue,
 } from "@/src/common/components/ui/select"
 import { Input } from "@/src/common/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,7 +65,7 @@ import { useToast } from "@/src/common/components/ui/use-toast"
 import { getActiveStatusBadge, getRoleBadge } from "@/src/common/components/helpers/GetBadge"
 import { formatDate } from "@/src/common/utils/formatters"
 import type { IUser, IUserFullData } from "@/src/common/interfaces/IUser"
-import { useFetchUsers, useFetchUsersData, useUpdateUser } from "@/src/common/hooks/useUser"
+import { useFetchUsersData, useUpdateUser } from "@/src/common/hooks/useUser"
 
 export default function UsersPage() {
   const router = useRouter()
@@ -105,8 +103,8 @@ export default function UsersPage() {
     isFetching,
     refetch
   } = useFetchUsersData(queryParams)
-
-  const users = usersPage?.results ?? []
+  
+  const users = useMemo(() => usersPage?.results ?? [], [usersPage])
   const totalItems = usersPage?.total_items ?? 0
   const totalPages = Math.ceil(totalItems / pageSize)
 
@@ -463,7 +461,7 @@ function RowActions({ user, onToggleStatus, loading }: RowActionsProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>{user.is_active ? "Desativar" : "Ativar"} Usuário</AlertDialogTitle>
               <AlertDialogDescription>
-                Tem certeza que deseja {user.is_active ? "desativar" : "ativar"} o usuário "{user.name}"?{" "}
+                Tem certeza que deseja {user.is_active ? "desativar" : "ativar"} o usuário &quot;{user.name}&quot;?{" "}
                 {user.is_active
                   ? "Ele não poderá mais acessar o sistema."
                   : "Ele poderá acessar o sistema novamente."}

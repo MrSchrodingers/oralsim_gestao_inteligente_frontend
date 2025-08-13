@@ -48,6 +48,7 @@ export function formatDateTime(dateString?: string | null): string {
 
   try {
     return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return dateString;
   }

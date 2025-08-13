@@ -6,11 +6,9 @@ import { cn } from "@/src/common/lib/utils"
 interface CombinedLogoProps {
   className?: string
   variant?: "default" | "compact" | "stacked"
-  showText?: boolean
-  darkMode?: boolean
 }
 
-export function CombinedLogo({ className, showText = true, darkMode = false }: CombinedLogoProps) {
+export function CombinedLogo({ className }: CombinedLogoProps) {
   const logoVariants = {
     hidden: { opacity: 0 },
     visible: {

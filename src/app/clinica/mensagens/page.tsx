@@ -43,6 +43,7 @@ export default function MessagesPage() {
   const [pageSize, setPageSize] = useState<number>(5)
 
   const queryParams = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const p: Record<string, any> = { page, page_size: pageSize }
     if (typeFilter !== "all") p.type = typeFilter
     if (stepFilter !== "all") p.step = Number(stepFilter)
@@ -60,7 +61,7 @@ export default function MessagesPage() {
   const copyMessage = (content: string) => navigator.clipboard.writeText(content)
 
   const handleTypeChange = (value: string) => {
-    setTypeFilter(value as any)
+    setTypeFilter(value as "all" | "whatsapp" | "sms" | "email" | "phonecall")
     setPage(1)
   }
   const handleStepChange = (value: string) => {

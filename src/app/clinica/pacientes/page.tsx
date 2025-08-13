@@ -245,7 +245,7 @@ export default function PatientsPage() {
 
   useEffect(() => {
     if (flowFilter === "notification_billing" && uniqueCount < pageSize) {
-      const idx = PAGE_SIZES.indexOf(pageSize as any)
+      const idx = PAGE_SIZES.indexOf(pageSize as (typeof PAGE_SIZES)[number])
       if (idx !== -1 && idx < PAGE_SIZES.length - 1) {
         setPageSize(PAGE_SIZES[idx + 1])
       }

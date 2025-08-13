@@ -9,6 +9,7 @@ const authEndpoint = "/auth";
 const registrationEndpoint = "/registration-requests"; 
 const userDataEndpoint = "/users-data";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IUser>>> =>
   apiService.get(endpoint, { params });
 
@@ -39,6 +40,7 @@ const requestPasswordReset = (data: ILoginRequest): Promise<AxiosResponse<ILogin
 const requestRegistration = (data: IRegistrationRequestCreateDTO): Promise<AxiosResponse<{ message: string }>> =>
   apiService.post(registrationEndpoint, data);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getUserData = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IUserFullData>>> =>
   apiService.get(userDataEndpoint, { params });
 

@@ -9,20 +9,15 @@ import {
   Users,
   Settings,
   Menu,
-  BarChart3,
   LogOut,
-  MessageSquare,
-  Bell,
   Package,
   X,
   ChevronLeft,
   ChevronRight,
-  Phone,
   ListTodo,
-  MonitorCog,
   DollarSign,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/common/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/src/common/components/ui/avatar"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   DropdownMenu,

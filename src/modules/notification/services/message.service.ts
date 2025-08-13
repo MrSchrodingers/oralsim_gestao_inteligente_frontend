@@ -5,6 +5,7 @@ import type { IPagedResponse } from "@/src/common/interfaces/IPagedResponse";
 
 const endpoint = "/messages";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAll = (params?: Record<string, any>): Promise<AxiosResponse<IPagedResponse<IMessage>>> =>
   apiService.get(endpoint, { params });
 
