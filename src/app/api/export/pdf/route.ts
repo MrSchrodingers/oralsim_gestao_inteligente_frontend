@@ -31,7 +31,7 @@ function parseCookieHeader(header: string, url: URL): Cookie[] {
 }
 
 export async function POST(req: Request) {
-  const { url: targetUrl, storage, width = 1440, dpr = 2, delay = 1000 } = await req.json();
+  const { url: targetUrl, storage, width = 1440, dpr = 2 } = await req.json();
   if (!targetUrl) return new Response("URL não fornecida", { status: 400 });
 
   const url = new URL(targetUrl);
@@ -88,8 +88,14 @@ export async function POST(req: Request) {
     
     // Espera adicional para garantir que todos os elementos e dados tenham sido renderizados
     // Isso é especialmente útil para dados que chegam via requisições assíncronas.
-    if (delay > 0) {
-      await page.waitForTimeout(delay);
+    try {
+      const exportRoot = await page.waitForSelector("#export-root", { state: 'visible', timeout: 5000 });
+      if (exportRoot) {
+        await exportRoot.waitForSelector('h1', { state: 'visible', timeout: 120000 });
+      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch(e) {
+      throw new Error("A página do dashboard não carregou o conteúdo principal a tempo.");
     }
     
     // Espera que o elemento principal da página tenha uma altura mínima para evitar capturas de páginas em branco.
@@ -117,7 +123,7 @@ export async function POST(req: Request) {
       // @ts-expect-error
       window.__lastHeight = currentHeight;
       return currentHeight <= lastHeight; // Retorna true quando a altura para de crescer ou diminui
-    }, el, { timeout: 10000 }).catch(() => {
+    }, el, { timeout: 60000  }).catch(() => {
       // O timeout aqui é um limite de segurança
       console.warn("Timeout esperando o conteúdo estabilizar.");
     });
