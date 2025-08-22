@@ -104,7 +104,7 @@ export default function NotFound() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7, duration: 0.5 }}
       >
-        © {new Date().getFullYear()} Oralsim - Sistema de Gestão Inteligente
+        © {new Date().getFullYear()} OralSin - Sistema de Gestão Inteligente
       </motion.div>
     </div>
   )

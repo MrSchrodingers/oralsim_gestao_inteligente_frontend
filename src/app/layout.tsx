@@ -17,10 +17,10 @@ const fontSans = FontSans({
 
 export const metadata: Metadata = {
   title: {
-    default: "OralSim Gestão",
-    template: "%s | OralSim Gestão",
+    default: "OralSin Gestão",
+    template: "%s | OralSin Gestão",
   },
-  description: "Plataforma inteligente para gestão de recebíveis da OralSim.",
+  description: "Plataforma inteligente para gestão de recebíveis da OralSin.",
   icons: {
     icon: "/favicon.ico",
   },
