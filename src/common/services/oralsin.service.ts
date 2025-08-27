@@ -2,7 +2,7 @@ import axios, { type AxiosResponse } from "axios";
 import type { IOralsinPagedResponse } from "../interfaces/IOralsin";
 
 const oralsinApi = axios.create({
-  baseURL: "https://hmldh.oralsin.com.br/api/v2",
+  baseURL: process.env.NEXT_PUBLIC_API_URL_ORALSIN,
 });
 
 const searchClinics = (
@@ -11,7 +11,7 @@ const searchClinics = (
   return oralsinApi.get("/clinica", {
     params: {
       search,
-      api_token: "ae48ba16-92b2-4f59-b0b5-d43cc998a30d",
+      api_token: process.env.NEXT_PUBLIC_API_TOKEN_ORALSIN,
     },
   });
 };
@@ -20,7 +20,7 @@ const getClinicById = (
   id: number
 ): Promise<AxiosResponse<IOralsinPagedResponse>> => {
   return oralsinApi.get(`/clinica/${id}`, {
-    params: { api_token: "ae48ba16-92b2-4f59-b0b5-d43cc998a30d" },
+    params: { api_token: process.env.NEXT_PUBLIC_API_TOKEN_ORALSIN },
   });
 };
 
