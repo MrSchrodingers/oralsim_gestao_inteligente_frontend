@@ -473,6 +473,7 @@ export default function PatientsPage() {
                   <TableBody>
                     {patientsWithFlow.map((patient, idx) => {
                       const count = channelsMap[patient.id] || 0
+                      const contactPhone = patient.phones?.length > 0 ? patient.phones.find(phone => phone.phone_type === "mobile") : null
                       // se for repetido, só renderiza na primeira vez
                       if (count > 1) {
                         const firstIdx = patientsWithFlow.findIndex((p) => p.id === patient.id)
@@ -503,10 +504,10 @@ export default function PatientsPage() {
                                 <Mail className="h-4 w-4 text-muted-foreground" />
                                 <span className="truncate max-w-[200px]">{patient.email || "N/A"}</span>
                               </div>
-                              {patient.phones?.length > 0 && (
+                              {contactPhone && (
                                 <div className="flex items-center gap-2 text-sm">
                                   <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <span>{formatPhone(patient.phones[0].phone_number)}</span>
+                                  <span>{formatPhone(contactPhone.phone_number)}</span>
                                 </div>
                               )}
                               {patient.address && (
