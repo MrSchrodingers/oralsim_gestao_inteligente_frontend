@@ -473,7 +473,7 @@ export default function PatientsPage() {
                   <TableBody>
                     {patientsWithFlow.map((patient, idx) => {
                       const count = channelsMap[patient.id] || 0
-                      const contactPhone = patient.phones?.length > 0 ? patient.phones.find(phone => phone.phone_type === "mobile") : null
+                      const contactPhone = patient.phones?.length > 0 ? patient.phones.find(phone => phone.phone_type === "mobile") : patient.phones?.[0]
                       // se for repetido, só renderiza na primeira vez
                       if (count > 1) {
                         const firstIdx = patientsWithFlow.findIndex((p) => p.id === patient.id)
