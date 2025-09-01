@@ -6,8 +6,8 @@ import type React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
-import { Loader2, Eye, EyeOff, CheckCircle, Shield, Clock, ArrowLeft} from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Loader2, Eye, EyeOff, CheckCircle, Shield, Clock, ArrowLeft } from "lucide-react"
 import { Button } from "@/src/common/components/ui/button"
 import { Input } from "@/src/common/components/ui/input"
 import { Label } from "@/src/common/components/ui/label"
@@ -24,11 +24,33 @@ type Props = {
   mode?: "signin" | "signup"
 }
 
-/**
- * LoginForm Component
- * Gerencia tanto o login quanto o cadastro de forma centralizada.
- * A lógica de estado assíncrono (loading, error) é gerenciada pelos hooks.
- */
+// utils simples
+const onlyDigits = (s: string) => s.replace(/\D+/g, "")
+const clamp = (s: string, max: number) => (s.length > max ? s.slice(0, max) : s)
+
+/** Formata número BR local (sem 55) em exibição humana */
+function formatBrLocalPhone(local: string): string {
+  // local = AA + número (10 ou 11 no total)
+  const v = onlyDigits(local)
+  if (v.length <= 2) return v // DDD
+  const ddd = v.slice(0, 2)
+  const rest = v.slice(2)
+
+  if (rest.length <= 4) return `(${ddd}) ${rest}`
+  if (rest.length <= 8) return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`
+
+  // 10 ou 11 dígitos
+  if (rest.length === 9) {
+    // celular (9 dígitos)
+    return `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`
+  }
+  // rest.length >= 10 (garantimos no clamp)
+  // quando 10: fixo (4+4)
+  // quando 11: celular (5+4)
+  if (rest.length === 10) return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`
+  return `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`
+}
+
 export default function LoginForm({ mode = "signin" }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -44,31 +66,34 @@ export default function LoginForm({ mode = "signin" }: Props) {
   const [clinicSearch, setClinicSearch] = useState("")
   const [cordialBillingConfig, setCordialBillingConfig] = useState<number>(90)
 
+  // Novo estado: telefone (armazenamos somente números SEM o 55; adicionamos o 55 no submit)
+  const [contactPhoneLocal, setContactPhoneLocal] = useState("") // ex.: "11998765432" (DDD+numero, sem 55)
+  const contactPhoneDisplay = useMemo(() => formatBrLocalPhone(clamp(contactPhoneLocal, 11)), [contactPhoneLocal])
+
   const { data: oralsinClinics, isLoading: isLoadingClinics } = useSearchOralsinClinics(clinicSearch)
 
   const redirect = searchParams.get("redirect") || "/clinica/dashboard"
 
-  // Hooks de mutação do TanStack Query
+  // Hooks de mutação
   const loginMutation = useLogin()
   const registrationMutation = useCreateRegistrationRequest()
-  const { refetch } = useCurrentUser();
+  const { refetch } = useCurrentUser()
 
   const handleLoginSuccess = async () => {
     toast({
       title: "Login bem-sucedido!",
       description: `Bem-vindo(a) de volta.`,
-    });
+    })
 
-    const { data: user } = await refetch(); 
+    const { data: user } = await refetch()
+    const targetPath = user?.role === "admin" ? "/admin/pendentes" : "/clinica/dashboard"
+    router.push(targetPath)
+    router.refresh()
+  }
 
-    const targetPath = user?.role === "admin" ? "/admin/pendentes" : "/clinica/dashboard";
-    router.push(targetPath);
-    router.refresh();
-  };
-
-  useEffect(() => { 
+  useEffect(() => {
     const loginError = loginMutation.error as any
-    const registrationError = registrationMutation.error as any // Observar erro da nova mutação
+    const registrationError = registrationMutation.error as any
 
     if (loginError || registrationError) {
       const errorMessage =
@@ -89,20 +114,32 @@ export default function LoginForm({ mode = "signin" }: Props) {
     if (mode === "signin") {
       loginMutation.mutate(
         { email, password },
-        {
-          onSuccess: handleLoginSuccess,
-        },
+        { onSuccess: handleLoginSuccess },
       )
     } else {
+      // Monta o telefone apenas com dígitos, incluindo 55
+      const localDigits = clamp(onlyDigits(contactPhoneLocal), 11) // DDD + número
+      const digitsWith55 = `55${localDigits}`
+
+      // validação rápida (55 + 10~11 dígitos => 12~13 no total)
+      if (digitsWith55.length < 12 || digitsWith55.length > 13) {
+        toast({
+          title: "Telefone inválido",
+          description: "Informe DDD + número (10 ou 11 dígitos).",
+          variant: "destructive",
+        })
+        return
+      }
+
       const registrationData: IRegistrationRequestCreateDTO = {
         email,
         password,
         name,
         clinic_name: clinicName,
         cordial_billing_config: cordialBillingConfig,
+        contact_phone: digitsWith55,
       }
 
-      // Chamar a nova mutação
       registrationMutation.mutate(registrationData, {
         onSuccess: () => {
           toast({
@@ -222,11 +259,7 @@ export default function LoginForm({ mode = "signin" }: Props) {
                       className="absolute right-0 top-0 h-11 px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
                     </Button>
                   </div>
                   {mode === "signup" && (
@@ -254,8 +287,39 @@ export default function LoginForm({ mode = "signin" }: Props) {
                       />
                     </div>
 
+                    {/* Telefone de contato */}
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <Label htmlFor="contact_phone" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Telefone de Contato
+                      </Label>
+                      <div className="relative">
+                        {/* prefixo +55 com bandeira */}
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pr-2 pointer-events-none">
+                          <span className="mr-1">🇧🇷</span>
+                          <span className="text-gray-600 dark:text-gray-300 text-sm font-medium select-none">+55</span>
+                        </div>
+                        <Input
+                          id="contact_phone"
+                          type="tel"
+                          inputMode="numeric"
+                          placeholder="(11) 91234-5678"
+                          value={contactPhoneDisplay}
+                          onChange={(e) => {
+                            const digits = onlyDigits(e.target.value)
+                            // removemos qualquer 55 que a pessoa digite manualmente
+                            const no55 = digits.startsWith("55") ? digits.slice(2) : digits
+                            setContactPhoneLocal(clamp(no55, 11))
+                          }}
+                          className="h-11 text-base pl-20" /* espaço pro prefixo */
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Inclua DDD. Salvaremos apenas números com o código do país (ex.: 5511998765432).
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cordialBillingConfig" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Período mínimo para Cobrança Amigável
                       </Label>
                       <Input
@@ -290,41 +354,40 @@ export default function LoginForm({ mode = "signin" }: Props) {
 
                     {role === "clinic" && (
                       <div className="space-y-2">
-                      <Label htmlFor="clinic_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Nome da Clínica
-                      </Label>
-                      <Input
-                        id="clinic_search"
-                        type="text"
-                        placeholder="Digite para buscar sua clínica..."
-                        value={clinicSearch}
-                        onChange={(e) => setClinicSearch(e.target.value)}
-
-                        className="h-11 text-base"
-                      />
-                      <Select
-                        value={clinicName}
-                        onValueChange={setClinicName}
-                        disabled={isLoadingClinics || !oralsinClinics?.data}
-                      >
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Selecione sua clínica" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {isLoadingClinics ? (
-                            <div className="flex items-center justify-center p-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          ) : (
-                            oralsinClinics?.data.map((clinic) => (
-                              <SelectItem key={clinic.idClinica} value={clinic.nomeClinica}>
-                                {clinic.nomeClinica}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        <Label htmlFor="clinic_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Nome da Clínica
+                        </Label>
+                        <Input
+                          id="clinic_search"
+                          type="text"
+                          placeholder="Digite para buscar sua clínica..."
+                          value={clinicSearch}
+                          onChange={(e) => setClinicSearch(e.target.value)}
+                          className="h-11 text-base"
+                        />
+                        <Select
+                          value={clinicName}
+                          onValueChange={setClinicName}
+                          disabled={isLoadingClinics || !oralsinClinics?.data}
+                        >
+                          <SelectTrigger className="h-11">
+                            <SelectValue placeholder="Selecione sua clínica" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {isLoadingClinics ? (
+                              <div className="flex items-center justify-center p-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            ) : (
+                              oralsinClinics?.data.map((clinic) => (
+                                <SelectItem key={clinic.idClinica} value={clinic.nomeClinica}>
+                                  {clinic.nomeClinica}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     )}
                   </>
                 )}
@@ -384,9 +447,7 @@ export default function LoginForm({ mode = "signin" }: Props) {
 
       {/* Lado direito - Informações e benefícios */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-emerald-600 to-teal-700 relative overflow-hidden">
-        {/* Padrão de fundo */}
         <div className="absolute inset-0 opacity-10" />
-
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16 text-white">
           <div className="max-w-md">
             <h2 className="text-4xl font-bold mb-6">
@@ -399,38 +460,27 @@ export default function LoginForm({ mode = "signin" }: Props) {
             </p>
 
             <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-5 w-5" />
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">
+                      {i === 0 ? "Automação Inteligente" : i === 1 ? "Dashboards em Tempo Real" : "Implementação Rápida"}
+                    </h3>
+                    <p className="text-emerald-100 text-sm">
+                      {i === 0
+                        ? "Notificações automáticas por e-mail, SMS e WhatsApp"
+                        : i === 1
+                        ? "Métricas completas de inadimplência e projeções"
+                        : "Sistema funcionando em 24 horas com suporte completo"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Automação Inteligente</h3>
-                  <p className="text-emerald-100 text-sm">Notificações automáticas por e-mail, SMS e WhatsApp</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Dashboards em Tempo Real</h3>
-                  <p className="text-emerald-100 text-sm">Métricas completas de inadimplência e projeções</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Implementação Rápida</h3>
-                  <p className="text-emerald-100 text-sm">Sistema funcionando em 24 horas com suporte completo</p>
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Estatísticas */}
             <div className="mt-12">
               <div className="text-center">
                 <div className="text-3xl font-bold">24h</div>
@@ -440,7 +490,6 @@ export default function LoginForm({ mode = "signin" }: Props) {
           </div>
         </div>
 
-        {/* Elementos decorativos */}
         <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl" />
         <div className="absolute bottom-20 right-32 w-24 h-24 bg-white/10 rounded-full blur-xl" />
       </div>

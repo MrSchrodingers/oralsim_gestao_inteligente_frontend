@@ -44,4 +44,5 @@ export interface IRegistrationRequestCreateDTO {
   name: string;
   clinic_name: string;
   cordial_billing_config: number;
+  contact_phone: string;
 }
