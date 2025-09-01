@@ -48,6 +48,25 @@ import type { MouseEvent as ReactMouseEvent } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/src/common/components/ui/use-toast"
 
+type PatientPhone = { phone_number: string; phone_type?: string | null }
+type HasPhones = { phones?: PatientPhone[] }
+
+const pickBestPhone = (phones?: PatientPhone[]) => {
+  if (!phones?.length) return undefined
+  const mobile = phones.find(
+    (p) =>
+      (p.phone_type || "").toLowerCase() === "mobile" &&
+      (p.phone_number || "").trim()
+  )
+  if (mobile) return mobile
+  return phones.find((p) => (p.phone_number || "").trim())
+}
+
+const getBestPhoneNumber = (patient: HasPhones) =>
+  pickBestPhone(patient?.phones)?.phone_number || ""
+
+const onlyDigits = (v: string) => v.replace(/\D/g, "")
+
 const formatDate = (dateStr: string) => {
   if (!dateStr) return "N/A"
   return new Intl.DateTimeFormat("pt-BR", {
@@ -147,33 +166,40 @@ export default function PatientsPage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
 
   const handleCopyPhone = (phoneNumber: string) => {
-    navigator.clipboard.writeText(phoneNumber.replace(/\D/g, ""))
+    const digits = onlyDigits(phoneNumber || "")
+    if (!digits) return
+    navigator.clipboard.writeText(digits)
     toast({
       title: "Número copiado para área de transferência",
-      description: formatPhone(phoneNumber),
+      description: formatPhone(digits),
     })
   }
 
   const handleNavigation =
-    (action: "detail" | "edit" | "call" | "email" | "remove", id: string) => (e: ReactMouseEvent<HTMLDivElement>) => {
-      e.preventDefault()
-      switch (action) {
-        case "detail":
-          router.push(`/clinica/pacientes/${id}`)
-          break
-        case "edit":
-          router.push(`/clinica/pacientes/${id}/editar`)
-          break
-        case "call":
-          window.location.href = `tel:${patientsWithFlow.find((p) => p.id === id)?.phones?.[0].phone_number}`
-          break
-        case "email":
-          window.location.href = `mailto:${patientsWithFlow.find((p) => p.id === id)?.email}`
-          break
-        default:
-          break
+    (action: "detail" | "edit" | "call" | "email" | "remove", id: string) =>
+      (e: ReactMouseEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        const p = patientsWithFlow.find((pp) => pp.id === id)
+
+        switch (action) {
+          case "detail":
+            router.push(`/clinica/pacientes/${id}`)
+            break
+          case "edit":
+            router.push(`/clinica/pacientes/${id}/editar`)
+            break
+          case "call": {
+            const best = getBestPhoneNumber(p || {})
+            if (best) window.location.href = `tel:${onlyDigits(best)}`
+            break
+          }
+          case "email":
+            window.location.href = `mailto:${p?.email || ""}`
+            break
+          default:
+            break
+        }
       }
-    }
 
   useEffect(() => {
     setPage(1)
@@ -473,7 +499,7 @@ export default function PatientsPage() {
                   <TableBody>
                     {patientsWithFlow.map((patient, idx) => {
                       const count = channelsMap[patient.id] || 0
-                      const contactPhone = patient.phones?.length > 0 ? patient.phones.find(phone => phone.phone_type === "mobile") : patient.phones?.[0]
+                      const contactPhone = pickBestPhone(patient.phones)
                       // se for repetido, só renderiza na primeira vez
                       if (count > 1) {
                         const firstIdx = patientsWithFlow.findIndex((p) => p.id === patient.id)
@@ -561,7 +587,7 @@ export default function PatientsPage() {
                                   <Eye className="h-4 w-4 mr-2" />
                                   Ver Detalhes
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleCopyPhone(patient.phones[0].phone_number)}>
+                                <DropdownMenuItem onClick={() => handleCopyPhone(getBestPhoneNumber(patient))}>
                                   <Phone className="h-4 w-4 mr-2" />
                                   Ligar Agora
                                 </DropdownMenuItem>
